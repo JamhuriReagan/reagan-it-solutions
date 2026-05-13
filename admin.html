@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Reagan's IT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        /* Light Mode */
+        body.light-mode {
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        body.light-mode .navbar {
+            background: #0f2b3d;
+        }
+
+        body.light-mode .section {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        body.light-mode .stat-card {
+            background: white;
+        }
+
+        body.light-mode table {
+            background: white;
+        }
+
+        body.light-mode th {
+            background: #0f2b3d;
+        }
+
+        body.light-mode .profile-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        body.dark-mode .navbar {
+            background: #16213e;
+        }
+
+        body.dark-mode .section {
+            background: #1e1e2e;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .stat-card {
+            background: #1e1e2e;
+            color: #eee;
+        }
+
+        body.dark-mode table {
+            background: #1e1e2e;
+            color: #eee;
+        }
+
+        body.dark-mode th {
+            background: #0f2b3d;
+        }
+
+        body.dark-mode td {
+            border-bottom-color: #444;
+        }
+
+        body.dark-mode .modal-content {
+            background: #1e1e2e;
+            color: white;
+        }
+
+        body.dark-mode .modal-content input {
+            background: #2d2d3a;
+            border-color: #444;
+            color: white;
+        }
+
+        body.dark-mode .profile-card {
+            background: linear-gradient(135deg, #2d2d3a, #1e1e2e);
+            border: 1px solid #f97316;
+        }
+
+        .navbar {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #f97316;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            color: white;
+            margin-right: 1rem;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 5%;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #f97316;
+        }
+
+        .section {
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .section h2 {
+            color: #f97316;
+            margin-bottom: 1rem;
+        }
+
+        /* Profile Card */
+        .profile-card {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-info p {
+            margin: 0.5rem 0;
+        }
+
+        .profile-label {
+            font-weight: bold;
+            color: #0f2b3d;
+        }
+
+        body.dark-mode .profile-label {
+            color: #f97316;
+        }
+
+        .profile-value {
+            color: #333;
+        }
+
+        body.dark-mode .profile-value {
+            color: #ddd;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e8620d;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #0f2b3d;
+            color: white;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal-content input, .modal-content select {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <nav class="navbar">
+        <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
+        <div>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Admin Profile Card -->
+        <div class="profile-card" id="profileCard">
+            <div class="profile-info">
+                <p><span class="profile-label">👤 Admin Name:</span> <span class="profile-value" id="adminName"></span></p>
+                <p><span class="profile-label">📧 Email:</span> <span class="profile-value" id="adminEmail"></span></p>
+                <p><span class="profile-label">📱 Phone:</span> <span class="profile-value" id="adminPhone"></span></p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="showEditProfileModal()">✏️ Edit Profile</button>
+                <button class="btn btn-warning" onclick="showChangePasswordModal()">🔑 Change Password</button>
+            </div>
+        </div>
+
+        <div class="stats" id="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="totalServices">0</div>
+                <div>Total Services</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalRequests">0</div>
+                <div>Total Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="pendingRequests">0</div>
+                <div>Pending Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalUsers">0</div>
+                <div>Total Users</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                <h2>🛠️ Manage Services & Prices</h2>
+                <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add New Service</button>
+            </div>
+            <table id="servicesTable">
+                <thead>
+                    <tr><th>ID</th><th>Icon</th><th>Service Name</th><th>Price (KES)</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="servicesTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>📋 All User Requests</h2>
+            <table id="requestsTable">
+                <thead>
+                    <tr><th>ID</th><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr>
+                </thead>
+                <tbody id="requestsTableBody"></tbody>
+            </table>
+        </div>
+
+        <div class="section">
+            <h2>👥 Registered Users</h2>
+            <table id="usersTable">
+                <thead>
+                    <tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr>
+                </thead>
+                <tbody id="usersTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <h2>✏️ Edit Admin Profile</h2>
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" id="editName" placeholder="Full Name">
+            </div>
+            <div class="form-group">
+                <label>Email Address</label>
+                <input type="email" id="editEmail" placeholder="Email">
+            </div>
+            <div class="form-group">
+                <label>Phone Number</label>
+                <input type="text" id="editPhone" placeholder="Phone Number">
+            </div>
+            <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
+            <button class="btn btn-danger" onclick="closeEditProfileModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>🔑 Change Password</h2>
+            <div class="form-group">
+                <label>Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password">
+            </div>
+            <div class="form-group">
+                <label>New Password</label>
+                <input type="password" id="newPassword" placeholder="Enter new password">
+            </div>
+            <div class="form-group">
+                <label>Confirm New Password</label>
+                <input type="password" id="confirmPassword" placeholder="Confirm new password">
+            </div>
+            <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+            <button class="btn btn-danger" onclick="closeChangePasswordModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Add/Edit Service Modal -->
+    <div id="serviceModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add New Service</h2>
+            <div class="form-group">
+                <label>Service Icon (emoji)</label>
+                <input type="text" id="serviceIcon" placeholder="e.g., 📄">
+            </div>
+            <div class="form-group">
+                <label>Service Name</label>
+                <input type="text" id="serviceName" placeholder="e.g., CV Writing">
+            </div>
+            <div class="form-group">
+                <label>Price (KES)</label>
+                <input type="number" id="servicePrice" placeholder="e.g., 500">
+            </div>
+            <input type="hidden" id="serviceId">
+            <button class="btn btn-primary" onclick="saveService()">Save Service</button>
+            <button class="btn btn-danger" onclick="closeServiceModal()">Cancel</button>
+        </div>
+    </div>
+
+    <script>
+        // Get current admin data
+        function getCurrentAdmin() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            return users.find(u => u.role === 'admin');
+        }
+
+        // Update admin display
+        function updateAdminDisplay() {
+            const admin = getCurrentAdmin();
+            if (admin) {
+                document.getElementById('adminName').innerText = admin.name;
+                document.getElementById('adminEmail').innerText = admin.email;
+                document.getElementById('adminPhone').innerText = admin.phone || 'Not set';
+            }
+        }
+
+        // Show Edit Profile Modal
+        function showEditProfileModal() {
+            const admin = getCurrentAdmin();
+            if (admin) {
+                document.getElementById('editName').value = admin.name;
+                document.getElementById('editEmail').value = admin.email;
+                document.getElementById('editPhone').value = admin.phone || '';
+                document.getElementById('editProfileModal').style.display = 'flex';
+            }
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        // Update Profile
+        function updateProfile() {
+            const newName = document.getElementById('editName').value;
+            const newEmail = document.getElementById('editEmail').value;
+            const newPhone = document.getElementById('editPhone').value;
+
+            if (!newName || !newEmail) {
+                alert('Name and Email are required!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const adminIndex = users.findIndex(u => u.role === 'admin');
+            
+            if (adminIndex !== -1) {
+                // Check if email already exists for another user
+                const emailExists = users.some(u => u.email === newEmail && u.role !== 'admin');
+                if (emailExists) {
+                    alert('This email is already used by another user!');
+                    return;
+                }
+
+                users[adminIndex].name = newName;
+                users[adminIndex].email = newEmail;
+                users[adminIndex].phone = newPhone;
+                localStorage.setItem('users', JSON.stringify(users));
+
+                // Update current session if logged in admin
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser && currentUser.role === 'admin') {
+                    currentUser.name = newName;
+                    currentUser.email = newEmail;
+                    currentUser.phone = newPhone;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+
+                alert('Profile updated successfully!');
+                closeEditProfileModal();
+                updateAdminDisplay();
+                loadUsers(); // Refresh users table
+            }
+        }
+
+        // Show Change Password Modal
+        function showChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        // Change Password
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Please fill all fields!');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                alert('New password must be at least 4 characters!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const adminIndex = users.findIndex(u => u.role === 'admin');
+            
+            if (adminIndex !== -1) {
+                if (users[adminIndex].password !== currentPassword) {
+                    alert('Current password is incorrect!');
+                    return;
+                }
+
+                users[adminIndex].password = newPassword;
+                localStorage.setItem('users', JSON.stringify(users));
+
+                // Update current session
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser && currentUser.role === 'admin') {
+                    currentUser.password = newPassword;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+
+                alert('Password changed successfully! Please login again.');
+                closeChangePasswordModal();
+                logout();
+            }
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                if (themeToggle) themeToggle.textContent = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                if (themeToggle) themeToggle.textContent = '🌙';
+            }
+        }
+
+        function checkAdmin() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = 'index.html';
+                return null;
+            }
+            const userData = JSON.parse(user);
+            if (userData.role !== 'admin') {
+                window.location.href = 'dashboard.html';
+                return null;
+            }
+            return userData;
+        }
+
+        const admin = checkAdmin();
+
+        function loadStats() {
+            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            
+            document.getElementById('totalServices').innerText = services.length;
+            document.getElementById('totalRequests').innerText = requests.length;
+            document.getElementById('pendingRequests').innerText = requests.filter(r => r.status === 'pending').length;
+            document.getElementById('totalUsers').innerText = users.filter(u => u.role === 'user').length;
+        }
+
+        function loadServices() {
+            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const tbody = document.getElementById('servicesTableBody');
+            tbody.innerHTML = services.map(service => `
+                <tr>
+                    <td>${service.id}</td>
+                    <td>${service.icon}</td>
+                    <td>${service.name}</td>
+                    <td>KES ${service.price.toLocaleString()}</td>
+                    <td>
+                        <button class="btn btn-warning" onclick="editService(${service.id})">Edit</button>
+                        <button class="btn btn-danger" onclick="deleteService(${service.id})">Delete</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function loadRequests() {
+            const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            const tbody = document.getElementById('requestsTableBody');
+            tbody.innerHTML = requests.map(req => `
+                <tr>
+                    <td>${req.id}</td>
+                    <td>${req.userName}<br><small>${req.userId}</small></td>
+                    <td>${req.serviceName}</td>
+                    <td>KES ${req.price.toLocaleString()}</td>
+                    <td>
+                        <select onchange="updateStatus(${req.id}, this.value)" style="padding: 5px; border-radius: 10px;">
+                            <option value="pending" ${req.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="approved" ${req.status === 'approved' ? 'selected' : ''}>Approved</option>
+                            <option value="completed" ${req.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                    </td>
+                    <td>${req.date}</td>
+                    <td>
+                        <button class="btn btn-danger" onclick="deleteRequest(${req.id})">Delete</button>
+                    </td>
+                </table>
+            `).join('');
+        }
+
+        function loadUsers() {
+            const users = JSON.parse(localStorage.getItem('users') || '[]');
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = users.map(user => `
+                <tr>
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td><span style="background: ${user.role === 'admin' ? '#f97316' : '#10b981'}; color: white; padding: 3px 10px; border-radius: 20px;">${user.role}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function updateStatus(requestId, newStatus) {
+            let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            requests = requests.map(req => {
+                if (req.id === requestId) {
+                    req.status = newStatus;
+                }
+                return req;
+            });
+            localStorage.setItem('requests', JSON.stringify(requests));
+            loadRequests();
+            loadStats();
+        }
+
+        function deleteRequest(requestId) {
+            if (confirm('Delete this request?')) {
+                let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+                requests = requests.filter(req => req.id !== requestId);
+                localStorage.setItem('requests', JSON.stringify(requests));
+                loadRequests();
+                loadStats();
+            }
+        }
+
+        function showAddServiceModal() {
+            document.getElementById('modalTitle').innerText = 'Add New Service';
+            document.getElementById('serviceId').value = '';
+            document.getElementById('serviceIcon').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('serviceModal').style.display = 'flex';
+        }
+
+        function editService(serviceId) {
+            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const service = services.find(s => s.id === serviceId);
+            if (service) {
+                document.getElementById('modalTitle').innerText = 'Edit Service';
+                document.getElementById('serviceId').value = service.id;
+                document.getElementById('serviceIcon').value = service.icon;
+                document.getElementById('serviceName').value = service.name;
+                document.getElementById('servicePrice').value = service.price;
+                document.getElementById('serviceModal').style.display = 'flex';
+            }
+        }
+
+        function saveService() {
+            const id = document.getElementById('serviceId').value;
+            const icon = document.getElementById('serviceIcon').value;
+            const name = document.getElementById('serviceName').value;
+            const price = parseInt(document.getElementById('servicePrice').value);
+
+            if (!icon || !name || !price) {
+                alert('Please fill all fields');
+                return;
+            }
+
+            let services = JSON.parse(localStorage.getItem('services') || '[]');
+
+            if (id) {
+                services = services.map(s => s.id === parseInt(id) ? { ...s, icon, name, price } : s);
+            } else {
+                const newId = Math.max(...services.map(s => s.id), 0) + 1;
+                services.push({ id: newId, icon, name, price });
+            }
+
+            localStorage.setItem('services', JSON.stringify(services));
+            closeServiceModal();
+            loadServices();
+            loadStats();
+        }
+
+        function deleteService(serviceId) {
+            if (confirm('Delete this service? This will NOT delete existing requests.')) {
+                let services = JSON.parse(localStorage.getItem('services') || '[]');
+                services = services.filter(s => s.id !== serviceId);
+                localStorage.setItem('services', JSON.stringify(services));
+                loadServices();
+                loadStats();
+            }
+        }
+
+        function closeServiceModal() {
+            document.getElementById('serviceModal').style.display = 'none';
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        loadTheme();
+        updateAdminDisplay();
+        loadStats();
+        loadServices();
+        loadRequests();
+        loadUsers();
+    </script>
+</body>
+</html>

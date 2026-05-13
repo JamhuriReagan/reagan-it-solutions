@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Dashboard - Reagan's IT</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        /* Light Mode */
+        body.light-mode {
+            background: #f0f2f5;
+            color: #333;
+        }
+
+        body.light-mode .navbar {
+            background: #0f2b3d;
+        }
+
+        body.light-mode .section {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        body.light-mode .service-item {
+            background: #f8fafc;
+        }
+
+        body.light-mode .request-card {
+            background: #f8fafc;
+        }
+
+        /* Dark Mode */
+        body.dark-mode {
+            background: #1a1a2e;
+            color: #eee;
+        }
+
+        body.dark-mode .navbar {
+            background: #16213e;
+        }
+
+        body.dark-mode .section {
+            background: #1e1e2e;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        body.dark-mode .service-item {
+            background: #2d2d3a;
+            color: #eee;
+        }
+
+        body.dark-mode .request-card {
+            background: #2d2d3a;
+            color: #eee;
+        }
+
+        body.dark-mode table {
+            color: #eee;
+        }
+
+        body.dark-mode th {
+            background: #0f2b3d;
+        }
+
+        body.dark-mode td {
+            border-bottom-color: #444;
+        }
+
+        .navbar {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+
+        .logo span {
+            color: #f97316;
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            color: white;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 5%;
+        }
+
+        .welcome-card {
+            background: linear-gradient(135deg, #f97316, #e8620d);
+            color: white;
+            padding: 2rem;
+            border-radius: 20px;
+            margin-bottom: 2rem;
+        }
+
+        .section {
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            transition: all 0.3s;
+        }
+
+        .section h2 {
+            color: #f97316;
+            margin-bottom: 1rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .service-item {
+            padding: 1rem;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .service-name {
+            font-weight: 600;
+        }
+
+        .service-price {
+            color: #f97316;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #f97316;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #e8620d;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .request-card {
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-completed {
+            background: #dbeafe;
+            color: #2563eb;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background: #0f2b3d;
+            color: white;
+        }
+    </style>
+</head>
+<body class="light-mode">
+    <nav class="navbar">
+        <div class="logo">REAGAN'S <span>IT</span></div>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+            <span id="userName"></span>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="welcome-card">
+            <h1>Welcome, <span id="welcomeName"></span>! 👋</h1>
+            <p>Your one-stop shop for all IT services</p>
+        </div>
+
+        <div class="section">
+            <h2>📌 Available Services & Prices</h2>
+            <div class="services-grid" id="servicesList"></div>
+        </div>
+
+        <div class="section">
+            <h2>📋 My Requests</h2>
+            <div id="myRequests"></div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const body = document.body;
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                themeToggle.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                themeToggle.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeToggle = document.getElementById('themeToggle');
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                if (themeToggle) themeToggle.textContent = '☀️';
+            } else {
+                document.body.classList.remove('dark-mode');
+                document.body.classList.add('light-mode');
+                if (themeToggle) themeToggle.textContent = '🌙';
+            }
+        }
+
+        function checkAuth() {
+            const user = localStorage.getItem('currentUser');
+            if (!user) {
+                window.location.href = 'index.html';
+            }
+            return JSON.parse(user);
+        }
+
+        const user = checkAuth();
+        document.getElementById('userName').innerText = user.name;
+        document.getElementById('welcomeName').innerText = user.name;
+
+        function loadServices() {
+            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const container = document.getElementById('servicesList');
+            container.innerHTML = services.map(service => `
+                <div class="service-item">
+                    <div>
+                        <div class="service-name">${service.icon} ${service.name}</div>
+                        <div class="service-price">KES ${service.price.toLocaleString()}</div>
+                    </div>
+                    <button class="btn btn-primary" onclick="requestService(${service.id})">Request</button>
+                </div>
+            `).join('');
+        }
+
+        function requestService(serviceId) {
+            const services = JSON.parse(localStorage.getItem('services'));
+            const service = services.find(s => s.id === serviceId);
+            
+            let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            requests.push({
+                id: Date.now(),
+                userId: user.email,
+                userName: user.name,
+                serviceId: service.id,
+                serviceName: service.name,
+                price: service.price,
+                status: 'pending',
+                date: new Date().toLocaleString()
+            });
+            localStorage.setItem('requests', JSON.stringify(requests));
+            alert(`Request for ${service.name} sent! Admin will contact you.`);
+            loadMyRequests();
+        }
+
+        function loadMyRequests() {
+            const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            const myRequests = requests.filter(r => r.userId === user.email);
+            
+            const container = document.getElementById('myRequests');
+            if (myRequests.length === 0) {
+                container.innerHTML = '<p>No requests yet. Request a service above!</p>';
+                return;
+            }
+
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Service</th><th>Price (KES)</th><th>Status</th><th>Date</th></tr>
+                    </thead>
+                    <tbody>
+                        ${myRequests.map(req => `
+                            <tr>
+                                <td>${req.serviceName}</td>
+                                <td>${req.price.toLocaleString()}</td>
+                                <td><span class="status status-${req.status}">${req.status.toUpperCase()}</span></td>
+                                <td>${req.date}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+
+        function logout() {
+            localStorage.removeItem('currentUser');
+            window.location.href = 'index.html';
+        }
+
+        loadTheme();
+        loadServices();
+        loadMyRequests();
+    </script>
+</body>
+</html>
