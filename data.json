@@ -1,0 +1,24 @@
+{
+  "services": [
+    { "id": 1, "name": "CV & Cover Letter", "icon": "📄", "price": 500 },
+    { "id": 2, "name": "KRA PIN Registration", "icon": "🔖", "price": 300 },
+    { "id": 3, "name": "KRA Returns Filing", "icon": "📊", "price": 500 },
+    { "id": 4, "name": "SHA Enrollment", "icon": "🛡️", "price": 200 },
+    { "id": 5, "name": "Typing & Printing", "icon": "🖨️", "price": 50 },
+    { "id": 6, "name": "Data Entry", "icon": "📊", "price": 1000 },
+    { "id": 7, "name": "Passport Photos", "icon": "🖼️", "price": 200 },
+    { "id": 8, "name": "Computer Training", "icon": "💻", "price": 2000 },
+    { "id": 9, "name": "Email Setup", "icon": "📧", "price": 300 },
+    { "id": 10, "name": "PDF Conversion", "icon": "🔐", "price": 100 }
+  ],
+  "requests": [],
+  "users": [
+    {
+      "name": "Admin",
+      "email": "admin@reaganit.com",
+      "password": "admin123",
+      "phone": "0113166257",
+      "role": "admin"
+    }
+  ]
+}
