@@ -85,7 +85,6 @@
             color: #f97316;
         }
 
-        /* Navigation */
         .navbar {
             padding: 1rem 5%;
             display: flex;
@@ -117,13 +116,13 @@
             text-decoration: none;
             font-weight: 500;
             transition: color 0.3s;
+            cursor: pointer;
         }
 
         .nav-links a:hover {
             color: #f97316;
         }
 
-        /* Dark Mode Toggle Button */
         .theme-toggle {
             background: none;
             border: none;
@@ -172,7 +171,6 @@
             color: white;
         }
 
-        /* Hero Section */
         .hero {
             padding: 120px 5% 60px;
             text-align: center;
@@ -188,7 +186,6 @@
             margin-bottom: 2rem;
         }
 
-        /* Services Section */
         .services-section {
             padding: 60px 5%;
         }
@@ -221,14 +218,20 @@
 
         .service-icon {
             font-size: 3rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0.5rem;
         }
 
         .service-card h3 {
             margin-bottom: 0.5rem;
         }
 
-        /* Modal */
+        .service-price {
+            color: #f97316;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-top: 0.5rem;
+        }
+
         .modal {
             display: none;
             position: fixed;
@@ -283,6 +286,18 @@
             font-size: 1.5rem;
             cursor: pointer;
         }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            .nav-links {
+                gap: 0.8rem;
+            }
+        }
     </style>
 </head>
 <body class="light-mode">
@@ -306,7 +321,7 @@
     <section id="services" class="services-section">
         <h2 class="section-title">Our Services</h2>
         <div class="services-grid" id="servicesGrid">
-            <!-- Services will be loaded here - NO PRICES -->
+            <!-- Services will be loaded here - shows for all users -->
         </div>
     </section>
 
@@ -335,7 +350,36 @@
     </div>
 
     <script>
-        // Theme Toggle Function
+        // Global services array that syncs across all users
+        function loadGlobalServices() {
+            let services = localStorage.getItem('globalServices');
+            if (!services) {
+                const defaultServices = [
+                    { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
+                    { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
+                    { id: 3, name: "KRA Returns Filing", icon: "📊", price: 500 },
+                    { id: 4, name: "SHA Enrollment", icon: "🛡️", price: 200 },
+                    { id: 5, name: "Typing & Printing", icon: "🖨️", price: 50 },
+                    { id: 6, name: "Data Entry", icon: "📊", price: 1000 },
+                    { id: 7, name: "Passport Photos", icon: "🖼️", price: 200 },
+                    { id: 8, name: "Computer Training", icon: "💻", price: 2000 },
+                    { id: 9, name: "Email Setup", icon: "📧", price: 300 },
+                    { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
+                ];
+                localStorage.setItem('globalServices', JSON.stringify(defaultServices));
+                return defaultServices;
+            }
+            return JSON.parse(services);
+        }
+
+        function saveGlobalServices(services) {
+            localStorage.setItem('globalServices', JSON.stringify(services));
+        }
+
+        function checkAuth() {
+            return localStorage.getItem('currentUser') !== null;
+        }
+
         function toggleTheme() {
             const body = document.body;
             const themeToggle = document.getElementById('themeToggle');
@@ -353,7 +397,6 @@
             }
         }
 
-        // Load saved theme
         function loadTheme() {
             const savedTheme = localStorage.getItem('theme');
             const themeToggle = document.getElementById('themeToggle');
@@ -367,11 +410,6 @@
                 document.body.classList.add('light-mode');
                 if (themeToggle) themeToggle.textContent = '🌙';
             }
-        }
-
-        // Check if logged in
-        function checkAuth() {
-            return localStorage.getItem('currentUser') !== null;
         }
 
         function showLoginModal() {
@@ -435,33 +473,16 @@
         }
 
         function loadServices() {
-            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const services = loadGlobalServices();
             const grid = document.getElementById('servicesGrid');
+            const isLoggedIn = checkAuth();
             
-            if (services.length === 0) {
-                // Default services - NO PRICES shown on landing page
-                const defaultServices = [
-                    { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
-                    { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
-                    { id: 3, name: "KRA Returns Filing", icon: "📊", price: 500 },
-                    { id: 4, name: "SHA Enrollment", icon: "🛡️", price: 200 },
-                    { id: 5, name: "Typing & Printing", icon: "🖨️", price: 50 },
-                    { id: 6, name: "Data Entry", icon: "📊", price: 1000 },
-                    { id: 7, name: "Passport Photos", icon: "🖼️", price: 200 },
-                    { id: 8, name: "Computer Training", icon: "💻", price: 2000 },
-                    { id: 9, name: "Email Setup", icon: "📧", price: 300 },
-                    { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
-                ];
-                localStorage.setItem('services', JSON.stringify(defaultServices));
-                services.push(...defaultServices);
-            }
-
-            // Show ONLY service name and icon - NO PRICE on landing page
             grid.innerHTML = services.map(service => `
                 <div class="service-card">
                     <div class="service-icon">${service.icon}</div>
                     <h3>${service.name}</h3>
-                    ${checkAuth() ? `<button class="btn btn-primary" onclick="requestService(${service.id})">Request Service</button>` : '<button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>'}
+                    <div class="service-price">KES ${service.price.toLocaleString()}</div>
+                    ${isLoggedIn ? `<button class="btn btn-primary" onclick="requestService(${service.id})">Request Service</button>` : '<button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>'}
                 </div>
             `).join('');
         }
@@ -472,7 +493,7 @@
                 return;
             }
             const user = JSON.parse(localStorage.getItem('currentUser'));
-            const services = JSON.parse(localStorage.getItem('services'));
+            const services = loadGlobalServices();
             const service = services.find(s => s.id === serviceId);
             
             let requests = JSON.parse(localStorage.getItem('requests') || '[]');
@@ -484,13 +505,23 @@
                 serviceName: service.name,
                 price: service.price,
                 status: 'pending',
-                date: new Date().toLocaleString()
+                date: new Date().toLocaleString(),
+                read: false
             });
             localStorage.setItem('requests', JSON.stringify(requests));
-            alert(`Request for ${service.name} sent! Admin will contact you.`);
+            
+            // Update admin notification
+            updateAdminNotification();
+            
+            alert(`✅ Request for ${service.name} sent! Admin will contact you.`);
         }
 
-        // Create admin if not exists
+        function updateAdminNotification() {
+            const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            const pendingCount = requests.filter(r => r.status === 'pending' && !r.read).length;
+            localStorage.setItem('pendingNotifications', pendingCount);
+        }
+
         function createDefaultAdmin() {
             let users = JSON.parse(localStorage.getItem('users') || '[]');
             if (!users.find(u => u.role === 'admin')) {

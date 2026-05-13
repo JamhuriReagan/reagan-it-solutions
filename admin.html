@@ -16,7 +16,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Light Mode */
         body.light-mode {
             background: #f0f2f5;
             color: #333;
@@ -33,6 +32,13 @@
 
         body.light-mode .stat-card {
             background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        body.light-mode .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
         }
 
         body.light-mode table {
@@ -43,11 +49,6 @@
             background: #0f2b3d;
         }
 
-        body.light-mode .profile-card {
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-        }
-
-        /* Dark Mode */
         body.dark-mode {
             background: #1a1a2e;
             color: #eee;
@@ -65,6 +66,13 @@
         body.dark-mode .stat-card {
             background: #1e1e2e;
             color: #eee;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        body.dark-mode .stat-card:hover {
+            transform: translateY(-5px);
+            background: #2d2d3a;
         }
 
         body.dark-mode table {
@@ -124,6 +132,30 @@
             margin-right: 1rem;
         }
 
+        .notification-btn {
+            background: #f97316;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            color: white;
+            position: relative;
+            margin-right: 1rem;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: red;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 6px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
         .container {
             max-width: 1400px;
             margin: 2rem auto;
@@ -141,7 +173,7 @@
             padding: 1.5rem;
             border-radius: 15px;
             text-align: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
 
         .stat-number {
@@ -162,7 +194,6 @@
             margin-bottom: 1rem;
         }
 
-        /* Profile Card */
         .profile-card {
             background: linear-gradient(135deg, #fef3c7, #fde68a);
             border-radius: 20px;
@@ -190,14 +221,6 @@
 
         body.dark-mode .profile-label {
             color: #f97316;
-        }
-
-        .profile-value {
-            color: #333;
-        }
-
-        body.dark-mode .profile-value {
-            color: #ddd;
         }
 
         .btn {
@@ -292,6 +315,28 @@
             margin-bottom: 0.5rem;
             font-weight: 600;
         }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .status-pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
+        .status-approved {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .status-completed {
+            background: #dbeafe;
+            color: #2563eb;
+        }
     </style>
 </head>
 <body class="light-mode">
@@ -299,12 +344,15 @@
         <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
         <div>
             <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+            <button class="notification-btn" onclick="showRequests()">
+                🔔 Notifications
+                <span id="notificationBadge" class="notification-badge" style="display: none;">0</span>
+            </button>
             <button class="btn btn-danger" onclick="logout()">Logout</button>
         </div>
     </nav>
 
     <div class="container">
-        <!-- Admin Profile Card -->
         <div class="profile-card" id="profileCard">
             <div class="profile-info">
                 <p><span class="profile-label">👤 Admin Name:</span> <span class="profile-value" id="adminName"></span></p>
@@ -318,25 +366,29 @@
         </div>
 
         <div class="stats" id="stats">
-            <div class="stat-card">
+            <div class="stat-card" onclick="showServicesSection()">
                 <div class="stat-number" id="totalServices">0</div>
-                <div>Total Services</div>
+                <div>📦 Total Services</div>
+                <small>Click to view</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="showRequests()">
                 <div class="stat-number" id="totalRequests">0</div>
-                <div>Total Requests</div>
+                <div>📋 Total Requests</div>
+                <small>Click to view</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="showPendingRequests()">
                 <div class="stat-number" id="pendingRequests">0</div>
-                <div>Pending Requests</div>
+                <div>⏳ Pending Requests</div>
+                <small>Click to view</small>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="showUsersSection()">
                 <div class="stat-number" id="totalUsers">0</div>
-                <div>Total Users</div>
+                <div>👥 Total Users</div>
+                <small>Click to view</small>
             </div>
         </div>
 
-        <div class="section">
+        <div id="servicesSection" class="section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                 <h2>🛠️ Manage Services & Prices</h2>
                 <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add New Service</button>
@@ -349,7 +401,7 @@
             </table>
         </div>
 
-        <div class="section">
+        <div id="requestsSection" class="section" style="display: none;">
             <h2>📋 All User Requests</h2>
             <table id="requestsTable">
                 <thead>
@@ -359,7 +411,7 @@
             </table>
         </div>
 
-        <div class="section">
+        <div id="usersSection" class="section" style="display: none;">
             <h2>👥 Registered Users</h2>
             <table id="usersTable">
                 <thead>
@@ -435,13 +487,36 @@
     </div>
 
     <script>
-        // Get current admin data
+        function loadGlobalServices() {
+            let services = localStorage.getItem('globalServices');
+            if (!services) {
+                const defaultServices = [
+                    { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
+                    { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
+                    { id: 3, name: "KRA Returns Filing", icon: "📊", price: 500 },
+                    { id: 4, name: "SHA Enrollment", icon: "🛡️", price: 200 },
+                    { id: 5, name: "Typing & Printing", icon: "🖨️", price: 50 },
+                    { id: 6, name: "Data Entry", icon: "📊", price: 1000 },
+                    { id: 7, name: "Passport Photos", icon: "🖼️", price: 200 },
+                    { id: 8, name: "Computer Training", icon: "💻", price: 2000 },
+                    { id: 9, name: "Email Setup", icon: "📧", price: 300 },
+                    { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
+                ];
+                localStorage.setItem('globalServices', JSON.stringify(defaultServices));
+                return defaultServices;
+            }
+            return JSON.parse(services);
+        }
+
+        function saveGlobalServices(services) {
+            localStorage.setItem('globalServices', JSON.stringify(services));
+        }
+
         function getCurrentAdmin() {
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             return users.find(u => u.role === 'admin');
         }
 
-        // Update admin display
         function updateAdminDisplay() {
             const admin = getCurrentAdmin();
             if (admin) {
@@ -451,120 +526,49 @@
             }
         }
 
-        // Show Edit Profile Modal
-        function showEditProfileModal() {
-            const admin = getCurrentAdmin();
-            if (admin) {
-                document.getElementById('editName').value = admin.name;
-                document.getElementById('editEmail').value = admin.email;
-                document.getElementById('editPhone').value = admin.phone || '';
-                document.getElementById('editProfileModal').style.display = 'flex';
+        function updateNotificationBadge() {
+            const requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            const newRequests = requests.filter(r => r.status === 'pending' && !r.read).length;
+            const badge = document.getElementById('notificationBadge');
+            if (newRequests > 0) {
+                badge.style.display = 'inline-block';
+                badge.innerText = newRequests;
+            } else {
+                badge.style.display = 'none';
             }
         }
 
-        function closeEditProfileModal() {
-            document.getElementById('editProfileModal').style.display = 'none';
+        function showServicesSection() {
+            document.getElementById('servicesSection').style.display = 'block';
+            document.getElementById('requestsSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
         }
 
-        // Update Profile
-        function updateProfile() {
-            const newName = document.getElementById('editName').value;
-            const newEmail = document.getElementById('editEmail').value;
-            const newPhone = document.getElementById('editPhone').value;
-
-            if (!newName || !newEmail) {
-                alert('Name and Email are required!');
-                return;
-            }
-
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
-            const adminIndex = users.findIndex(u => u.role === 'admin');
+        function showRequests() {
+            document.getElementById('servicesSection').style.display = 'none';
+            document.getElementById('requestsSection').style.display = 'block';
+            document.getElementById('usersSection').style.display = 'none';
+            loadRequests();
             
-            if (adminIndex !== -1) {
-                // Check if email already exists for another user
-                const emailExists = users.some(u => u.email === newEmail && u.role !== 'admin');
-                if (emailExists) {
-                    alert('This email is already used by another user!');
-                    return;
-                }
-
-                users[adminIndex].name = newName;
-                users[adminIndex].email = newEmail;
-                users[adminIndex].phone = newPhone;
-                localStorage.setItem('users', JSON.stringify(users));
-
-                // Update current session if logged in admin
-                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (currentUser && currentUser.role === 'admin') {
-                    currentUser.name = newName;
-                    currentUser.email = newEmail;
-                    currentUser.phone = newPhone;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-
-                alert('Profile updated successfully!');
-                closeEditProfileModal();
-                updateAdminDisplay();
-                loadUsers(); // Refresh users table
-            }
+            // Mark all as read
+            let requests = JSON.parse(localStorage.getItem('requests') || '[]');
+            requests = requests.map(r => {
+                if (r.status === 'pending') r.read = true;
+                return r;
+            });
+            localStorage.setItem('requests', JSON.stringify(requests));
+            updateNotificationBadge();
         }
 
-        // Show Change Password Modal
-        function showChangePasswordModal() {
-            document.getElementById('changePasswordModal').style.display = 'flex';
+        function showPendingRequests() {
+            showRequests();
         }
 
-        function closeChangePasswordModal() {
-            document.getElementById('changePasswordModal').style.display = 'none';
-            document.getElementById('currentPassword').value = '';
-            document.getElementById('newPassword').value = '';
-            document.getElementById('confirmPassword').value = '';
-        }
-
-        // Change Password
-        function changePassword() {
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('Please fill all fields!');
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                alert('New passwords do not match!');
-                return;
-            }
-
-            if (newPassword.length < 4) {
-                alert('New password must be at least 4 characters!');
-                return;
-            }
-
-            let users = JSON.parse(localStorage.getItem('users') || '[]');
-            const adminIndex = users.findIndex(u => u.role === 'admin');
-            
-            if (adminIndex !== -1) {
-                if (users[adminIndex].password !== currentPassword) {
-                    alert('Current password is incorrect!');
-                    return;
-                }
-
-                users[adminIndex].password = newPassword;
-                localStorage.setItem('users', JSON.stringify(users));
-
-                // Update current session
-                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                if (currentUser && currentUser.role === 'admin') {
-                    currentUser.password = newPassword;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                }
-
-                alert('Password changed successfully! Please login again.');
-                closeChangePasswordModal();
-                logout();
-            }
+        function showUsersSection() {
+            document.getElementById('servicesSection').style.display = 'none';
+            document.getElementById('requestsSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'block';
+            loadUsers();
         }
 
         function toggleTheme() {
@@ -616,7 +620,7 @@
         const admin = checkAdmin();
 
         function loadStats() {
-            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const services = loadGlobalServices();
             const requests = JSON.parse(localStorage.getItem('requests') || '[]');
             const users = JSON.parse(localStorage.getItem('users') || '[]');
             
@@ -627,7 +631,7 @@
         }
 
         function loadServices() {
-            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const services = loadGlobalServices();
             const tbody = document.getElementById('servicesTableBody');
             tbody.innerHTML = services.map(service => `
                 <tr>
@@ -663,7 +667,7 @@
                     <td>
                         <button class="btn btn-danger" onclick="deleteRequest(${req.id})">Delete</button>
                     </td>
-                </table>
+                </tr>
             `).join('');
         }
 
@@ -713,7 +717,7 @@
         }
 
         function editService(serviceId) {
-            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const services = loadGlobalServices();
             const service = services.find(s => s.id === serviceId);
             if (service) {
                 document.getElementById('modalTitle').innerText = 'Edit Service';
@@ -736,7 +740,7 @@
                 return;
             }
 
-            let services = JSON.parse(localStorage.getItem('services') || '[]');
+            let services = loadGlobalServices();
 
             if (id) {
                 services = services.map(s => s.id === parseInt(id) ? { ...s, icon, name, price } : s);
@@ -745,7 +749,7 @@
                 services.push({ id: newId, icon, name, price });
             }
 
-            localStorage.setItem('services', JSON.stringify(services));
+            saveGlobalServices(services);
             closeServiceModal();
             loadServices();
             loadStats();
@@ -753,9 +757,9 @@
 
         function deleteService(serviceId) {
             if (confirm('Delete this service? This will NOT delete existing requests.')) {
-                let services = JSON.parse(localStorage.getItem('services') || '[]');
+                let services = loadGlobalServices();
                 services = services.filter(s => s.id !== serviceId);
-                localStorage.setItem('services', JSON.stringify(services));
+                saveGlobalServices(services);
                 loadServices();
                 loadStats();
             }
@@ -763,6 +767,115 @@
 
         function closeServiceModal() {
             document.getElementById('serviceModal').style.display = 'none';
+        }
+
+        function showEditProfileModal() {
+            const admin = getCurrentAdmin();
+            if (admin) {
+                document.getElementById('editName').value = admin.name;
+                document.getElementById('editEmail').value = admin.email;
+                document.getElementById('editPhone').value = admin.phone || '';
+                document.getElementById('editProfileModal').style.display = 'flex';
+            }
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function updateProfile() {
+            const newName = document.getElementById('editName').value;
+            const newEmail = document.getElementById('editEmail').value;
+            const newPhone = document.getElementById('editPhone').value;
+
+            if (!newName || !newEmail) {
+                alert('Name and Email are required!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const adminIndex = users.findIndex(u => u.role === 'admin');
+            
+            if (adminIndex !== -1) {
+                const emailExists = users.some(u => u.email === newEmail && u.role !== 'admin');
+                if (emailExists) {
+                    alert('This email is already used by another user!');
+                    return;
+                }
+
+                users[adminIndex].name = newName;
+                users[adminIndex].email = newEmail;
+                users[adminIndex].phone = newPhone;
+                localStorage.setItem('users', JSON.stringify(users));
+
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser && currentUser.role === 'admin') {
+                    currentUser.name = newName;
+                    currentUser.email = newEmail;
+                    currentUser.phone = newPhone;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+
+                alert('Profile updated successfully!');
+                closeEditProfileModal();
+                updateAdminDisplay();
+                loadUsers();
+            }
+        }
+
+        function showChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+
+        function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Please fill all fields!');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+
+            if (newPassword.length < 4) {
+                alert('New password must be at least 4 characters!');
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users') || '[]');
+            const adminIndex = users.findIndex(u => u.role === 'admin');
+            
+            if (adminIndex !== -1) {
+                if (users[adminIndex].password !== currentPassword) {
+                    alert('Current password is incorrect!');
+                    return;
+                }
+
+                users[adminIndex].password = newPassword;
+                localStorage.setItem('users', JSON.stringify(users));
+
+                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                if (currentUser && currentUser.role === 'admin') {
+                    currentUser.password = newPassword;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                }
+
+                alert('Password changed successfully! Please login again.');
+                closeChangePasswordModal();
+                logout();
+            }
         }
 
         function logout() {
@@ -774,8 +887,13 @@
         updateAdminDisplay();
         loadStats();
         loadServices();
-        loadRequests();
         loadUsers();
+        updateNotificationBadge();
+        
+        setInterval(() => {
+            loadStats();
+            updateNotificationBadge();
+        }, 5000);
     </script>
 </body>
 </html>

@@ -16,7 +16,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Light Mode */
         body.light-mode {
             background: #f0f2f5;
             color: #333;
@@ -39,7 +38,6 @@
             background: #f8fafc;
         }
 
-        /* Dark Mode */
         body.dark-mode {
             background: #1a1a2e;
             color: #eee;
@@ -175,15 +173,6 @@
             color: white;
         }
 
-        .request-card {
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
         .status {
             padding: 0.25rem 0.75rem;
             border-radius: 20px;
@@ -251,6 +240,27 @@
     </div>
 
     <script>
+        function loadGlobalServices() {
+            let services = localStorage.getItem('globalServices');
+            if (!services) {
+                const defaultServices = [
+                    { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
+                    { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
+                    { id: 3, name: "KRA Returns Filing", icon: "📊", price: 500 },
+                    { id: 4, name: "SHA Enrollment", icon: "🛡️", price: 200 },
+                    { id: 5, name: "Typing & Printing", icon: "🖨️", price: 50 },
+                    { id: 6, name: "Data Entry", icon: "📊", price: 1000 },
+                    { id: 7, name: "Passport Photos", icon: "🖼️", price: 200 },
+                    { id: 8, name: "Computer Training", icon: "💻", price: 2000 },
+                    { id: 9, name: "Email Setup", icon: "📧", price: 300 },
+                    { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
+                ];
+                localStorage.setItem('globalServices', JSON.stringify(defaultServices));
+                return defaultServices;
+            }
+            return JSON.parse(services);
+        }
+
         function toggleTheme() {
             const body = document.body;
             const themeToggle = document.getElementById('themeToggle');
@@ -296,7 +306,7 @@
         document.getElementById('welcomeName').innerText = user.name;
 
         function loadServices() {
-            const services = JSON.parse(localStorage.getItem('services') || '[]');
+            const services = loadGlobalServices();
             const container = document.getElementById('servicesList');
             container.innerHTML = services.map(service => `
                 <div class="service-item">
@@ -310,7 +320,7 @@
         }
 
         function requestService(serviceId) {
-            const services = JSON.parse(localStorage.getItem('services'));
+            const services = loadGlobalServices();
             const service = services.find(s => s.id === serviceId);
             
             let requests = JSON.parse(localStorage.getItem('requests') || '[]');
@@ -322,10 +332,11 @@
                 serviceName: service.name,
                 price: service.price,
                 status: 'pending',
-                date: new Date().toLocaleString()
+                date: new Date().toLocaleString(),
+                read: false
             });
             localStorage.setItem('requests', JSON.stringify(requests));
-            alert(`Request for ${service.name} sent! Admin will contact you.`);
+            alert(`✅ Request for ${service.name} sent! Admin will contact you.`);
             loadMyRequests();
         }
 
