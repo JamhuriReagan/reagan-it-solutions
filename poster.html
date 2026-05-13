@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reagan's IT Solutions - Poster</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #e2e8f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, sans-serif;
+            padding: 24px;
+        }
+
+        .poster {
+            max-width: 820px;
+            width: 100%;
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 30px 50px -20px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .accent-bar {
+            height: 10px;
+            background: linear-gradient(90deg, #0f2b3d 0%, #f97316 50%, #0f2b3d 100%);
+        }
+
+        .content {
+            padding: 36px 44px 44px 44px;
+        }
+
+        .headline h1 {
+            font-size: 2.4rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #0f2b3d 0%, #f97316 80%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #fef3c7;
+            color: #b45309;
+            font-size: 0.75rem;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .tagline {
+            font-size: 1rem;
+            color: #334155;
+            border-left: 4px solid #f97316;
+            padding-left: 16px;
+            margin: 12px 0 20px 0;
+            font-weight: 500;
+        }
+
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin: 28px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 8px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px 28px;
+            background: #fafcff;
+            padding: 16px 20px;
+            border-radius: 24px;
+            margin-top: 8px;
+        }
+
+        .service {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.92rem;
+            padding: 6px 0;
+            border-bottom: 1px dashed #e2edff;
+            color: #1e293b;
+        }
+
+        .service span:first-child {
+            font-size: 1.2rem;
+            min-width: 28px;
+        }
+
+        .extra {
+            text-align: center;
+            background: #fff7ed;
+            margin-top: 16px;
+            padding: 12px;
+            border-radius: 48px;
+            font-weight: 600;
+            color: #c2410c;
+            font-size: 0.85rem;
+        }
+
+        .contact-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            background: linear-gradient(115deg, #0f2b3d 0%, #1a3a4f 100%);
+            border-radius: 28px;
+            padding: 24px 28px;
+            margin: 28px 0;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .contact-info {
+            flex: 2;
+            color: white;
+        }
+
+        .contact-info h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .phone {
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            background: rgba(255,255,255,0.12);
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 50px;
+            margin: 12px 0;
+            font-family: monospace;
+        }
+
+        .email {
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            word-break: break-all;
+        }
+
+        .contact-info a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .website {
+            font-size: 0.9rem;
+            background: rgba(255,255,255,0.15);
+            padding: 8px 16px;
+            border-radius: 40px;
+            display: inline-block;
+            margin-top: 8px;
+        }
+
+        .website a {
+            color: #f97316;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .qr-box {
+            flex: 1;
+            background: white;
+            padding: 12px;
+            border-radius: 24px;
+            text-align: center;
+            min-width: 130px;
+        }
+
+        .qr-box img {
+            width: 110px;
+            height: 110px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .qr-box p {
+            font-size: 0.7rem;
+            color: #0f2b3d;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        .footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.7rem;
+            color: #475569;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .print-btn {
+                display: none;
+            }
+            .poster {
+                box-shadow: none;
+                border-radius: 0;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .content {
+                padding: 20px;
+            }
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+            .contact-row {
+                flex-direction: column;
+                text-align: center;
+            }
+            .phone {
+                font-size: 1.3rem;
+            }
+            .headline h1 {
+                font-size: 1.8rem;
+            }
+        }
+
+        .print-btn-container {
+            text-align: center;
+            margin-top: 18px;
+        }
+        .print-btn {
+            background: #0f2b3d;
+            color: white;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: 0.2s;
+        }
+        .print-btn:hover {
+            background: #f97316;
+        }
+    </style>
+</head>
+<body>
+<div class="poster">
+    <div class="accent-bar"></div>
+    <div class="content">
+        <div class="headline">
+            <div class="badge">⚡ Same-day service | Trusted support</div>
+            <h1>🚀 REAGAN’S IT SOLUTIONS</h1>
+            <div class="tagline">Your Digital Assistant – Fast, Reliable, Affordable</div>
+        </div>
+
+        <div class="section-title">
+            <span>📌</span> All computer-based services
+        </div>
+        <div class="services-grid">
+            <div class="service"><span>📄</span> CV & Cover Letter Writing</div>
+            <div class="service"><span>🔖</span> KRA PIN Registration</div>
+            <div class="service"><span>📊</span> KRA Returns Filing (Nil/Employed/Self)</div>
+            <div class="service"><span>🛡️</span> SHA Enrollment & Support</div>
+            <div class="service"><span>🖨️</span> Typing, Printing, Scanning</div>
+            <div class="service"><span>📊</span> Data Entry & Excel Work</div>
+            <div class="service"><span>🎓</span> Document Formatting</div>
+            <div class="service"><span>🔐</span> PDF to Word/Excel Conversion</div>
+            <div class="service"><span>📧</span> Email Setup & Management</div>
+            <div class="service"><span>🖼️</span> Passport Photo Editing</div>
+            <div class="service"><span>💻</span> Basic Computer Training</div>
+            <div class="service"><span>📁</span> File Organization</div>
+            <div class="service"><span>🌐</span> Online Applications (Jobs/Schools/Passport)</div>
+            <div class="service"><span>📑</span> Tax Compliance Certificate (TCC)</div>
+        </div>
+
+        <div class="extra">
+            ➕ …and any other computer-related task – just ask!
+        </div>
+
+        <div class="contact-row">
+            <div class="contact-info">
+                <h3>📞 Let's work together</h3>
+                <div class="phone">📱 0113 166 257</div>
+                <div class="email">✉️ <a href="mailto:jamhurireagan2@gmail.com">jamhurireagan2@gmail.com</a></div>
+                <div class="website">🌐 <a href="https://reagan-it-solution.netlify.app" target="_blank">reagan-it-solution.netlify.app</a></div>
+            </div>
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=https%3A%2F%2Freagan-it-solution.netlify.app" alt="Website QR Code">
+                <p>📲 Scan to visit website</p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <span>⭐ Quality work</span>
+            <span>⚡ Quick turnaround</span>
+            <span>🔒 Confidential</span>
+            <span>📍 Nairobi / Anywhere</span>
+        </div>
+    </div>
+</div>
+<div class="print-btn-container">
+    <button class="print-btn" onclick="window.print();">🖨️ Print / Save as PDF (A4)</button>
+</div>
+</body>
+</html>
