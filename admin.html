@@ -9,83 +9,106 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; }
-        .container { max-width: 1200px; margin: 2rem auto; padding: 0 5%; }
-        .login-box { background: white; padding: 2rem; border-radius: 20px; max-width: 400px; margin: 100px auto; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        .login-box h2 { color: #f97316; margin-bottom: 1.5rem; text-align: center; }
-        .login-box input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
-        .login-box button { width: 100%; padding: 0.8rem; background: #f97316; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; }
-        .error { color: red; text-align: center; margin-top: 1rem; display: none; }
-        .dashboard { display: none; }
-        .navbar { background: #0f2b3d; color: white; padding: 1rem 5%; display: flex; justify-content: space-between; }
-        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin: 2rem 0; }
-        .stat-card { background: white; padding: 1rem; border-radius: 15px; text-align: center; cursor: pointer; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s ease; }
+        body.light-mode { background: #f0f2f5; color: #333; }
+        body.light-mode .navbar { background: #0f2b3d; }
+        body.light-mode .section { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        body.light-mode .stat-card { background: white; cursor: pointer; }
+        body.light-mode .stat-card:hover { transform: translateY(-5px); box-shadow: 0 5px 20px rgba(0,0,0,0.15); }
+        body.light-mode .profile-card { background: linear-gradient(135deg, #fef3c7, #fde68a); }
+        body.dark-mode { background: #1a1a2e; color: #eee; }
+        body.dark-mode .navbar { background: #16213e; }
+        body.dark-mode .section { background: #1e1e2e; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        body.dark-mode .stat-card { background: #1e1e2e; color: #eee; cursor: pointer; }
+        body.dark-mode .stat-card:hover { transform: translateY(-5px); background: #2d2d3a; }
+        body.dark-mode .profile-card { background: linear-gradient(135deg, #2d2d3a, #1e1e2e); border: 1px solid #f97316; }
+        body.dark-mode .modal-content { background: #1e1e2e; color: white; }
+        body.dark-mode .modal-content input { background: #2d2d3a; border-color: #444; color: white; }
+        
+        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; color: white; }
+        .logo { font-size: 1.5rem; font-weight: bold; }
+        .logo span { color: #f97316; }
+        .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: white; margin-right: 1rem; }
+        .notification-btn { background: #f97316; border: none; font-size: 1.2rem; cursor: pointer; padding: 0.5rem 1rem; border-radius: 30px; color: white; position: relative; margin-right: 1rem; }
+        .notification-badge { position: absolute; top: -8px; right: -8px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 0.7rem; font-weight: bold; }
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 5%; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { padding: 1.5rem; border-radius: 15px; text-align: center; transition: all 0.3s; }
         .stat-number { font-size: 2rem; font-weight: bold; color: #f97316; }
-        .section { background: white; border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
+        .section { border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
+        .section h2 { color: #f97316; margin-bottom: 1rem; }
+        .profile-card { border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .profile-info { flex: 1; }
+        .profile-info p { margin: 0.5rem 0; }
+        .profile-label { font-weight: bold; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #e8620d; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .btn-success { background: #10b981; color: white; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #0f2b3d; color: white; }
-        .btn { padding: 0.5rem 1rem; border: none; border-radius: 10px; cursor: pointer; margin: 0 0.25rem; }
-        .btn-primary { background: #f97316; color: white; }
-        .btn-danger { background: #dc2626; color: white; }
-        .btn-warning { background: #f59e0b; color: white; }
-        .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 15px; }
-        .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.5rem; border-radius: 15px; }
-        .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.5rem; border-radius: 15px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
         .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 500px; }
-        .modal-content input { width: 100%; padding: 0.5rem; margin: 0.5rem 0; }
-        .logout-btn { background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 10px; cursor: pointer; }
+        .modal-content input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
+        .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        .status-seen { background: #e0e7ff; color: #4f46e5; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        @media (max-width: 768px) { .stats { grid-template-columns: repeat(2, 1fr); } table { font-size: 0.8rem; } th, td { padding: 0.5rem; } .profile-card { flex-direction: column; text-align: center; } }
     </style>
 </head>
-<body>
-    <!-- Login Form -->
-    <div class="container" id="loginContainer">
-        <div class="login-box">
-            <h2>🔐 Admin Login</h2>
-            <input type="email" id="loginEmail" placeholder="Email" value="reaganjamhuri2@gmail.com">
-            <input type="password" id="loginPassword" placeholder="Password">
-            <button onclick="login()">Login →</button>
-            <div class="error" id="errorMsg"></div>
+<body class="light-mode">
+    <nav class="navbar">
+        <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
+        <div>
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
+            <button class="notification-btn" onclick="showRequestsSection()">🔔 Notifications <span id="notificationBadge" class="notification-badge" style="display: none;">0</span></button>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
         </div>
+    </nav>
+
+    <div class="container">
+        <!-- Admin Profile Card -->
+        <div class="profile-card">
+            <div class="profile-info">
+                <p><span class="profile-label">👤 Admin:</span> <span id="adminName"></span></p>
+                <p><span class="profile-label">📧 Email:</span> <span id="adminEmail"></span></p>
+                <p><span class="profile-label">📱 Phone:</span> <span id="adminPhone"></span></p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="showEditProfileModal()">✏️ Edit Profile</button>
+                <button class="btn btn-warning" onclick="showChangePasswordModal()">🔑 Change Password</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card" onclick="showServicesSection()"><div class="stat-number" id="totalServices">0</div><div>📦 Services</div><small>Click to view</small></div>
+            <div class="stat-card" onclick="showRequestsSection()"><div class="stat-number" id="totalRequests">0</div><div>📋 Requests</div><small>Click to view</small></div>
+            <div class="stat-card" onclick="showPendingSection()"><div class="stat-number" id="pendingRequests">0</div><div>⏳ Pending</div><small>Click to view</small></div>
+            <div class="stat-card" onclick="showUsersSection()"><div class="stat-number" id="totalUsers">0</div><div>👥 Users</div><small>Click to view</small></div>
+        </div>
+
+        <div id="servicesSection" class="section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;"><h2>🛠️ Manage Services</h2><button class="btn btn-primary" onclick="showAddServiceModal()">+ Add New Service</button></div>
+            <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <div id="requestsSection" class="section" style="display: none;"><h2>📋 All User Requests</h2><table id="requestsTable"><thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
+
+        <div id="usersSection" class="section" style="display: none;"><h2>👥 Registered Users</h2><table id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead><tbody></tbody></table></div>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div class="dashboard" id="dashboard">
-        <div class="navbar">
-            <div class="logo">REAGAN'S <span style="color:#f97316;">IT</span> - ADMIN</div>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
+    <!-- Modals -->
+    <div id="serviceModal" class="modal"><div class="modal-content"><h2 id="modalTitle">Add Service</h2><div class="form-group"><label>Icon (emoji)</label><input type="text" id="serviceIcon" placeholder="📄"></div><div class="form-group"><label>Service Name</label><input type="text" id="serviceName" placeholder="CV Writing"></div><div class="form-group"><label>Price (KES)</label><input type="number" id="servicePrice" placeholder="500"></div><input type="hidden" id="serviceId"><button class="btn btn-primary" onclick="saveService()">Save</button><button class="btn btn-danger" onclick="closeServiceModal()">Cancel</button></div></div>
 
-        <div class="container">
-            <div class="stats">
-                <div class="stat-card" onclick="showSection('services')"><div class="stat-number" id="totalServices">0</div><div>Services</div></div>
-                <div class="stat-card" onclick="showSection('requests')"><div class="stat-number" id="totalRequests">0</div><div>Requests</div></div>
-                <div class="stat-card" onclick="showSection('requests')"><div class="stat-number" id="pendingCount">0</div><div>Pending</div></div>
-                <div class="stat-card" onclick="showSection('users')"><div class="stat-number" id="totalUsers">0</div><div>Users</div></div>
-            </div>
+    <div id="editProfileModal" class="modal"><div class="modal-content"><h2>✏️ Edit Admin Profile</h2><div class="form-group"><label>Name</label><input type="text" id="editName"></div><div class="form-group"><label>Phone</label><input type="text" id="editPhone"></div><button class="btn btn-primary" onclick="updateProfile()">Save</button><button class="btn btn-danger" onclick="closeEditProfileModal()">Cancel</button></div></div>
 
-            <div id="servicesSection" class="section">
-                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
-                    <h2>📦 Services</h2>
-                    <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add Service</button>
-                </div>
-                <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table>
-            </div>
-
-            <div id="requestsSection" class="section" style="display:none;">
-                <h2>📋 User Requests</h2>
-                <table id="requestsTable"><thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table>
-            </div>
-
-            <div id="usersSection" class="section" style="display:none;">
-                <h2>👥 Registered Users</h2>
-                <table id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead><tbody></tbody></table>
-            </div>
-        </div>
-    </div>
-
-    <div id="serviceModal" class="modal"><div class="modal-content"><h2 id="modalTitle">Add Service</h2><input type="text" id="serviceIcon" placeholder="Icon (📄)"><input type="text" id="serviceName" placeholder="Service Name"><input type="number" id="servicePrice" placeholder="Price (KES)"><input type="hidden" id="serviceId"><button class="btn btn-primary" onclick="saveService()">Save</button><button class="btn btn-danger" onclick="closeModal('serviceModal')">Cancel</button></div></div>
+    <div id="passwordModal" class="modal"><div class="modal-content"><h2>🔑 Change Password</h2><div class="form-group"><label>Current Password</label><input type="password" id="currentPassword"></div><div class="form-group"><label>New Password</label><input type="password" id="newPassword"></div><div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPassword"></div><button class="btn btn-primary" onclick="changePassword()">Update</button><button class="btn btn-danger" onclick="closePasswordModal()">Cancel</button></div></div>
 
     <script>
         const firebaseConfig = {
@@ -100,216 +123,95 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-
+        
         let currentAdmin = null;
-
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('errorMsg');
-            
-            try {
-                const userCred = await auth.signInWithEmailAndPassword(email, password);
-                const userDoc = await db.collection('users').doc(userCred.user.uid).get();
-                
-                if (userDoc.exists && userDoc.data().role === 'admin') {
-                    currentAdmin = userCred.user;
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    loadStats();
-                    loadServices();
-                    loadRequests();
-                    loadUsers();
-                } else {
-                    errorDiv.textContent = 'Not an admin account!';
-                    errorDiv.style.display = 'block';
-                    await auth.signOut();
-                }
-            } catch (error) {
-                errorDiv.textContent = 'Invalid email or password';
-                errorDiv.style.display = 'block';
+        let currentAdminData = null;
+        
+        function toggleTheme() {
+            const body = document.body, toggle = document.getElementById('themeToggle');
+            if (body.classList.contains('light-mode')) { body.classList.remove('light-mode'); body.classList.add('dark-mode'); toggle.textContent = '☀️'; localStorage.setItem('theme', 'dark'); }
+            else { body.classList.remove('dark-mode'); body.classList.add('light-mode'); toggle.textContent = '🌙'; localStorage.setItem('theme', 'light'); }
+        }
+        
+        function loadTheme() { if (localStorage.getItem('theme') === 'dark') { document.body.classList.remove('light-mode'); document.body.classList.add('dark-mode'); document.getElementById('themeToggle').textContent = '☀️'; } }
+        
+        function updateAdminDisplay() {
+            if (currentAdminData) {
+                document.getElementById('adminName').innerText = currentAdminData.name || currentAdmin.email;
+                document.getElementById('adminEmail').innerText = currentAdmin.email;
+                document.getElementById('adminPhone').innerText = currentAdminData.phone || 'Not set';
             }
         }
-
-        function logout() {
-            auth.signOut();
-            document.getElementById('loginContainer').style.display = 'block';
-            document.getElementById('dashboard').style.display = 'none';
-        }
-
-        function showSection(section) {
-            document.getElementById('servicesSection').style.display = section === 'services' ? 'block' : 'none';
-            document.getElementById('requestsSection').style.display = section === 'requests' ? 'block' : 'none';
-            document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
-        }
-
+        
+        function showServicesSection() { document.getElementById('servicesSection').style.display = 'block'; document.getElementById('requestsSection').style.display = 'none'; document.getElementById('usersSection').style.display = 'none'; loadServices(); }
+        function showRequestsSection() { document.getElementById('servicesSection').style.display = 'none'; document.getElementById('requestsSection').style.display = 'block'; document.getElementById('usersSection').style.display = 'none'; loadRequests(); }
+        function showPendingSection() { showRequestsSection(); }
+        function showUsersSection() { document.getElementById('servicesSection').style.display = 'none'; document.getElementById('requestsSection').style.display = 'none'; document.getElementById('usersSection').style.display = 'block'; loadUsers(); }
+        
         async function loadStats() {
             const services = await db.collection('services').get();
             const requests = await db.collection('requests').get();
             const users = await db.collection('users').get();
             const pending = await db.collection('requests').where('status', '==', 'pending').get();
-            
             document.getElementById('totalServices').innerText = services.size;
             document.getElementById('totalRequests').innerText = requests.size;
-            document.getElementById('pendingCount').innerText = pending.size;
+            document.getElementById('pendingRequests').innerText = pending.size;
             document.getElementById('totalUsers').innerText = users.size;
+            const badge = document.getElementById('notificationBadge');
+            if (pending.size > 0) { badge.style.display = 'inline-block'; badge.innerText = pending.size; }
+            else { badge.style.display = 'none'; }
         }
-
+        
         async function loadServices() {
             const snapshot = await db.collection('services').orderBy('id').get();
-            const services = [];
-            snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
-            
-            document.getElementById('servicesTable').innerHTML = `
-                <thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead>
-                <tbody>${services.map(s => `
-                    <tr><td>${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td>
-                    <td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button>
-                    <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>
-                `).join('')}</tbody>
-            `;
+            const services = []; snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+            document.getElementById('servicesTable').innerHTML = `<thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>${services.map(s => `<tr><td>${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td><td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
         }
-
+        
         async function loadRequests() {
             const snapshot = await db.collection('requests').orderBy('date', 'desc').get();
-            const requests = [];
-            snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
-            
-            document.getElementById('requestsTable').innerHTML = `
-                <thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-                <tbody>${requests.map(r => `
-                    <tr><td>${r.userName}<br><small>${r.userId}</small></td><td>${r.serviceName}</td>
-                    <td>KES ${r.price.toLocaleString()}</td>
-                    <td><span class="status-${r.status}">${r.status}</span></td>
-                    <td>${new Date(r.date).toLocaleString()}</td>
-                    <td><select onchange="updateStatus('${r.id}', this.value)">
-                        <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approved</option>
-                        <option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option>
-                    </select>
-                    <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button></td></tr>
-                `).join('')}</tbody>
-            `;
+            const requests = []; snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+            document.getElementById('requestsTable').innerHTML = `<thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody>${requests.map(r => `<tr><td>${r.userName}<br><small>${r.userEmail || r.userId}</small></td><td>${r.serviceName}</td><td>KES ${r.price.toLocaleString()}</td><td><span class="status-${r.status}">${r.status.toUpperCase()}</span></td><td>${new Date(r.date).toLocaleString()}</td><td><select onchange="updateStatus('${r.id}', this.value)" style="padding:5px;border-radius:10px;"><option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option><option value="seen" ${r.status === 'seen' ? 'selected' : ''}>Seen</option><option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approved</option><option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option></select> <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
         }
-
+        
         async function loadUsers() {
             const snapshot = await db.collection('users').get();
-            const users = [];
-            snapshot.forEach(doc => users.push(doc.data()));
-            
-            document.getElementById('usersTable').innerHTML = `
-                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead>
-                <tbody>${users.map(u => `<tr><td>${u.name}</td><td>${u.email}</td><td>${u.phone || 'N/A'}</td><td>${u.role || 'user'}</td></tr>`).join('')}</tbody>
-            `;
+            const users = []; snapshot.forEach(doc => users.push({ id: doc.id, ...doc.data() }));
+            document.getElementById('usersTable').innerHTML = `<thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead><tbody>${users.map(u => `<tr><td>${u.name}</td><td>${u.email}</td><td>${u.phone || 'N/A'}</td><td><span style="background:${u.role === 'admin' ? '#f97316' : '#10b981'};color:white;padding:3px 10px;border-radius:20px;">${u.role || 'user'}</span></td></tr>`).join('')}</tbody>`;
         }
-
-        async function updateStatus(requestId, newStatus) {
-            await db.collection('requests').doc(requestId).update({ status: newStatus });
-            loadRequests();
-            loadStats();
-        }
-
-        async function deleteRequest(requestId) {
-            if (confirm('Delete this request?')) {
-                await db.collection('requests').doc(requestId).delete();
-                loadRequests();
-                loadStats();
-            }
-        }
-
-        function showAddServiceModal() {
-            document.getElementById('modalTitle').innerText = 'Add Service';
-            document.getElementById('serviceId').value = '';
-            document.getElementById('serviceIcon').value = '';
-            document.getElementById('serviceName').value = '';
-            document.getElementById('servicePrice').value = '';
-            document.getElementById('serviceModal').style.display = 'flex';
-        }
-
-        async function editService(serviceId) {
-            const doc = await db.collection('services').doc(serviceId).get();
-            const s = doc.data();
-            document.getElementById('modalTitle').innerText = 'Edit Service';
-            document.getElementById('serviceId').value = serviceId;
-            document.getElementById('serviceIcon').value = s.icon;
-            document.getElementById('serviceName').value = s.name;
-            document.getElementById('servicePrice').value = s.price;
-            document.getElementById('serviceModal').style.display = 'flex';
-        }
-
-        async function saveService() {
-            const id = document.getElementById('serviceId').value;
-            const icon = document.getElementById('serviceIcon').value;
-            const name = document.getElementById('serviceName').value;
-            const price = parseInt(document.getElementById('servicePrice').value);
-            
-            if (!icon || !name || !price) { alert('Fill all fields'); return; }
-            
-            if (id) {
-                await db.collection('services').doc(id).update({ icon, name, price });
-            } else {
-                const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get();
-                let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1;
-                await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price });
-            }
-            closeModal('serviceModal');
-            loadServices();
-            loadStats();
-        }
-
-        async function deleteService(serviceId) {
-            if (confirm('Delete this service?')) {
-                await db.collection('services').doc(serviceId).delete();
-                loadServices();
-                loadStats();
-            }
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Create default admin if none exists
-        async function setupDefaultAdmin() {
-            const adminEmail = 'reaganjamhuri2@gmail.com';
-            const adminPassword = 'admin123';
-            
-            try {
-                // Check if admin exists in Auth
-                const userCred = await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
-                // Add to Firestore
-                await db.collection('users').doc(userCred.user.uid).set({
-                    name: 'Super Admin',
-                    email: adminEmail,
-                    phone: '0113166257',
-                    role: 'admin',
-                    createdAt: new Date().toISOString()
-                });
-                console.log('Admin created!');
-            } catch (error) {
-                if (error.code === 'auth/email-already-in-use') {
-                    console.log('Admin already exists');
-                }
-            }
-        }
-
-        setupDefaultAdmin();
         
-        // Check if already logged in
+        async function updateStatus(requestId, newStatus) { await db.collection('requests').doc(requestId).update({ status: newStatus }); loadRequests(); loadStats(); }
+        async function deleteRequest(requestId) { if (confirm('Delete this request?')) { await db.collection('requests').doc(requestId).delete(); loadRequests(); loadStats(); } }
+        
+        function showAddServiceModal() { document.getElementById('modalTitle').innerText = 'Add Service'; document.getElementById('serviceId').value = ''; document.getElementById('serviceIcon').value = ''; document.getElementById('serviceName').value = ''; document.getElementById('servicePrice').value = ''; document.getElementById('serviceModal').style.display = 'flex'; }
+        async function editService(serviceId) { const doc = await db.collection('services').doc(serviceId).get(); const s = doc.data(); document.getElementById('modalTitle').innerText = 'Edit Service'; document.getElementById('serviceId').value = serviceId; document.getElementById('serviceIcon').value = s.icon; document.getElementById('serviceName').value = s.name; document.getElementById('servicePrice').value = s.price; document.getElementById('serviceModal').style.display = 'flex'; }
+        async function saveService() { const id = document.getElementById('serviceId').value; const icon = document.getElementById('serviceIcon').value; const name = document.getElementById('serviceName').value; const price = parseInt(document.getElementById('servicePrice').value); if (!icon || !name || !price) { alert('Fill all fields'); return; } if (id) { await db.collection('services').doc(id).update({ icon, name, price }); } else { const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get(); let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1; await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price }); } closeServiceModal(); loadServices(); loadStats(); }
+        async function deleteService(serviceId) { if (confirm('Delete this service?')) { await db.collection('services').doc(serviceId).delete(); loadServices(); loadStats(); } }
+        function closeServiceModal() { document.getElementById('serviceModal').style.display = 'none'; }
+        
+        function showEditProfileModal() { document.getElementById('editName').value = currentAdminData?.name || ''; document.getElementById('editPhone').value = currentAdminData?.phone || ''; document.getElementById('editProfileModal').style.display = 'flex'; }
+        function closeEditProfileModal() { document.getElementById('editProfileModal').style.display = 'none'; }
+        async function updateProfile() { const newName = document.getElementById('editName').value; const newPhone = document.getElementById('editPhone').value; await db.collection('users').doc(currentAdmin.uid).update({ name: newName, phone: newPhone }); currentAdminData.name = newName; currentAdminData.phone = newPhone; updateAdminDisplay(); alert('Profile updated!'); closeEditProfileModal(); loadUsers(); }
+        
+        function showChangePasswordModal() { document.getElementById('passwordModal').style.display = 'flex'; }
+        function closePasswordModal() { document.getElementById('passwordModal').style.display = 'none'; }
+        async function changePassword() { const current = document.getElementById('currentPassword').value; const newPass = document.getElementById('newPassword').value; const confirm = document.getElementById('confirmPassword').value; if (newPass !== confirm) { alert('Passwords do not match'); return; } if (newPass.length < 6) { alert('Password must be at least 6 characters'); return; } try { const credential = firebase.auth.EmailAuthProvider.credential(currentAdmin.email, current); await currentAdmin.reauthenticateWithCredential(credential); await currentAdmin.updatePassword(newPass); alert('Password changed! Please login again.'); logout(); } catch(e) { alert('Current password is incorrect'); } closePasswordModal(); }
+        
+        function logout() { auth.signOut(); window.location.href = 'index.html'; }
+        
         auth.onAuthStateChanged(async (user) => {
-            if (user) {
-                const userDoc = await db.collection('users').doc(user.uid).get();
-                if (userDoc.exists && userDoc.data().role === 'admin') {
-                    currentAdmin = user;
-                    document.getElementById('loginContainer').style.display = 'none';
-                    document.getElementById('dashboard').style.display = 'block';
-                    loadStats();
-                    loadServices();
-                    loadRequests();
-                    loadUsers();
-                }
-            }
+            if (!user) { window.location.href = 'index.html'; return; }
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            if (userData?.role !== 'admin') { window.location.href = 'dashboard.html'; return; }
+            currentAdmin = user;
+            currentAdminData = userData;
+            updateAdminDisplay();
+            loadStats(); loadServices(); loadUsers();
         });
+        
+        loadTheme();
+        db.collection('requests').where('status', '==', 'pending').onSnapshot(() => { loadStats(); });
     </script>
 </body>
 </html>

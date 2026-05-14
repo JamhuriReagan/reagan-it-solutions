@@ -14,19 +14,28 @@
         body.light-mode .navbar { background: #0f2b3d; }
         body.light-mode .section { background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         body.light-mode .service-item { background: #f8fafc; }
+        body.light-mode .profile-card { background: linear-gradient(135deg, #fef3c7, #fde68a); }
         body.dark-mode { background: #1a1a2e; color: #eee; }
         body.dark-mode .navbar { background: #16213e; }
         body.dark-mode .section { background: #1e1e2e; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         body.dark-mode .service-item { background: #2d2d3a; color: #eee; }
+        body.dark-mode .profile-card { background: linear-gradient(135deg, #2d2d3a, #1e1e2e); border: 1px solid #f97316; }
         body.dark-mode table { color: #eee; }
         body.dark-mode th { background: #0f2b3d; }
         body.dark-mode td { border-bottom-color: #444; }
+        body.dark-mode .modal-content { background: #1e1e2e; color: white; }
+        body.dark-mode .modal-content input { background: #2d2d3a; border-color: #444; color: white; }
+        
         .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; color: white; }
         .logo { font-size: 1.5rem; font-weight: bold; }
         .logo span { color: #f97316; }
         .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: white; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 5%; }
         .welcome-card { background: linear-gradient(135deg, #f97316, #e8620d); color: white; padding: 2rem; border-radius: 20px; margin-bottom: 2rem; }
+        .profile-card { border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; }
+        .profile-info { flex: 1; }
+        .profile-info p { margin: 0.5rem 0; }
+        .profile-label { font-weight: bold; }
         .section { border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
         .section h2 { color: #f97316; margin-bottom: 1rem; }
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
@@ -37,6 +46,7 @@
         .btn-primary { background: #f97316; color: white; }
         .btn-primary:hover { background: #e8620d; }
         .btn-danger { background: #dc2626; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
         .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
         .status-seen { background: #e0e7ff; color: #4f46e5; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
         .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
@@ -44,9 +54,15 @@
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #0f2b3d; color: white; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 500px; }
+        .modal-content input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
         @media (max-width: 768px) {
             .services-grid { grid-template-columns: 1fr; }
             .service-item { flex-direction: column; gap: 0.5rem; text-align: center; }
+            .profile-card { flex-direction: column; text-align: center; }
         }
     </style>
 </head>
@@ -66,6 +82,19 @@
             <p>Your one-stop shop for all IT services</p>
         </div>
 
+        <!-- User Profile Card -->
+        <div class="profile-card" id="profileCard">
+            <div class="profile-info">
+                <p><span class="profile-label">👤 Name:</span> <span id="profileName"></span></p>
+                <p><span class="profile-label">📧 Email:</span> <span id="profileEmail"></span></p>
+                <p><span class="profile-label">📱 Phone:</span> <span id="profilePhone"></span></p>
+            </div>
+            <div>
+                <button class="btn btn-primary" onclick="showEditProfileModal()">✏️ Edit Profile</button>
+                <button class="btn btn-warning" onclick="showChangePasswordModal()">🔑 Change Password</button>
+            </div>
+        </div>
+
         <div class="section">
             <h2>📌 Available Services & Prices</h2>
             <div class="services-grid" id="servicesList">Loading services...</div>
@@ -77,8 +106,30 @@
         </div>
     </div>
 
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
+        <div class="modal-content">
+            <h2>✏️ Edit Profile</h2>
+            <div class="form-group"><label>Full Name</label><input type="text" id="editName"></div>
+            <div class="form-group"><label>Phone Number</label><input type="text" id="editPhone"></div>
+            <button class="btn btn-primary" onclick="updateProfile()">Save Changes</button>
+            <button class="btn btn-danger" onclick="closeEditProfileModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>🔑 Change Password</h2>
+            <div class="form-group"><label>Current Password</label><input type="password" id="currentPassword"></div>
+            <div class="form-group"><label>New Password</label><input type="password" id="newPassword"></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmPassword"></div>
+            <button class="btn btn-primary" onclick="changePassword()">Update Password</button>
+            <button class="btn btn-danger" onclick="closeChangePasswordModal()">Cancel</button>
+        </div>
+    </div>
+
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
             authDomain: "reagan-it-solutions.firebaseapp.com",
@@ -93,6 +144,7 @@
         const auth = firebase.auth();
         
         let currentUser = null;
+        let currentUserData = null;
         
         function toggleTheme() {
             const body = document.body;
@@ -118,6 +170,16 @@
             }
         }
         
+        function updateProfileDisplay() {
+            if (currentUserData) {
+                document.getElementById('profileName').innerText = currentUserData.name || currentUser.email;
+                document.getElementById('profileEmail').innerText = currentUser.email;
+                document.getElementById('profilePhone').innerText = currentUserData.phone || 'Not set';
+                document.getElementById('userName').innerText = currentUserData.name || currentUser.email;
+                document.getElementById('welcomeName').innerText = currentUserData.name || currentUser.email;
+            }
+        }
+        
         async function loadServices() {
             const grid = document.getElementById('servicesList');
             grid.innerHTML = '<div style="text-align: center;">Loading services...</div>';
@@ -127,7 +189,6 @@
                 let services = [];
                 
                 if (snapshot.empty) {
-                    // Default services if none exist
                     services = [
                         { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
                         { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
@@ -180,7 +241,7 @@
                 
                 await db.collection('requests').add({
                     userId: currentUser.uid,
-                    userName: currentUser.displayName || currentUser.email,
+                    userName: currentUserData?.name || currentUser.email,
                     userEmail: currentUser.email,
                     serviceId: serviceId,
                     serviceName: service.name,
@@ -220,14 +281,12 @@
                 
                 container.innerHTML = `
                     <table>
-                        <thead>
-                            <tr><th>Service</th><th>Price (KES)</th><th>Status</th><th>Date</th></tr>
-                        </thead>
+                        <thead><tr><th>Service</th><th>Price (KES)</th><th>Status</th><th>Date</th></tr></thead>
                         <tbody>
                             ${requests.map(req => {
                                 let statusClass = 'status-pending';
                                 let statusText = req.status ? req.status.toUpperCase() : 'PENDING';
-                                if (req.status === 'seen') { statusClass = 'status-seen'; statusText = '✓ SEEN'; }
+                                if (req.status === 'seen') { statusClass = 'status-seen'; statusText = '✓ SEEN BY ADMIN'; }
                                 if (req.status === 'approved') { statusClass = 'status-approved'; statusText = '✓✓ APPROVED'; }
                                 if (req.status === 'completed') { statusClass = 'status-completed'; statusText = '✓✓✓ COMPLETED'; }
                                 return `
@@ -248,6 +307,87 @@
             }
         }
         
+        // Profile Functions
+        function showEditProfileModal() {
+            document.getElementById('editName').value = currentUserData?.name || '';
+            document.getElementById('editPhone').value = currentUserData?.phone || '';
+            document.getElementById('editProfileModal').style.display = 'flex';
+        }
+        
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+        
+        async function updateProfile() {
+            const newName = document.getElementById('editName').value;
+            const newPhone = document.getElementById('editPhone').value;
+            
+            if (!newName) {
+                alert('Name is required');
+                return;
+            }
+            
+            try {
+                await db.collection('users').doc(currentUser.uid).update({
+                    name: newName,
+                    phone: newPhone
+                });
+                
+                currentUserData.name = newName;
+                currentUserData.phone = newPhone;
+                updateProfileDisplay();
+                alert('Profile updated successfully!');
+                closeEditProfileModal();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile. Please try again.');
+            }
+        }
+        
+        function showChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'flex';
+        }
+        
+        function closeChangePasswordModal() {
+            document.getElementById('changePasswordModal').style.display = 'none';
+            document.getElementById('currentPassword').value = '';
+            document.getElementById('newPassword').value = '';
+            document.getElementById('confirmPassword').value = '';
+        }
+        
+        async function changePassword() {
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('newPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('Please fill all fields');
+                return;
+            }
+            
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match');
+                return;
+            }
+            
+            if (newPassword.length < 6) {
+                alert('Password must be at least 6 characters');
+                return;
+            }
+            
+            try {
+                const credential = firebase.auth.EmailAuthProvider.credential(currentUser.email, currentPassword);
+                await currentUser.reauthenticateWithCredential(credential);
+                await currentUser.updatePassword(newPassword);
+                alert('Password changed successfully! Please login again.');
+                closeChangePasswordModal();
+                logout();
+            } catch (error) {
+                console.error('Error changing password:', error);
+                alert('Current password is incorrect');
+            }
+        }
+        
         function logout() {
             auth.signOut();
             sessionStorage.clear();
@@ -259,10 +399,8 @@
             if (user) {
                 currentUser = user;
                 const userDoc = await db.collection('users').doc(user.uid).get();
-                const userData = userDoc.data();
-                const displayName = userData?.name || user.email;
-                document.getElementById('userName').innerText = displayName;
-                document.getElementById('welcomeName').innerText = displayName;
+                currentUserData = userDoc.data() || {};
+                updateProfileDisplay();
                 loadServices();
                 loadMyRequests();
             } else {
