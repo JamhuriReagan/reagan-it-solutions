@@ -20,9 +20,6 @@
         body.dark-mode .section { background: #1e1e2e; box-shadow: 0 2px 10px rgba(0,0,0,0.3); }
         body.dark-mode .service-item { background: #2d2d3a; color: #eee; }
         body.dark-mode .profile-card { background: linear-gradient(135deg, #2d2d3a, #1e1e2e); border: 1px solid #f97316; }
-        body.dark-mode table { color: #eee; }
-        body.dark-mode th { background: #0f2b3d; }
-        body.dark-mode td { border-bottom-color: #444; }
         body.dark-mode .modal-content { background: #1e1e2e; color: white; }
         body.dark-mode .modal-content input { background: #2d2d3a; border-color: #444; color: white; }
         
@@ -82,8 +79,7 @@
             <p>Your one-stop shop for all IT services</p>
         </div>
 
-        <!-- User Profile Card -->
-        <div class="profile-card" id="profileCard">
+        <div class="profile-card">
             <div class="profile-info">
                 <p><span class="profile-label">👤 Name:</span> <span id="profileName"></span></p>
                 <p><span class="profile-label">📧 Email:</span> <span id="profileEmail"></span></p>
@@ -106,7 +102,6 @@
         </div>
     </div>
 
-    <!-- Edit Profile Modal -->
     <div id="editProfileModal" class="modal">
         <div class="modal-content">
             <h2>✏️ Edit Profile</h2>
@@ -117,7 +112,6 @@
         </div>
     </div>
 
-    <!-- Change Password Modal -->
     <div id="changePasswordModal" class="modal">
         <div class="modal-content">
             <h2>🔑 Change Password</h2>
@@ -266,6 +260,11 @@
             container.innerHTML = '<div style="text-align: center;">Loading your requests...</div>';
             
             try {
+                // First, check if requests collection exists by trying to get any request
+                const testSnapshot = await db.collection('requests').limit(1).get();
+                console.log('Requests collection accessible:', !testSnapshot.empty);
+                
+                // Now get user's requests
                 const snapshot = await db.collection('requests')
                     .where('userId', '==', currentUser.uid)
                     .orderBy('date', 'desc')
@@ -275,13 +274,20 @@
                 snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
                 
                 if (requests.length === 0) {
-                    container.innerHTML = '<p style="text-align: center;">No requests yet. Request a service above!</p>';
+                    container.innerHTML = '<p style="text-align: center; padding: 2rem;">📭 No requests yet. Request a service above!</p>';
                     return;
                 }
                 
                 container.innerHTML = `
-                    <table>
-                        <thead><tr><th>Service</th><th>Price (KES)</th><th>Status</th><th>Date</th></tr></thead>
+                    <table style="width: 100%;">
+                        <thead>
+                            <tr style="background: #0f2b3d; color: white;">
+                                <th style="padding: 0.75rem; text-align: left;">Service</th>
+                                <th style="padding: 0.75rem; text-align: left;">Price (KES)</th>
+                                <th style="padding: 0.75rem; text-align: left;">Status</th>
+                                <th style="padding: 0.75rem; text-align: left;">Date</th>
+                            </tr>
+                        </thead>
                         <tbody>
                             ${requests.map(req => {
                                 let statusClass = 'status-pending';
@@ -290,11 +296,11 @@
                                 if (req.status === 'approved') { statusClass = 'status-approved'; statusText = '✓✓ APPROVED'; }
                                 if (req.status === 'completed') { statusClass = 'status-completed'; statusText = '✓✓✓ COMPLETED'; }
                                 return `
-                                    <tr>
-                                        <td>${req.serviceName}</td>
-                                        <td>KES ${(req.price || 0).toLocaleString()}</td>
-                                        <td><span class="${statusClass}">${statusText}</span></td>
-                                        <td>${req.date ? new Date(req.date).toLocaleString() : 'N/A'}</td>
+                                    <tr style="border-bottom: 1px solid #ddd;">
+                                        <td style="padding: 0.75rem;">${req.serviceName}</td>
+                                        <td style="padding: 0.75rem;">KES ${(req.price || 0).toLocaleString()}</td>
+                                        <td style="padding: 0.75rem;"><span class="${statusClass}">${statusText}</span></td>
+                                        <td style="padding: 0.75rem;">${req.date ? new Date(req.date).toLocaleString() : 'N/A'}</td>
                                     </tr>
                                 `;
                             }).join('')}
@@ -303,11 +309,10 @@
                 `;
             } catch (error) {
                 console.error('Error loading requests:', error);
-                container.innerHTML = '<p style="text-align: center;">Error loading requests. Please refresh.</p>';
+                container.innerHTML = '<p style="text-align: center; color: red; padding: 2rem;">❌ Error loading requests. Please refresh the page.</p>';
             }
         }
         
-        // Profile Functions
         function showEditProfileModal() {
             document.getElementById('editName').value = currentUserData?.name || '';
             document.getElementById('editPhone').value = currentUserData?.phone || '';
@@ -401,8 +406,8 @@
                 const userDoc = await db.collection('users').doc(user.uid).get();
                 currentUserData = userDoc.data() || {};
                 updateProfileDisplay();
-                loadServices();
-                loadMyRequests();
+                await loadServices();
+                await loadMyRequests();
             } else {
                 window.location.href = 'index.html';
             }
