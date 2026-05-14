@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Simple Access</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        .navbar { background: #0f2b3d; color: white; padding: 1rem 5%; display: flex; justify-content: space-between; }
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 5%; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1rem; border-radius: 15px; text-align: center; cursor: pointer; }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #f97316; }
+        .section { background: white; border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #0f2b3d; color: white; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 10px; cursor: pointer; margin: 0 0.25rem; }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 15px; }
+        .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.5rem; border-radius: 15px; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 500px; }
+        .modal-content input { width: 100%; padding: 0.5rem; margin: 0.5rem 0; }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">REAGAN'S <span style="color:#f97316;">IT</span> - ADMIN</div>
+        <div>Simple Access Mode</div>
+    </div>
+
+    <div class="container">
+        <div class="stats">
+            <div class="stat-card" onclick="showSection('services')"><div class="stat-number" id="totalServices">0</div><div>Services</div></div>
+            <div class="stat-card" onclick="showSection('requests')"><div class="stat-number" id="totalRequests">0</div><div>Requests</div></div>
+            <div class="stat-card" onclick="showSection('requests')"><div class="stat-number" id="pendingCount">0</div><div>Pending</div></div>
+            <div class="stat-card" onclick="showSection('users')"><div class="stat-number" id="totalUsers">0</div><div>Users</div></div>
+        </div>
+
+        <div id="servicesSection" class="section">
+            <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                <h2>📦 Services</h2>
+                <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add Service</button>
+            </div>
+            <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <div id="requestsSection" class="section" style="display:none;">
+            <h2>📋 User Requests</h2>
+            <table id="requestsTable"><thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table>
+        </div>
+
+        <div id="usersSection" class="section" style="display:none;">
+            <h2>👥 Registered Users</h2>
+            <table id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead><tbody></tbody></table>
+        </div>
+    </div>
+
+    <div id="serviceModal" class="modal"><div class="modal-content"><h2 id="modalTitle">Add Service</h2><input type="text" id="serviceIcon" placeholder="Icon (📄)"><input type="text" id="serviceName" placeholder="Service Name"><input type="number" id="servicePrice" placeholder="Price (KES)"><input type="hidden" id="serviceId"><button class="btn btn-primary" onclick="saveService()">Save</button><button class="btn btn-danger" onclick="closeModal('serviceModal')">Cancel</button></div></div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
+            authDomain: "reagan-it-solutions.firebaseapp.com",
+            projectId: "reagan-it-solutions",
+            storageBucket: "reagan-it-solutions.firebasestorage.app",
+            messagingSenderId: "857985673352",
+            appId: "1:857985673352:web:5a066de1f543183159173d"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        function showSection(section) {
+            document.getElementById('servicesSection').style.display = section === 'services' ? 'block' : 'none';
+            document.getElementById('requestsSection').style.display = section === 'requests' ? 'block' : 'none';
+            document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
+        }
+
+        async function loadStats() {
+            const services = await db.collection('services').get();
+            const requests = await db.collection('requests').get();
+            const users = await db.collection('users').get();
+            const pending = await db.collection('requests').where('status', '==', 'pending').get();
+            
+            document.getElementById('totalServices').innerText = services.size;
+            document.getElementById('totalRequests').innerText = requests.size;
+            document.getElementById('pendingCount').innerText = pending.size;
+            document.getElementById('totalUsers').innerText = users.size;
+        }
+
+        async function loadServices() {
+            const snapshot = await db.collection('services').orderBy('id').get();
+            const services = [];
+            snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('servicesTable').innerHTML = `
+                <thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead>
+                <tbody>${services.map(s => `
+                    <tr><td>${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td>
+                    <td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>
+                `).join('')}</tbody>
+            `;
+        }
+
+        async function loadRequests() {
+            const snapshot = await db.collection('requests').orderBy('date', 'desc').get();
+            const requests = [];
+            snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('requestsTable').innerHTML = `
+                <thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody>${requests.map(r => `
+                    <tr><td>${r.userName}<br><small>${r.userId}</small></td><td>${r.serviceName}</td>
+                    <td>KES ${r.price.toLocaleString()}</td>
+                    <td><span class="status-${r.status}">${r.status}</span></td>
+                    <td>${new Date(r.date).toLocaleString()}</td>
+                    <td><select onchange="updateStatus('${r.id}', this.value)">
+                        <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option>
+                    </select>
+                    <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button></td></tr>
+                `).join('')}</tbody>
+            `;
+        }
+
+        async function loadUsers() {
+            const snapshot = await db.collection('users').get();
+            const users = [];
+            snapshot.forEach(doc => users.push(doc.data()));
+            
+            document.getElementById('usersTable').innerHTML = `
+                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead>
+                <tbody>${users.map(u => `<tr><td>${u.name}</td><td>${u.email}</td><td>${u.phone || 'N/A'}</td><td>${u.role || 'user'}</td></tr>`).join('')}</tbody>
+            `;
+        }
+
+        async function updateStatus(requestId, newStatus) {
+            await db.collection('requests').doc(requestId).update({ status: newStatus });
+            loadRequests();
+            loadStats();
+        }
+
+        async function deleteRequest(requestId) {
+            if (confirm('Delete this request?')) {
+                await db.collection('requests').doc(requestId).delete();
+                loadRequests();
+                loadStats();
+            }
+        }
+
+        function showAddServiceModal() {
+            document.getElementById('modalTitle').innerText = 'Add Service';
+            document.getElementById('serviceId').value = '';
+            document.getElementById('serviceIcon').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('serviceModal').style.display = 'flex';
+        }
+
+        async function editService(serviceId) {
+            const doc = await db.collection('services').doc(serviceId).get();
+            const s = doc.data();
+            document.getElementById('modalTitle').innerText = 'Edit Service';
+            document.getElementById('serviceId').value = serviceId;
+            document.getElementById('serviceIcon').value = s.icon;
+            document.getElementById('serviceName').value = s.name;
+            document.getElementById('servicePrice').value = s.price;
+            document.getElementById('serviceModal').style.display = 'flex';
+        }
+
+        async function saveService() {
+            const id = document.getElementById('serviceId').value;
+            const icon = document.getElementById('serviceIcon').value;
+            const name = document.getElementById('serviceName').value;
+            const price = parseInt(document.getElementById('servicePrice').value);
+            
+            if (!icon || !name || !price) { alert('Fill all fields'); return; }
+            
+            if (id) {
+                await db.collection('services').doc(id).update({ icon, name, price });
+            } else {
+                const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get();
+                let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1;
+                await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price });
+            }
+            closeModal('serviceModal');
+            loadServices();
+            loadStats();
+        }
+
+        async function deleteService(serviceId) {
+            if (confirm('Delete this service?')) {
+                await db.collection('services').doc(serviceId).delete();
+                loadServices();
+                loadStats();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Initialize
+        loadStats();
+        loadServices();
+        loadRequests();
+        loadUsers();
+        
+        // Refresh every 5 seconds
+        setInterval(() => {
+            loadStats();
+            loadRequests();
+        }, 5000);
+    </script>
+</body>
+</html>
