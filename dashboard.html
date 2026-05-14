@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Dashboard - Reagan's IT</title>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; transition: all 0.3s ease; }
@@ -17,14 +20,13 @@
         body.dark-mode .service-item { background: #2d2d3a; color: #eee; }
         body.dark-mode table { color: #eee; }
         body.dark-mode th { background: #0f2b3d; }
-        body.dark-mode td { border-bottom-color: #444; }
         .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; color: white; }
         .logo { font-size: 1.5rem; font-weight: bold; }
         .logo span { color: #f97316; }
-        .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; padding: 0.5rem; border-radius: 50%; color: white; }
+        .theme-toggle { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: white; }
         .container { max-width: 1200px; margin: 2rem auto; padding: 0 5%; }
         .welcome-card { background: linear-gradient(135deg, #f97316, #e8620d); color: white; padding: 2rem; border-radius: 20px; margin-bottom: 2rem; }
-        .section { border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; transition: all 0.3s; }
+        .section { border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
         .section h2 { color: #f97316; margin-bottom: 1rem; }
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
         .service-item { padding: 1rem; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; }
@@ -32,13 +34,11 @@
         .service-price { color: #f97316; font-weight: bold; }
         .btn { padding: 0.5rem 1rem; border: none; border-radius: 20px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
         .btn-primary { background: #f97316; color: white; }
-        .btn-primary:hover { background: #e8620d; }
         .btn-danger { background: #dc2626; color: white; }
-        .status { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-block; }
-        .status-pending { background: #fef3c7; color: #d97706; }
-        .status-seen { background: #e0e7ff; color: #4f46e5; }
-        .status-approved { background: #d1fae5; color: #059669; }
-        .status-completed { background: #dbeafe; color: #2563eb; }
+        .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        .status-seen { background: #e0e7ff; color: #4f46e5; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
+        .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
         th { background: #0f2b3d; color: white; }
@@ -47,35 +47,38 @@
 <body class="light-mode">
     <nav class="navbar">
         <div class="logo">REAGAN'S <span>IT</span></div>
-        <div style="display: flex; gap: 1rem; align-items: center;">
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-            <span id="userName"></span>
-            <button class="btn btn-danger" onclick="logout()">Logout</button>
-        </div>
+        <div><button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button><span id="userName" style="margin:0 1rem;"></span><button class="btn btn-danger" onclick="logout()">Logout</button></div>
     </nav>
-
     <div class="container">
-        <div class="welcome-card">
-            <h1>Welcome, <span id="welcomeName"></span>! 👋</h1>
-            <p>Your one-stop shop for all IT services</p>
-        </div>
-
-        <div class="section">
-            <h2>📌 Available Services & Prices</h2>
-            <div class="services-grid" id="servicesList"></div>
-        </div>
-
-        <div class="section">
-            <h2>📋 My Requests</h2>
-            <div id="myRequests"></div>
-        </div>
+        <div class="welcome-card"><h1>Welcome, <span id="welcomeName"></span>! 👋</h1><p>Your one-stop shop for all IT services</p></div>
+        <div class="section"><h2>📌 Available Services & Prices</h2><div class="services-grid" id="servicesList"></div></div>
+        <div class="section"><h2>📋 My Requests</h2><div id="myRequests"></div></div>
     </div>
-
     <script>
-        function loadServices() {
-            let services = localStorage.getItem('globalServices');
-            if (!services) {
-                const defaultServices = [
+        const firebaseConfig = {
+            apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
+            authDomain: "reagan-it-solutions.firebaseapp.com",
+            projectId: "reagan-it-solutions",
+            storageBucket: "reagan-it-solutions.firebasestorage.app",
+            messagingSenderId: "857985673352",
+            appId: "1:857985673352:web:5a066de1f543183159173d"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        
+        function toggleTheme() {
+            const body = document.body, toggle = document.getElementById('themeToggle');
+            if (body.classList.contains('light-mode')) { body.classList.remove('light-mode'); body.classList.add('dark-mode'); toggle.textContent = '☀️'; localStorage.setItem('theme', 'dark'); }
+            else { body.classList.remove('dark-mode'); body.classList.add('light-mode'); toggle.textContent = '🌙'; localStorage.setItem('theme', 'light'); }
+        }
+        function loadTheme() { if (localStorage.getItem('theme') === 'dark') { document.body.classList.remove('light-mode'); document.body.classList.add('dark-mode'); document.getElementById('themeToggle').textContent = '☀️'; } }
+        
+        async function loadServices() {
+            const snapshot = await db.collection('services').orderBy('id').get();
+            let services = [];
+            if (snapshot.empty) {
+                services = [
                     { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
                     { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
                     { id: 3, name: "KRA Returns Filing", icon: "📊", price: 500 },
@@ -87,86 +90,46 @@
                     { id: 9, name: "Email Setup", icon: "📧", price: 300 },
                     { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
                 ];
-                localStorage.setItem('globalServices', JSON.stringify(defaultServices));
-                services = defaultServices;
-            } else {
-                services = JSON.parse(services);
-            }
-            const container = document.getElementById('servicesList');
-            container.innerHTML = services.map(service => `
-                <div class="service-item">
-                    <div><div class="service-name">${service.icon} ${service.name}</div><div class="service-price">KES ${service.price.toLocaleString()}</div></div>
-                    <button class="btn btn-primary" onclick="requestService(${service.id})">Request</button>
-                </div>
-            `).join('');
+                for (const s of services) await db.collection('services').doc(s.id.toString()).set(s);
+            } else { snapshot.forEach(doc => services.push(doc.data())); }
+            document.getElementById('servicesList').innerHTML = services.map(s => `<div class="service-item"><div><div class="service-name">${s.icon} ${s.name}</div><div class="service-price">KES ${s.price.toLocaleString()}</div></div><button class="btn btn-primary" onclick="requestService(${s.id})">Request</button></div>`).join('');
         }
-
-        function requestService(serviceId) {
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            if (!user) { window.location.href = 'index.html'; return; }
-            const services = JSON.parse(localStorage.getItem('globalServices') || '[]');
-            const service = services.find(s => s.id === serviceId);
-            let requests = JSON.parse(localStorage.getItem('requests') || '[]');
-            requests.push({
-                id: Date.now(),
-                userId: user.email,
-                userName: user.name,
-                serviceId: service.id,
-                serviceName: service.name,
-                price: service.price,
-                status: 'pending',
-                date: new Date().toLocaleString()
+        
+        async function requestService(serviceId) {
+            const userId = sessionStorage.getItem('userId');
+            const userName = sessionStorage.getItem('userName');
+            const serviceDoc = await db.collection('services').doc(serviceId.toString()).get();
+            const service = serviceDoc.data();
+            await db.collection('requests').add({
+                userId, userName, serviceId, serviceName: service.name, price: service.price,
+                status: 'pending', date: new Date().toISOString()
             });
-            localStorage.setItem('requests', JSON.stringify(requests));
-            alert(`✅ Request for ${service.name} sent! Admin will review it.`);
+            alert(`✅ Request for ${service.name} sent!`);
             loadMyRequests();
         }
-
-        function loadMyRequests() {
-            const user = JSON.parse(localStorage.getItem('currentUser'));
-            const requests = JSON.parse(localStorage.getItem('requests') || '[]');
-            const myRequests = requests.filter(r => r.userId === user.email);
+        
+        async function loadMyRequests() {
+            const userId = sessionStorage.getItem('userId');
+            const snapshot = await db.collection('requests').where('userId', '==', userId).orderBy('date', 'desc').get();
+            const requests = []; snapshot.forEach(doc => requests.push(doc.data()));
             const container = document.getElementById('myRequests');
-            if (myRequests.length === 0) { container.innerHTML = '<p>No requests yet. Request a service above!</p>'; return; }
-            container.innerHTML = `
-                <table><thead><tr><th>Service</th><th>Price (KES)</th><th>Status</th><th>Date</th></tr></thead>
-                <tbody>${myRequests.map(req => {
-                    let statusClass = 'status-pending';
-                    let statusText = 'Pending';
-                    if (req.status === 'seen') { statusClass = 'status-seen'; statusText = '✓ Seen by Admin'; }
-                    if (req.status === 'approved') { statusClass = 'status-approved'; statusText = '✓✓ Approved'; }
-                    if (req.status === 'completed') { statusClass = 'status-completed'; statusText = '✓✓✓ Completed'; }
-                    return `<tr><td>${req.serviceName}</td><td>${req.price.toLocaleString()}</td><td><span class="${statusClass}">${statusText}</span></td><td>${req.date}</td></tr>`;
-                }).join('')}</tbody></table>
-            `;
+            if (requests.length === 0) { container.innerHTML = '<p>No requests yet.</p>'; return; }
+            container.innerHTML = `<table><thead><tr><th>Service</th><th>Price</th><th>Status</th><th>Date</th></tr></thead><tbody>${requests.map(r => `<tr><td>${r.serviceName}</td><td>KES ${r.price.toLocaleString()}</td><td><span class="status-${r.status}">${r.status.toUpperCase()}</span></td><td>${new Date(r.date).toLocaleString()}</td></tr>`).join('')}</tbody></table>`;
         }
-
-        function toggleTheme() {
-            const body = document.body;
-            const themeToggle = document.getElementById('themeToggle');
-            if (body.classList.contains('light-mode')) { body.classList.remove('light-mode'); body.classList.add('dark-mode'); themeToggle.textContent = '☀️'; localStorage.setItem('theme', 'dark'); }
-            else { body.classList.remove('dark-mode'); body.classList.add('light-mode'); themeToggle.textContent = '🌙'; localStorage.setItem('theme', 'light'); }
-        }
-
-        function loadTheme() {
-            if (localStorage.getItem('theme') === 'dark') { document.body.classList.remove('light-mode'); document.body.classList.add('dark-mode'); document.getElementById('themeToggle').textContent = '☀️'; }
-        }
-
-        function checkAuth() {
-            const user = localStorage.getItem('currentUser');
-            if (!user) window.location.href = 'index.html';
-            return JSON.parse(user);
-        }
-
-        const user = checkAuth();
-        document.getElementById('userName').innerText = user.name;
-        document.getElementById('welcomeName').innerText = user.name;
-        function logout() { localStorage.removeItem('currentUser'); window.location.href = 'index.html'; }
-
+        
+        auth.onAuthStateChanged(async (user) => {
+            if (!user) { window.location.href = 'index.html'; return; }
+            sessionStorage.setItem('userId', user.uid);
+            const userDoc = await db.collection('users').doc(user.uid).get();
+            const userData = userDoc.data();
+            sessionStorage.setItem('userName', userData?.name || user.email);
+            document.getElementById('userName').innerText = userData?.name || user.email;
+            document.getElementById('welcomeName').innerText = userData?.name || user.email;
+            loadServices(); loadMyRequests();
+        });
+        
+        function logout() { auth.signOut(); sessionStorage.clear(); window.location.href = 'index.html'; }
         loadTheme();
-        loadServices();
-        loadMyRequests();
-        setInterval(() => loadMyRequests(), 3000);
     </script>
 </body>
 </html>
