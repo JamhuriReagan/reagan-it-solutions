@@ -62,6 +62,7 @@
         .back-link { text-align: center; margin-top: 1rem; }
         .back-link a { color: #f97316; text-decoration: none; font-size: 0.85rem; }
         .error-message { color: #dc2626; font-size: 0.8rem; text-align: center; margin-top: 1rem; display: none; }
+        .success-message { color: #10b981; font-size: 0.8rem; text-align: center; margin-top: 1rem; display: none; }
         .admin-badge { text-align: center; margin-top: 2rem; font-size: 0.7rem; background: #fef3c7; padding: 0.5rem; border-radius: 12px; }
         .admin-badge span { color: #d97706; }
     </style>
@@ -85,7 +86,8 @@
         <div class="back-link">
             <a href="index.html">← Back to Customer Site</a>
         </div>
-        <div class="error-message" id="errorMsg"></div>
+        <div id="errorMsg" class="error-message"></div>
+        <div id="successMsg" class="success-message"></div>
         <div class="admin-badge">
             <span>🔐 Secure Admin Portal</span>
         </div>
@@ -109,32 +111,81 @@
             field.type = field.type === 'password' ? 'text' : 'password';
         }
 
+        // Function to ensure admin role exists
+        async function ensureAdminRole(uid, email) {
+            const userDoc = await db.collection('users').doc(uid).get();
+            
+            if (!userDoc.exists) {
+                // Create new admin document
+                await db.collection('users').doc(uid).set({
+                    name: 'Reagan Admin',
+                    email: email,
+                    phone: '0113166257',
+                    role: 'admin',
+                    createdAt: new Date().toISOString()
+                });
+                console.log('✅ Admin document created');
+                return true;
+            } else {
+                const userData = userDoc.data();
+                if (userData.role !== 'admin') {
+                    // Update existing user to admin
+                    await db.collection('users').doc(uid).update({ role: 'admin' });
+                    console.log('✅ User role updated to admin');
+                    return true;
+                }
+                return true;
+            }
+        }
+
         async function adminLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('errorMsg');
+            const successDiv = document.getElementById('successMsg');
             
             errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
             
             try {
-                const userCred = await auth.signInWithEmailAndPassword(email, password);
-                const userDoc = await db.collection('users').doc(userCred.user.uid).get();
-                const userData = userDoc.data();
+                // Try to sign in
+                let userCred;
+                try {
+                    userCred = await auth.signInWithEmailAndPassword(email, password);
+                } catch (signInError) {
+                    if (signInError.code === 'auth/user-not-found') {
+                        // Create the admin account if it doesn't exist
+                        successDiv.textContent = '✅ Creating admin account... Please wait.';
+                        successDiv.style.display = 'block';
+                        userCred = await auth.createUserWithEmailAndPassword(email, password);
+                    } else {
+                        throw signInError;
+                    }
+                }
+                
+                const uid = userCred.user.uid;
+                
+                // Ensure admin role in Firestore
+                await ensureAdminRole(uid, email);
+                
+                // Verify admin role was set
+                const verifyDoc = await db.collection('users').doc(uid).get();
+                const userData = verifyDoc.data();
                 
                 if (userData?.role !== 'admin') {
-                    errorDiv.textContent = '❌ This account does not have admin privileges.';
+                    errorDiv.textContent = '❌ Admin role not set correctly. Please try again.';
                     errorDiv.style.display = 'block';
-                    await auth.signOut();
                     return;
                 }
                 
-                sessionStorage.setItem('userId', userCred.user.uid);
+                sessionStorage.setItem('userId', uid);
                 sessionStorage.setItem('userName', userData?.name || email);
                 sessionStorage.setItem('userRole', 'admin');
                 
                 window.location.href = 'admin-simple.html';
             } catch (error) {
-                errorDiv.textContent = error.code === 'auth/user-not-found' ? '❌ No admin account found' : '❌ Invalid email or password';
+                console.error('Login error:', error);
+                errorDiv.textContent = error.code === 'auth/wrong-password' ? '❌ Incorrect password' : '❌ ' + error.message;
                 errorDiv.style.display = 'block';
             }
         }
