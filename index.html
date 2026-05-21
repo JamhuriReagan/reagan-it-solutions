@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reagan's IT Solutions</title>
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
@@ -20,6 +19,9 @@
         body.dark-mode .logo { color: white; }
         body.dark-mode .service-card { background: #1e1e2e; box-shadow: 0 5px 15px rgba(0,0,0,0.3); color: #eee; }
         body.dark-mode .service-card h3 { color: #f97316; }
+        body.dark-mode .modal-content { background: rgba(30,30,46,0.98); color: white; }
+        body.dark-mode .modal-content input { background: #2d2d3a; border-color: #444; color: white; }
+        
         .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; }
         .logo { font-size: 1.5rem; font-weight: bold; }
         .logo span { color: #f97316; }
@@ -39,21 +41,23 @@
         .service-card:hover { transform: translateY(-5px); }
         .service-icon { font-size: 3rem; margin-bottom: 0.5rem; }
         .service-price { color: #f97316; font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
+        
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(8px); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { background: rgba(255,255,255,0.98); padding: 2rem; border-radius: 28px; width: 90%; max-width: 420px; animation: modalSlideIn 0.3s ease; }
-        body.dark-mode .modal-content { background: rgba(30,30,46,0.98); color: white; }
+        .modal-content { background: rgba(255,255,255,0.98); padding: 2rem; border-radius: 28px; width: 90%; max-width: 450px; animation: modalSlideIn 0.3s ease; }
         @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
         .modal-content h2 { margin-bottom: 1.5rem; text-align: center; color: #f97316; }
         .input-group { margin-bottom: 1.2rem; position: relative; }
         .input-group input { width: 100%; padding: 0.9rem 1rem; padding-right: 45px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem; transition: all 0.3s; }
-        body.dark-mode .input-group input { background: #2d2d3a; border-color: #444; color: white; }
         .input-group input:focus { outline: none; border-color: #f97316; }
         .password-toggle { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 1.2rem; background: none; border: none; }
-        .modal-content button[type="submit"] { width: 100%; padding: 0.9rem; border: none; border-radius: 16px; background: #f97316; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; }
+        .modal-content button[type="submit"] { width: 100%; padding: 0.9rem; border: none; border-radius: 16px; background: #f97316; color: white; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 0.5rem; }
         .modal-footer { text-align: center; margin-top: 1.2rem; }
         .modal-footer a { color: #f97316; cursor: pointer; text-decoration: none; }
         .close { float: right; font-size: 1.8rem; cursor: pointer; }
         .error-message { color: #dc2626; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .success-message { color: #10b981; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        .forgot-link { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
+        .forgot-link a { color: #f97316; font-size: 0.85rem; cursor: pointer; text-decoration: none; }
         @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .services-grid { grid-template-columns: 1fr; } .nav-links { gap: 0.8rem; } }
     </style>
 </head>
@@ -80,26 +84,56 @@
         <div class="services-grid" id="servicesGrid">Loading services...</div>
     </section>
 
+    <!-- Login Modal -->
     <div id="loginModal" class="modal">
-        <div class="modal-content"><span class="close" onclick="closeLoginModal()">&times;</span><h2>Welcome Back! 👋</h2>
-        <form onsubmit="event.preventDefault(); login();"><div class="input-group"><input type="email" id="loginEmail" placeholder="📧 Email Address" required></div>
-        <div class="input-group"><input type="password" id="loginPassword" placeholder="🔒 Password" required><button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">👁️</button></div>
-        <button type="submit">Login →</button></form><div class="modal-footer">Don't have an account? <a onclick="switchToRegister()">Create one</a></div></div>
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Welcome Back! 👋</h2>
+            <form onsubmit="event.preventDefault(); login();">
+                <div class="input-group"><input type="email" id="loginEmail" placeholder="📧 Email Address" required></div>
+                <div class="input-group"><input type="password" id="loginPassword" placeholder="🔒 Password" required><button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">👁️</button></div>
+                <div class="forgot-link"><a onclick="showForgotPasswordModal()">Forgot Password?</a></div>
+                <button type="submit">Login →</button>
+            </form>
+            <div class="modal-footer">Don't have an account? <a onclick="switchToRegister()">Create one</a></div>
+        </div>
     </div>
 
+    <!-- Register Modal -->
     <div id="registerModal" class="modal">
-        <div class="modal-content"><span class="close" onclick="closeRegisterModal()">&times;</span><h2>Create Account 🚀</h2>
-        <form onsubmit="event.preventDefault(); register();"><div class="input-group"><input type="text" id="regName" placeholder="👤 Full Name" required></div>
-        <div class="input-group"><input type="email" id="regEmail" placeholder="📧 Email Address" required></div>
-        <div class="input-group"><input type="tel" id="regPhone" placeholder="📱 Phone Number"></div>
-        <div class="input-group"><input type="password" id="regPassword" placeholder="🔒 Password" required><button type="button" class="password-toggle" onclick="togglePassword('regPassword')">👁️</button></div>
-        <div class="input-group"><input type="password" id="regConfirmPassword" placeholder="✓ Confirm Password" required><button type="button" class="password-toggle" onclick="togglePassword('regConfirmPassword')">👁️</button></div>
-        <div id="regError" class="error-message"></div><button type="submit">Register →</button></form>
-        <div class="modal-footer">Already have an account? <a onclick="switchToLogin()">Sign in</a></div></div>
+        <div class="modal-content">
+            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <h2>Create Account 🚀</h2>
+            <form onsubmit="event.preventDefault(); register();">
+                <div class="input-group"><input type="text" id="regName" placeholder="👤 Full Name" required></div>
+                <div class="input-group"><input type="email" id="regEmail" placeholder="📧 Email Address" required></div>
+                <div class="input-group"><input type="tel" id="regPhone" placeholder="📱 Phone Number" required></div>
+                <div class="input-group"><input type="password" id="regPassword" placeholder="🔒 Create Password" required><button type="button" class="password-toggle" onclick="togglePassword('regPassword')">👁️</button></div>
+                <div class="input-group"><input type="password" id="regConfirmPassword" placeholder="✓ Confirm Password" required><button type="button" class="password-toggle" onclick="togglePassword('regConfirmPassword')">👁️</button></div>
+                <div id="regError" class="error-message"></div>
+                <button type="submit">Register →</button>
+            </form>
+            <div class="modal-footer">Already have an account? <a onclick="switchToLogin()">Sign in</a></div>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeForgotPasswordModal()">&times;</span>
+            <h2>🔑 Reset Password</h2>
+            <p style="margin-bottom: 1rem; text-align: center; font-size: 0.9rem;">Enter your email to receive a password reset link</p>
+            <form onsubmit="event.preventDefault(); resetPassword();">
+                <div class="input-group"><input type="email" id="resetEmail" placeholder="📧 Your Email Address" required></div>
+                <div id="resetError" class="error-message"></div>
+                <div id="resetSuccess" class="success-message"></div>
+                <button type="submit">Send Reset Link →</button>
+            </form>
+            <div class="modal-footer"><a onclick="switchToLoginFromForgot()">Back to Login</a></div>
+        </div>
     </div>
 
     <script>
-        // FIREBASE CONFIG - YOUR ACTUAL CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
             authDomain: "reagan-it-solutions.firebaseapp.com",
@@ -112,52 +146,176 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-        
+
         function togglePassword(fieldId) { const f = document.getElementById(fieldId); f.type = f.type === 'password' ? 'text' : 'password'; }
         function switchToRegister() { closeLoginModal(); showRegisterModal(); }
         function switchToLogin() { closeRegisterModal(); showLoginModal(); }
+        function switchToLoginFromForgot() { closeForgotPasswordModal(); showLoginModal(); }
+        
         function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; document.getElementById('regError').style.display = 'none'; }
         function closeRegisterModal() { document.getElementById('registerModal').style.display = 'none'; }
+        function showForgotPasswordModal() { closeLoginModal(); document.getElementById('forgotPasswordModal').style.display = 'flex'; document.getElementById('resetError').style.display = 'none'; document.getElementById('resetSuccess').style.display = 'none'; }
+        function closeForgotPasswordModal() { document.getElementById('forgotPasswordModal').style.display = 'none'; }
         
         window.onclick = function(event) {
             if (event.target === document.getElementById('loginModal')) closeLoginModal();
             if (event.target === document.getElementById('registerModal')) closeRegisterModal();
+            if (event.target === document.getElementById('forgotPasswordModal')) closeForgotPasswordModal();
+        }
+        
+        // Password Reset Function
+        async function resetPassword() {
+            const email = document.getElementById('resetEmail').value;
+            const errorDiv = document.getElementById('resetError');
+            const successDiv = document.getElementById('resetSuccess');
+            
+            if (!email) {
+                errorDiv.textContent = '❌ Please enter your email address';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                successDiv.textContent = '✅ Password reset link sent to your email! Check your inbox.';
+                successDiv.style.display = 'block';
+                setTimeout(() => {
+                    closeForgotPasswordModal();
+                    showLoginModal();
+                }, 3000);
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    errorDiv.textContent = '❌ No account found with this email address';
+                } else {
+                    errorDiv.textContent = '❌ Error: ' + error.message;
+                }
+                errorDiv.style.display = 'block';
+            }
         }
         
         async function register() {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirmPassword').value;
-            const phone = document.getElementById('regPhone').value;
             const errorDiv = document.getElementById('regError');
-            if (!name || !email || !password) { errorDiv.textContent = '❌ Please fill all fields'; errorDiv.style.display = 'block'; return; }
-            if (password !== confirm) { errorDiv.textContent = '❌ Passwords do not match!'; errorDiv.style.display = 'block'; return; }
-            if (password.length < 6) { errorDiv.textContent = '❌ Password must be at least 6 characters'; errorDiv.style.display = 'block'; return; }
+            
+            // Validate all fields are filled
+            if (!name || !email || !phone || !password || !confirm) {
+                errorDiv.textContent = '❌ Please fill in all fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate phone number (Kenyan format)
+            const phoneRegex = /^(07|01|02)[0-9]{8}$|^(\+254)[0-9]{9}$/;
+            if (!phoneRegex.test(phone) && !phoneRegex.test(phone.replace(/\s/g, ''))) {
+                errorDiv.textContent = '❌ Please enter a valid phone number (e.g., 0712345678 or +254712345678)';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            // Validate email format
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                errorDiv.textContent = '❌ Please enter a valid email address';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirm) {
+                errorDiv.textContent = '❌ Passwords do not match!';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = '❌ Password must be at least 6 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            errorDiv.style.display = 'none';
+            
             try {
+                // Check if phone number already exists
+                const phoneQuery = await db.collection('users').where('phone', '==', phone).get();
+                if (!phoneQuery.empty) {
+                    errorDiv.textContent = '❌ This phone number is already registered. Please use a different number.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                // Check if email already exists (Firebase Auth will also check)
+                const emailQuery = await db.collection('users').where('email', '==', email).get();
+                if (!emailQuery.empty) {
+                    errorDiv.textContent = '❌ This email is already registered. Please login instead.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                // Create user in Firebase Auth
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCred.user.uid).set({ name, email, phone, role: 'user', createdAt: new Date().toISOString() });
+                const uid = userCred.user.uid;
+                
+                // Save user data to Firestore
+                await db.collection('users').doc(uid).set({
+                    name: name,
+                    email: email,
+                    phone: phone,
+                    role: 'user',
+                    createdAt: new Date().toISOString()
+                });
+                
                 alert('✅ Registration successful! Please login.');
-                closeRegisterModal(); showLoginModal();
-            } catch (error) { errorDiv.textContent = '❌ ' + error.message; errorDiv.style.display = 'block'; }
+                closeRegisterModal();
+                showLoginModal();
+            } catch (error) {
+                if (error.code === 'auth/email-already-in-use') {
+                    errorDiv.textContent = '❌ This email is already registered. Please login instead.';
+                } else if (error.code === 'auth/invalid-email') {
+                    errorDiv.textContent = '❌ Invalid email address format';
+                } else {
+                    errorDiv.textContent = '❌ ' + error.message;
+                }
+                errorDiv.style.display = 'block';
+            }
         }
         
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
                 const userDoc = await db.collection('users').doc(userCred.user.uid).get();
                 const userData = userDoc.data();
+                
                 sessionStorage.setItem('userId', userCred.user.uid);
                 sessionStorage.setItem('userEmail', email);
                 sessionStorage.setItem('userName', userData?.name || email);
                 sessionStorage.setItem('userRole', userData?.role || 'user');
-                if (userData?.role === 'admin') window.location.href = 'admin.html';
-                else window.location.href = 'dashboard.html';
-            } catch (error) { alert('❌ Invalid credentials!'); }
+                
+                if (userData?.role === 'admin') {
+                    window.location.href = 'admin-simple.html';
+                } else {
+                    window.location.href = 'dashboard.html';
+                }
+            } catch (error) {
+                if (error.code === 'auth/user-not-found') {
+                    alert('❌ No account found with this email. Please register first.');
+                } else if (error.code === 'auth/wrong-password') {
+                    alert('❌ Incorrect password. Please try again or use "Forgot Password".');
+                } else {
+                    alert('❌ Login failed: ' + error.message);
+                }
+            }
         }
         
         async function loadServices() {
@@ -180,7 +338,9 @@
                         { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
                     ];
                     for (const s of services) await db.collection('services').doc(s.id.toString()).set(s);
-                } else { snapshot.forEach(doc => services.push(doc.data())); }
+                } else {
+                    snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+                }
                 const isLoggedIn = sessionStorage.getItem('userId');
                 grid.innerHTML = services.map(s => `<div class="service-card"><div class="service-icon">${s.icon}</div><h3>${s.name}</h3><div class="service-price">KES ${s.price.toLocaleString()}</div>${isLoggedIn ? `<button class="btn btn-primary" onclick="requestService(${s.id})">Request Service</button>` : '<button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>'}</div>`).join('');
             } catch(e) { grid.innerHTML = '<div style="text-align: center;">Error loading services. Refresh page.</div>'; }
