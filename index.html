@@ -12,9 +12,79 @@
         
         body {
             font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
-            min-height: 100vh;
+            transition: all 0.3s ease;
         }
+        
+        /* Light Mode */
+        body.light-mode {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+            color: #1e293b;
+        }
+        
+        body.light-mode .navbar {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
+        body.light-mode .logo { color: #0f2b3d; }
+        body.light-mode .service-card { background: white; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
+        body.light-mode .modal-content { background: white; }
+        body.light-mode .input-group input { background: white; border-color: #e2e8f0; }
+        body.light-mode .hero h1 { color: #0f2b3d; }
+        body.light-mode .hero p { color: #4a5568; }
+        
+        /* Dark Mode */
+        body.dark-mode {
+            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
+            color: #e2e8f0;
+        }
+        
+        body.dark-mode .navbar {
+            background: rgba(15, 25, 35, 0.95);
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        body.dark-mode .logo { color: white; }
+        body.dark-mode .logo span { color: #f97316; }
+        
+        body.dark-mode .service-card {
+            background: #1e293b;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
+            border: 1px solid #334155;
+        }
+        
+        body.dark-mode .service-card h3 { color: #f97316; }
+        body.dark-mode .service-card .service-price { color: #f97316; }
+        
+        body.dark-mode .modal-content {
+            background: #1e293b;
+            border: 1px solid #334155;
+        }
+        
+        body.dark-mode .modal-content h2 {
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        body.dark-mode .input-group input {
+            background: #0f172a;
+            border-color: #334155;
+            color: white;
+        }
+        
+        body.dark-mode .input-group input:focus {
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+        }
+        
+        body.dark-mode .hero h1 { color: white; }
+        body.dark-mode .hero p { color: #94a3b8; }
+        body.dark-mode .admin-link a { color: #64748b; }
         
         /* Modern Navbar */
         .navbar {
@@ -22,17 +92,45 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
             position: fixed;
             width: 100%;
             top: 0;
             z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            transition: all 0.3s;
         }
         
-        .logo { font-size: 1.5rem; font-weight: bold; color: #0f2b3d; }
+        .logo { font-size: 1.5rem; font-weight: bold; transition: color 0.3s; }
         .logo span { color: #f97316; }
+        
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .theme-toggle {
+            background: rgba(0,0,0,0.1);
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            transition: all 0.3s;
+        }
+        
+        body.light-mode .theme-toggle {
+            background: #e2e8f0;
+            color: #0f2b3d;
+        }
+        
+        body.dark-mode .theme-toggle {
+            background: #334155;
+            color: #f97316;
+        }
+        
+        .theme-toggle:hover { transform: scale(1.05); }
         
         .btn {
             padding: 0.5rem 1.5rem;
@@ -50,15 +148,16 @@
         
         /* Hero Section */
         .hero {
-            padding: 120px 5% 60px;
+            padding: 140px 5% 70px;
             text-align: center;
         }
-        .hero h1 { font-size: 3rem; color: #0f2b3d; margin-bottom: 1rem; }
-        .hero p { font-size: 1.2rem; color: #4a5568; margin-bottom: 2rem; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; transition: color 0.3s; }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; transition: color 0.3s; }
         
         /* Services Grid */
         .services-section { padding: 40px 5% 80px; }
         .section-title { text-align: center; font-size: 2rem; margin-bottom: 2.5rem; color: #f97316; font-weight: 700; }
+        
         .services-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -68,17 +167,16 @@
         }
         
         .service-card {
-            background: white;
             padding: 1.8rem;
             border-radius: 24px;
             text-align: center;
             transition: all 0.3s;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
             cursor: pointer;
         }
-        .service-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1); }
+        
+        .service-card:hover { transform: translateY(-5px); }
         .service-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-        .service-price { color: #f97316; font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
+        .service-price { font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
         
         /* Modern Modals */
         .modal {
@@ -96,12 +194,12 @@
         }
         
         .modal-content {
-            background: white;
             padding: 2rem;
             border-radius: 32px;
             width: 90%;
             max-width: 420px;
             animation: slideUp 0.3s ease;
+            transition: all 0.3s;
         }
         
         @keyframes slideUp {
@@ -112,10 +210,6 @@
         .modal-content h2 {
             font-size: 1.8rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #0f2b3d, #f97316);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
             text-align: center;
             margin-bottom: 1.5rem;
         }
@@ -129,17 +223,13 @@
             width: 100%;
             padding: 0.9rem 1rem;
             padding-right: 50px;
-            border: 2px solid #e2e8f0;
+            border: 2px solid;
             border-radius: 20px;
             font-size: 1rem;
             transition: 0.3s;
         }
         
-        .input-group input:focus {
-            outline: none;
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
-        }
+        .input-group input:focus { outline: none; border-color: #f97316; }
         
         .password-toggle {
             position: absolute;
@@ -174,18 +264,8 @@
             font-size: 0.85rem;
         }
         
-        .modal-footer a {
-            color: #f97316;
-            cursor: pointer;
-            text-decoration: none;
-        }
-        
-        .close {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-            transition: 0.2s;
-        }
+        .modal-footer a { color: #f97316; cursor: pointer; text-decoration: none; }
+        .close { float: right; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
         .close:hover { color: #f97316; }
         
         .error-message {
@@ -196,31 +276,25 @@
             display: none;
         }
         
-        .forgot-link {
-            text-align: right;
-            margin-top: -0.5rem;
-            margin-bottom: 1rem;
-        }
+        .forgot-link { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
         .forgot-link a { color: #f97316; font-size: 0.8rem; cursor: pointer; }
         
-        .admin-link {
-            text-align: center;
-            margin-top: 2rem;
-            padding: 1rem;
-            font-size: 0.7rem;
-        }
-        .admin-link a { color: #94a3b8; text-decoration: none; }
+        .admin-link { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; }
+        .admin-link a { text-decoration: none; transition: color 0.3s; }
         
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
             .services-grid { gap: 1rem; }
+            .nav-buttons { gap: 0.5rem; }
+            .btn { padding: 0.4rem 1rem; font-size: 0.9rem; }
         }
     </style>
 </head>
-<body>
+<body class="light-mode">
     <nav class="navbar">
         <div class="logo">REAGAN'S <span>IT</span></div>
-        <div>
+        <div class="nav-buttons">
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
             <button class="btn btn-primary" onclick="showLoginModal()">Login</button>
             <button class="btn btn-outline" onclick="showRegisterModal()">Register</button>
         </div>
@@ -309,15 +383,34 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // Session Management
-        const USER_SESSION_KEY = "userAuthenticated";
-        
-        function checkUserSession() {
-            const isAuthenticated = sessionStorage.getItem(USER_SESSION_KEY);
-            if (!isAuthenticated && window.location.pathname.includes('dashboard.html')) {
-                window.location.href = 'index.html';
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const btn = document.getElementById('themeToggle');
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                btn.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                btn.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
             }
         }
+        
+        function loadTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.classList.remove('light-mode');
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').textContent = '☀️';
+            }
+        }
+
+        // Session Management
+        const USER_SESSION_KEY = "userAuthenticated";
         
         function togglePassword(fieldId) {
             const field = document.getElementById(fieldId);
@@ -458,8 +551,7 @@
             if (event.target.classList.contains('modal')) event.target.style.display = 'none';
         }
         
-        // Check session on dashboard
-        checkUserSession();
+        loadTheme();
         loadServices();
     </script>
 </body>
