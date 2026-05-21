@@ -99,7 +99,6 @@
             <span class="close" onclick="closeLoginModal()">&times;</span>
             <h2>Welcome Back! 👋</h2>
             
-            <!-- Role Selection -->
             <div class="role-selector" id="roleSelector">
                 <div class="role-option selected" onclick="selectRole('user')" id="roleUserOption">
                     <span class="role-icon">👤</span>
@@ -169,25 +168,33 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
         
-        let selectedRole = 'user';
-        
         function selectRole(role) {
-            selectedRole = role;
-            document.getElementById('roleUserOption').classList.remove('selected');
-            document.getElementById('roleAdminOption').classList.remove('selected');
+            const userOption = document.getElementById('roleUserOption');
+            const adminOption = document.getElementById('roleAdminOption');
+            
             if (role === 'user') {
-                document.getElementById('roleUserOption').classList.add('selected');
+                userOption.classList.add('selected');
+                adminOption.classList.remove('selected');
             } else {
-                document.getElementById('roleAdminOption').classList.add('selected');
+                userOption.classList.remove('selected');
+                adminOption.classList.add('selected');
             }
         }
         
-        function togglePassword(fieldId) { const f = document.getElementById(fieldId); f.type = f.type === 'password' ? 'text' : 'password'; }
+        function togglePassword(fieldId) { 
+            const f = document.getElementById(fieldId); 
+            f.type = f.type === 'password' ? 'text' : 'password'; 
+        }
+        
         function switchToRegister() { closeLoginModal(); showRegisterModal(); }
         function switchToLogin() { closeRegisterModal(); showLoginModal(); }
         function switchToLoginFromForgot() { closeForgotPasswordModal(); showLoginModal(); }
         
-        function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+        function showLoginModal() { 
+            // Reset to User role by default
+            selectRole('user');
+            document.getElementById('loginModal').style.display = 'flex'; 
+        }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; document.getElementById('regError').style.display = 'none'; }
         function closeRegisterModal() { document.getElementById('registerModal').style.display = 'none'; }
@@ -318,7 +325,12 @@
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            const selectedRole = document.querySelector('.role-option.selected .role-label').innerText.toLowerCase();
+            
+            // Get selected role
+            let selectedRole = 'user';
+            if (document.getElementById('roleAdminOption').classList.contains('selected')) {
+                selectedRole = 'admin';
+            }
             
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
@@ -326,7 +338,7 @@
                 const userData = userDoc.data();
                 const actualRole = userData?.role || 'user';
                 
-                // Check if role matches selection
+                // Role validation
                 if (selectedRole === 'admin' && actualRole !== 'admin') {
                     alert('❌ This account is not an admin account. Please select "User" login or use an admin account.');
                     await auth.signOut();
