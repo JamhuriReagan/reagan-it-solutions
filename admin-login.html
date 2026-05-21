@@ -62,7 +62,6 @@
         .back-link { text-align: center; margin-top: 1rem; }
         .back-link a { color: #f97316; text-decoration: none; font-size: 0.85rem; }
         .error-message { color: #dc2626; font-size: 0.8rem; text-align: center; margin-top: 1rem; display: none; }
-        .success-message { color: #10b981; font-size: 0.8rem; text-align: center; margin-top: 1rem; display: none; }
         .admin-badge { text-align: center; margin-top: 2rem; font-size: 0.7rem; background: #fef3c7; padding: 0.5rem; border-radius: 12px; }
         .admin-badge span { color: #d97706; }
     </style>
@@ -78,7 +77,7 @@
                 <input type="email" id="loginEmail" placeholder="📧 Admin Email" value="jamhurireagan2@gmail.com" required>
             </div>
             <div class="input-group">
-                <input type="password" id="loginPassword" placeholder="🔒 Password" required>
+                <input type="password" id="loginPassword" placeholder="🔒 Password" value="admin123" required>
                 <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
             </div>
             <button type="submit">Login as Admin →</button>
@@ -87,7 +86,6 @@
             <a href="index.html">← Back to Customer Site</a>
         </div>
         <div id="errorMsg" class="error-message"></div>
-        <div id="successMsg" class="success-message"></div>
         <div class="admin-badge">
             <span>🔐 Secure Admin Portal</span>
         </div>
@@ -111,84 +109,100 @@
             field.type = field.type === 'password' ? 'text' : 'password';
         }
 
-        // Function to ensure admin role exists
-        async function ensureAdminRole(uid, email) {
-            const userDoc = await db.collection('users').doc(uid).get();
-            
-            if (!userDoc.exists) {
-                // Create new admin document
-                await db.collection('users').doc(uid).set({
-                    name: 'Reagan Admin',
-                    email: email,
-                    phone: '0113166257',
-                    role: 'admin',
-                    createdAt: new Date().toISOString()
-                });
-                console.log('✅ Admin document created');
-                return true;
-            } else {
-                const userData = userDoc.data();
-                if (userData.role !== 'admin') {
-                    // Update existing user to admin
-                    await db.collection('users').doc(uid).update({ role: 'admin' });
-                    console.log('✅ User role updated to admin');
-                    return true;
-                }
-                return true;
-            }
-        }
-
         async function adminLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const errorDiv = document.getElementById('errorMsg');
-            const successDiv = document.getElementById('successMsg');
             
             errorDiv.style.display = 'none';
-            successDiv.style.display = 'none';
+            
+            if (!email || !password) {
+                errorDiv.textContent = '❌ Please enter email and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
             
             try {
-                // Try to sign in
-                let userCred;
-                try {
-                    userCred = await auth.signInWithEmailAndPassword(email, password);
-                } catch (signInError) {
-                    if (signInError.code === 'auth/user-not-found') {
-                        // Create the admin account if it doesn't exist
-                        successDiv.textContent = '✅ Creating admin account... Please wait.';
-                        successDiv.style.display = 'block';
-                        userCred = await auth.createUserWithEmailAndPassword(email, password);
-                    } else {
-                        throw signInError;
-                    }
-                }
-                
+                // Sign in
+                const userCred = await auth.signInWithEmailAndPassword(email, password);
                 const uid = userCred.user.uid;
                 
-                // Ensure admin role in Firestore
-                await ensureAdminRole(uid, email);
+                console.log('User signed in with UID:', uid);
                 
-                // Verify admin role was set
-                const verifyDoc = await db.collection('users').doc(uid).get();
-                const userData = verifyDoc.data();
+                // Try to get user by UID first
+                let userDoc = await db.collection('users').doc(uid).get();
                 
-                if (userData?.role !== 'admin') {
-                    errorDiv.textContent = '❌ Admin role not set correctly. Please try again.';
+                // If not found by UID, search by email
+                if (!userDoc.exists) {
+                    console.log('Document not found by UID, searching by email...');
+                    const emailQuery = await db.collection('users').where('email', '==', email).get();
+                    if (!emailQuery.empty) {
+                        userDoc = emailQuery.docs[0];
+                        console.log('Found user by email, role:', userDoc.data().role);
+                    }
+                } else {
+                    console.log('Found user by UID, role:', userDoc.data().role);
+                }
+                
+                const userData = userDoc.data();
+                
+                if (!userData) {
+                    errorDiv.textContent = '❌ User data not found in database';
                     errorDiv.style.display = 'block';
+                    await auth.signOut();
                     return;
                 }
                 
+                // Check if role is admin
+                if (userData.role !== 'admin') {
+                    console.log('Role check failed. Found role:', userData.role);
+                    errorDiv.textContent = '❌ This account does not have admin privileges. Role: ' + (userData.role || 'none');
+                    errorDiv.style.display = 'block';
+                    await auth.signOut();
+                    return;
+                }
+                
+                console.log('Admin login successful! Redirecting...');
+                
                 sessionStorage.setItem('userId', uid);
-                sessionStorage.setItem('userName', userData?.name || email);
+                sessionStorage.setItem('userEmail', email);
+                sessionStorage.setItem('userName', userData.name || 'Admin');
                 sessionStorage.setItem('userRole', 'admin');
                 
                 window.location.href = 'admin-simple.html';
+                
             } catch (error) {
                 console.error('Login error:', error);
-                errorDiv.textContent = error.code === 'auth/wrong-password' ? '❌ Incorrect password' : '❌ ' + error.message;
+                if (error.code === 'auth/user-not-found') {
+                    errorDiv.textContent = '❌ No account found with this email';
+                } else if (error.code === 'auth/wrong-password') {
+                    errorDiv.textContent = '❌ Incorrect password';
+                } else {
+                    errorDiv.textContent = '❌ Error: ' + error.message;
+                }
                 errorDiv.style.display = 'block';
             }
         }
+        
+        // Debug: Check Firestore data on page load
+        async function debugCheck() {
+            try {
+                const query = await db.collection('users').where('email', '==', 'jamhurireagan2@gmail.com').get();
+                if (!query.empty) {
+                    const doc = query.docs[0];
+                    console.log('Debug - Found admin document:');
+                    console.log('- Document ID:', doc.id);
+                    console.log('- Role field:', doc.data().role);
+                    console.log('- Full data:', doc.data());
+                } else {
+                    console.log('Debug - No document found for jamhurireagan2@gmail.com');
+                }
+            } catch(e) {
+                console.log('Debug error:', e);
+            }
+        }
+        
+        debugCheck();
     </script>
 </body>
 </html>
