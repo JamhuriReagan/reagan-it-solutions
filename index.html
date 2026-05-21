@@ -21,6 +21,7 @@
         body.dark-mode .service-card h3 { color: #f97316; }
         body.dark-mode .modal-content { background: rgba(30,30,46,0.98); color: white; }
         body.dark-mode .modal-content input { background: #2d2d3a; border-color: #444; color: white; }
+        body.dark-mode .role-selector { background: #2d2d3a; border-color: #444; color: white; }
         
         .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; }
         .logo { font-size: 1.5rem; font-weight: bold; }
@@ -46,6 +47,14 @@
         .modal-content { background: rgba(255,255,255,0.98); padding: 2rem; border-radius: 28px; width: 90%; max-width: 450px; animation: modalSlideIn 0.3s ease; }
         @keyframes modalSlideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
         .modal-content h2 { margin-bottom: 1.5rem; text-align: center; color: #f97316; }
+        
+        .role-selector { display: flex; gap: 1rem; margin-bottom: 1.5rem; justify-content: center; }
+        .role-option { flex: 1; text-align: center; padding: 0.8rem; border: 2px solid #e2e8f0; border-radius: 16px; cursor: pointer; transition: all 0.3s; }
+        .role-option:hover { border-color: #f97316; background: rgba(249,115,22,0.1); }
+        .role-option.selected { border-color: #f97316; background: rgba(249,115,22,0.2); }
+        .role-option .role-icon { font-size: 1.5rem; display: block; margin-bottom: 0.3rem; }
+        .role-option .role-label { font-weight: 600; }
+        
         .input-group { margin-bottom: 1.2rem; position: relative; }
         .input-group input { width: 100%; padding: 0.9rem 1rem; padding-right: 45px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem; transition: all 0.3s; }
         .input-group input:focus { outline: none; border-color: #f97316; }
@@ -84,11 +93,24 @@
         <div class="services-grid" id="servicesGrid">Loading services...</div>
     </section>
 
-    <!-- Login Modal -->
+    <!-- Login Modal with Role Selection -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeLoginModal()">&times;</span>
             <h2>Welcome Back! 👋</h2>
+            
+            <!-- Role Selection -->
+            <div class="role-selector" id="roleSelector">
+                <div class="role-option selected" onclick="selectRole('user')" id="roleUserOption">
+                    <span class="role-icon">👤</span>
+                    <span class="role-label">User</span>
+                </div>
+                <div class="role-option" onclick="selectRole('admin')" id="roleAdminOption">
+                    <span class="role-icon">👑</span>
+                    <span class="role-label">Admin</span>
+                </div>
+            </div>
+            
             <form onsubmit="event.preventDefault(); login();">
                 <div class="input-group"><input type="email" id="loginEmail" placeholder="📧 Email Address" required></div>
                 <div class="input-group"><input type="password" id="loginPassword" placeholder="🔒 Password" required><button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">👁️</button></div>
@@ -146,7 +168,20 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-
+        
+        let selectedRole = 'user';
+        
+        function selectRole(role) {
+            selectedRole = role;
+            document.getElementById('roleUserOption').classList.remove('selected');
+            document.getElementById('roleAdminOption').classList.remove('selected');
+            if (role === 'user') {
+                document.getElementById('roleUserOption').classList.add('selected');
+            } else {
+                document.getElementById('roleAdminOption').classList.add('selected');
+            }
+        }
+        
         function togglePassword(fieldId) { const f = document.getElementById(fieldId); f.type = f.type === 'password' ? 'text' : 'password'; }
         function switchToRegister() { closeLoginModal(); showRegisterModal(); }
         function switchToLogin() { closeRegisterModal(); showLoginModal(); }
@@ -165,7 +200,6 @@
             if (event.target === document.getElementById('forgotPasswordModal')) closeForgotPasswordModal();
         }
         
-        // Password Reset Function
         async function resetPassword() {
             const email = document.getElementById('resetEmail').value;
             const errorDiv = document.getElementById('resetError');
@@ -206,14 +240,12 @@
             const confirm = document.getElementById('regConfirmPassword').value;
             const errorDiv = document.getElementById('regError');
             
-            // Validate all fields are filled
             if (!name || !email || !phone || !password || !confirm) {
                 errorDiv.textContent = '❌ Please fill in all fields';
                 errorDiv.style.display = 'block';
                 return;
             }
             
-            // Validate phone number (Kenyan format)
             const phoneRegex = /^(07|01|02)[0-9]{8}$|^(\+254)[0-9]{9}$/;
             if (!phoneRegex.test(phone) && !phoneRegex.test(phone.replace(/\s/g, ''))) {
                 errorDiv.textContent = '❌ Please enter a valid phone number (e.g., 0712345678 or +254712345678)';
@@ -221,7 +253,6 @@
                 return;
             }
             
-            // Validate email format
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             if (!emailRegex.test(email)) {
                 errorDiv.textContent = '❌ Please enter a valid email address';
@@ -244,7 +275,6 @@
             errorDiv.style.display = 'none';
             
             try {
-                // Check if phone number already exists
                 const phoneQuery = await db.collection('users').where('phone', '==', phone).get();
                 if (!phoneQuery.empty) {
                     errorDiv.textContent = '❌ This phone number is already registered. Please use a different number.';
@@ -252,7 +282,6 @@
                     return;
                 }
                 
-                // Check if email already exists (Firebase Auth will also check)
                 const emailQuery = await db.collection('users').where('email', '==', email).get();
                 if (!emailQuery.empty) {
                     errorDiv.textContent = '❌ This email is already registered. Please login instead.';
@@ -260,11 +289,9 @@
                     return;
                 }
                 
-                // Create user in Firebase Auth
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
                 const uid = userCred.user.uid;
                 
-                // Save user data to Firestore
                 await db.collection('users').doc(uid).set({
                     name: name,
                     email: email,
@@ -291,18 +318,33 @@
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            const selectedRole = document.querySelector('.role-option.selected .role-label').innerText.toLowerCase();
             
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
                 const userDoc = await db.collection('users').doc(userCred.user.uid).get();
                 const userData = userDoc.data();
+                const actualRole = userData?.role || 'user';
+                
+                // Check if role matches selection
+                if (selectedRole === 'admin' && actualRole !== 'admin') {
+                    alert('❌ This account is not an admin account. Please select "User" login or use an admin account.');
+                    await auth.signOut();
+                    return;
+                }
+                
+                if (selectedRole === 'user' && actualRole === 'admin') {
+                    alert('👑 This is an admin account. Please select "Admin" login to access admin panel.');
+                    await auth.signOut();
+                    return;
+                }
                 
                 sessionStorage.setItem('userId', userCred.user.uid);
                 sessionStorage.setItem('userEmail', email);
                 sessionStorage.setItem('userName', userData?.name || email);
-                sessionStorage.setItem('userRole', userData?.role || 'user');
+                sessionStorage.setItem('userRole', actualRole);
                 
-                if (userData?.role === 'admin') {
+                if (actualRole === 'admin') {
                     window.location.href = 'admin-simple.html';
                 } else {
                     window.location.href = 'dashboard.html';
