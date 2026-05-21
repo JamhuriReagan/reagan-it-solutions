@@ -439,12 +439,12 @@
             }
             try {
                 await auth.sendPasswordResetEmail(email);
-                successDiv.textContent = '✅ Reset link sent! Check your email.';
+                successDiv.textContent = '✅ Reset link sent! Check your inbox AND spam/junk folder.';
                 successDiv.style.display = 'block';
                 setTimeout(() => {
                     closeForgotModal();
                     showLoginModal();
-                }, 3000);
+                }, 4000);
             } catch (error) {
                 errorDiv.textContent = error.code === 'auth/user-not-found' ? '❌ No account found' : '❌ Error sending reset link';
                 errorDiv.style.display = 'block';
