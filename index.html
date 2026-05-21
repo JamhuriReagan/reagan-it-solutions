@@ -4,388 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Reagan's IT Solutions | Smart Computer Services</title>
-    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Poppins', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            transition: all 0.3s ease;
-        }
-
-        /* Light Mode */
-        body.light-mode {
-            background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
-            color: #1e293b;
-        }
-
-        body.light-mode .navbar {
-            background: rgba(255, 255, 255, 0.96);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-        }
-
-        body.light-mode .logo {
-            color: #0f2b3d;
-        }
-
-        body.light-mode .service-card {
-            background: white;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
-            border: 1px solid rgba(0, 0, 0, 0.03);
-        }
-
-        body.light-mode .modal-content {
-            background: rgba(255, 255, 255, 0.98);
-        }
-
-        /* Dark Mode */
-        body.dark-mode {
-            background: linear-gradient(135deg, #0f172a 0%, #111827 100%);
-            color: #e2e8f0;
-        }
-
-        body.dark-mode .navbar {
-            background: rgba(15, 25, 35, 0.96);
-            backdrop-filter: blur(8px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
-
-        body.dark-mode .logo {
-            color: white;
-        }
-
-        body.dark-mode .service-card {
-            background: #1e293b;
-            border: 1px solid #334155;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-        }
-
-        body.dark-mode .service-card h3 {
-            color: #f97316;
-        }
-
-        body.dark-mode .modal-content {
-            background: #1e293b;
-            border: 1px solid #334155;
-            color: #f1f5f9;
-        }
-
-        body.dark-mode .modal-content input {
-            background: #0f172a;
-            border-color: #334155;
-            color: white;
-        }
-
-        body.dark-mode .role-option {
-            border-color: #475569;
-            color: #cbd5e1;
-        }
-
-        body.dark-mode .role-option.selected {
-            background: rgba(249, 115, 22, 0.25);
-            border-color: #f97316;
-        }
-
-        /* Layout */
-        .navbar {
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            width: 100%;
-            top: 0;
-            z-index: 1000;
-            transition: all 0.2s;
-            backdrop-filter: blur(4px);
-        }
-
-        .logo {
-            font-size: 1.6rem;
-            font-weight: 800;
-            letter-spacing: -0.3px;
-        }
-
-        .logo span {
-            color: #f97316;
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 1.5rem;
-            align-items: center;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-            cursor: pointer;
-        }
-
-        .theme-toggle {
-            background: none;
-            border: none;
-            font-size: 1.4rem;
-            cursor: pointer;
-            padding: 0.3rem;
-            border-radius: 50%;
-            transition: 0.2s;
-        }
-
-        .btn {
-            padding: 0.5rem 1.3rem;
-            border: none;
-            border-radius: 40px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary {
-            background: #f97316;
-            color: white;
-            box-shadow: 0 4px 6px -1px rgba(249, 115, 22, 0.2);
-        }
-
-        .btn-primary:hover {
-            background: #ea580c;
-            transform: scale(1.02);
-        }
-
-        .btn-outline {
-            background: transparent;
-            border: 2px solid #f97316;
-            color: #f97316;
-        }
-
-        .hero {
-            padding: 140px 5% 70px;
-            text-align: center;
-        }
-
-        .hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
-            font-weight: 800;
-        }
-
-        .services-section {
-            padding: 40px 5% 80px;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 2.5rem;
-            color: #f97316;
-            font-weight: 700;
-        }
-
-        .services-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 2rem;
-            max-width: 1280px;
-            margin: 0 auto;
-        }
-
-        .service-card {
-            padding: 1.8rem 1.2rem;
-            border-radius: 28px;
-            text-align: center;
-            transition: all 0.25s;
-            cursor: pointer;
-            backdrop-filter: blur(4px);
-        }
-
-        .service-card:hover {
-            transform: translateY(-6px);
-        }
-
-        .service-icon {
-            font-size: 3rem;
-            margin-bottom: 0.75rem;
-        }
-
-        .service-price {
-            color: #f97316;
-            font-size: 1.3rem;
-            font-weight: 700;
-            margin: 0.7rem 0;
-        }
-
-        /* Modal Modern */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(10px);
-            justify-content: center;
-            align-items: center;
-            z-index: 2000;
-        }
-
-        .modal-content {
-            padding: 2rem 1.8rem;
-            border-radius: 36px;
-            width: 90%;
-            max-width: 460px;
-            animation: modalSlideUp 0.25s ease-out;
-            box-shadow: 0 25px 40px -12px black;
-        }
-
-        @keyframes modalSlideUp {
-            from {
-                opacity: 0;
-                transform: translateY(25px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-content h2 {
-            margin-bottom: 1.3rem;
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-align: center;
-            background: linear-gradient(135deg, #0f2b3d, #f97316);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .role-selector {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            justify-content: center;
-        }
-
-        .role-option {
-            flex: 1;
-            text-align: center;
-            padding: 0.8rem;
-            border-radius: 60px;
-            background: rgba(0, 0, 0, 0.02);
-            border: 1.5px solid #e2e8f0;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-weight: 600;
-        }
-
-        .role-option.selected {
-            background: rgba(249, 115, 22, 0.2);
-            border-color: #f97316;
-            color: #f97316;
-            box-shadow: 0 2px 8px rgba(249, 115, 22, 0.2);
-        }
-
-        .input-group {
-            margin-bottom: 1.2rem;
-            position: relative;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            padding-right: 48px;
-            border: 1.5px solid #e2edff;
-            border-radius: 34px;
-            font-size: 1rem;
-            background: white;
-            transition: all 0.2s;
-        }
-
-        .input-group input:focus {
-            outline: none;
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.2);
-        }
-
-        .password-toggle {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-        }
-
-        .forgot-link {
-            text-align: right;
-            margin: -0.5rem 0 1rem 0;
-        }
-
-        .forgot-link a, .modal-footer a {
-            color: #f97316;
-            font-size: 0.85rem;
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 0.85rem;
-            border-radius: 40px;
-            background: #f97316;
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            margin-top: 0.5rem;
-            border: none;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .modal-footer {
-            text-align: center;
-            margin-top: 1.5rem;
-        }
-
-        .close {
-            float: right;
-            font-size: 1.8rem;
-            cursor: pointer;
-            line-height: 1;
-            transition: 0.2s;
-        }
-
-        .error-message {
-            color: #dc2626;
-            font-size: 0.75rem;
-            margin-top: 0.25rem;
-            display: none;
-        }
-
-        @media (max-width: 680px) {
-            .hero h1 {
-                font-size: 2.2rem;
-            }
-            .nav-links {
-                gap: 0.7rem;
-            }
-            .services-grid {
-                gap: 1rem;
-            }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s ease; }
+        body.light-mode { background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%); color: #1e293b; }
+        body.light-mode .navbar { background: rgba(255,255,255,0.96); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        body.light-mode .logo { color: #0f2b3d; }
+        body.light-mode .service-card { background: white; border: 1px solid rgba(0,0,0,0.03); }
+        body.light-mode .modal-content { background: rgba(255,255,255,0.98); }
+        body.dark-mode { background: linear-gradient(135deg, #0f172a 0%, #111827 100%); color: #e2e8f0; }
+        body.dark-mode .navbar { background: rgba(15,25,35,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        body.dark-mode .logo { color: white; }
+        body.dark-mode .service-card { background: #1e293b; border: 1px solid #334155; }
+        body.dark-mode .service-card h3 { color: #f97316; }
+        body.dark-mode .modal-content { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; }
+        body.dark-mode .modal-content input { background: #0f172a; border-color: #334155; color: white; }
+        body.dark-mode .role-option { border-color: #475569; color: #cbd5e1; }
+        body.dark-mode .role-option.selected { background: rgba(249,115,22,0.25); border-color: #f97316; }
+        
+        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; backdrop-filter: blur(4px); }
+        .logo { font-size: 1.6rem; font-weight: 800; }
+        .logo span { color: #f97316; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; font-weight: 500; cursor: pointer; }
+        .theme-toggle { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 0.3rem; border-radius: 50%; }
+        .btn { padding: 0.5rem 1.3rem; border: none; border-radius: 40px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #ea580c; transform: scale(1.02); }
+        .btn-outline { background: transparent; border: 2px solid #f97316; color: #f97316; }
+        .hero { padding: 140px 5% 70px; text-align: center; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
+        .services-section { padding: 40px 5% 80px; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2.5rem; color: #f97316; font-weight: 700; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1280px; margin: 0 auto; }
+        .service-card { padding: 1.8rem 1.2rem; border-radius: 28px; text-align: center; transition: all 0.25s; cursor: pointer; }
+        .service-card:hover { transform: translateY(-6px); }
+        .service-icon { font-size: 3rem; margin-bottom: 0.75rem; }
+        .service-price { color: #f97316; font-size: 1.3rem; font-weight: 700; margin: 0.7rem 0; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { padding: 2rem 1.8rem; border-radius: 36px; width: 90%; max-width: 460px; animation: modalSlideUp 0.25s ease-out; }
+        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-content h2 { margin-bottom: 1.3rem; font-size: 1.8rem; font-weight: 700; text-align: center; background: linear-gradient(135deg, #0f2b3d, #f97316); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        
+        .role-selector { display: flex; gap: 1rem; margin-bottom: 2rem; justify-content: center; }
+        .role-option { flex: 1; text-align: center; padding: 0.8rem; border-radius: 60px; background: rgba(0,0,0,0.02); border: 1.5px solid #e2e8f0; cursor: pointer; transition: all 0.2s; font-weight: 600; }
+        .role-option.selected { background: rgba(249,115,22,0.2); border-color: #f97316; color: #f97316; }
+        
+        .input-group { margin-bottom: 1.2rem; position: relative; }
+        .input-group input { width: 100%; padding: 0.9rem 1rem; padding-right: 48px; border: 1.5px solid #e2edff; border-radius: 34px; font-size: 1rem; background: white; }
+        .input-group input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.2); }
+        .password-toggle { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 1.2rem; }
+        .forgot-link { text-align: right; margin: -0.5rem 0 1rem 0; }
+        .forgot-link a, .modal-footer a { color: #f97316; font-size: 0.85rem; cursor: pointer; text-decoration: none; font-weight: 500; }
+        button[type="submit"] { width: 100%; padding: 0.85rem; border-radius: 40px; background: #f97316; color: white; font-weight: 700; font-size: 1rem; margin-top: 0.5rem; border: none; cursor: pointer; }
+        .modal-footer { text-align: center; margin-top: 1.5rem; }
+        .close { float: right; font-size: 1.8rem; cursor: pointer; line-height: 1; }
+        .error-message { color: #dc2626; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
+        
+        @media (max-width: 680px) { .hero h1 { font-size: 2.2rem; } .nav-links { gap: 0.7rem; } .services-grid { gap: 1rem; } }
     </style>
 </head>
 <body class="light-mode">
@@ -411,27 +91,18 @@
         <div class="services-grid" id="servicesGrid">Loading services...</div>
     </section>
 
-    <!-- LOGIN MODAL (role switcher) -->
+    <!-- LOGIN MODAL -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeLoginModal()">&times;</span>
             <h2>Welcome Back 👋</h2>
             <div class="role-selector">
-                <div class="role-option selected" onclick="setRole('user')" id="roleUserBtn">
-                    <span>👤 User</span>
-                </div>
-                <div class="role-option" onclick="setRole('admin')" id="roleAdminBtn">
-                    <span>👑 Admin</span>
-                </div>
+                <div class="role-option selected" onclick="setRole('user')" id="roleUserBtn"><span>👤 User</span></div>
+                <div class="role-option" onclick="setRole('admin')" id="roleAdminBtn"><span>👑 Admin</span></div>
             </div>
             <form onsubmit="event.preventDefault(); handleLogin();">
-                <div class="input-group">
-                    <input type="email" id="loginEmail" placeholder="📧 Email address" required>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="loginPassword" placeholder="🔒 Password" required>
-                    <button type="button" class="password-toggle" onclick="togglePasswordField('loginPassword')">👁️</button>
-                </div>
+                <div class="input-group"><input type="email" id="loginEmail" placeholder="📧 Email address" required></div>
+                <div class="input-group"><input type="password" id="loginPassword" placeholder="🔒 Password" required><button type="button" class="password-toggle" onclick="togglePasswordField('loginPassword')">👁️</button></div>
                 <div class="forgot-link"><a onclick="openForgotPassword()">Forgot password?</a></div>
                 <button type="submit">Login →</button>
             </form>
@@ -439,7 +110,7 @@
         </div>
     </div>
 
-    <!-- REGISTER MODAL (complete validation) -->
+    <!-- REGISTER MODAL -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeRegisterModal()">&times;</span>
@@ -448,14 +119,8 @@
                 <div class="input-group"><input type="text" id="regName" placeholder="👤 Full name" required></div>
                 <div class="input-group"><input type="email" id="regEmail" placeholder="📧 Email address" required></div>
                 <div class="input-group"><input type="tel" id="regPhone" placeholder="📱 Phone number (e.g., 0712345678)" required></div>
-                <div class="input-group">
-                    <input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)" required>
-                    <button type="button" class="password-toggle" onclick="togglePasswordField('regPassword')">👁️</button>
-                </div>
-                <div class="input-group">
-                    <input type="password" id="regConfirm" placeholder="✓ Confirm password" required>
-                    <button type="button" class="password-toggle" onclick="togglePasswordField('regConfirm')">👁️</button>
-                </div>
+                <div class="input-group"><input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)" required><button type="button" class="password-toggle" onclick="togglePasswordField('regPassword')">👁️</button></div>
+                <div class="input-group"><input type="password" id="regConfirm" placeholder="✓ Confirm password" required><button type="button" class="password-toggle" onclick="togglePasswordField('regConfirm')">👁️</button></div>
                 <div id="regErrorMsg" class="error-message"></div>
                 <button type="submit">Register →</button>
             </form>
@@ -477,7 +142,6 @@
     </div>
 
     <script>
-        // ------------------- FIREBASE -------------------
         const firebaseConfig = {
             apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
             authDomain: "reagan-it-solutions.firebaseapp.com",
@@ -490,8 +154,7 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // UI role state
-        let currentSelectedRole = "user";   // "user" or "admin"
+        let currentSelectedRole = "user";
 
         function setRole(role) {
             currentSelectedRole = role;
@@ -511,26 +174,19 @@
             field.type = field.type === "password" ? "text" : "password";
         }
 
-        // Modal controls
         function showLoginModal() { setRole("user"); document.getElementById("loginModal").style.display = "flex"; }
         function closeLoginModal() { document.getElementById("loginModal").style.display = "none"; }
-        function showRegisterModal() { document.getElementById("registerModal").style.display = "flex"; clearRegisterError(); }
+        function showRegisterModal() { document.getElementById("registerModal").style.display = "flex"; document.getElementById("regErrorMsg").style.display = "none"; }
         function closeRegisterModal() { document.getElementById("registerModal").style.display = "none"; }
         function openForgotPassword() { closeLoginModal(); document.getElementById("forgotModal").style.display = "flex"; }
         function closeForgotModal() { document.getElementById("forgotModal").style.display = "none"; }
         function switchToRegisterModal() { closeLoginModal(); showRegisterModal(); }
         function switchToLoginModal() { closeRegisterModal(); showLoginModal(); }
-        function clearRegisterError() { document.getElementById("regErrorMsg").style.display = "none"; }
 
-        // Password reset logic
         async function sendPasswordReset() {
             const email = document.getElementById("resetEmail").value;
             const feedback = document.getElementById("resetFeedback");
-            if (!email) {
-                feedback.textContent = "❌ Please enter your email";
-                feedback.style.display = "block";
-                return;
-            }
+            if (!email) { feedback.textContent = "❌ Please enter your email"; feedback.style.display = "block"; return; }
             feedback.style.display = "none";
             try {
                 await auth.sendPasswordResetEmail(email);
@@ -543,7 +199,6 @@
             }
         }
 
-        // REGISTER with unique phone & email
         async function handleRegister() {
             const name = document.getElementById("regName").value.trim();
             const email = document.getElementById("regEmail").value.trim();
@@ -557,7 +212,6 @@
                 errorDiv.style.display = "block";
                 return;
             }
-            // Kenyan phone validation (basic)
             const phoneClean = phone.replace(/\s/g, '');
             const phoneRegex = /^(07|01|02)\d{8}$|^(\+254)\d{9}$/;
             if (!phoneRegex.test(phoneClean)) {
@@ -581,10 +235,8 @@
                 errorDiv.style.display = "block";
                 return;
             }
-
             errorDiv.style.display = "none";
             try {
-                // Check unique phone & email in firestore
                 const phoneSnap = await db.collection("users").where("phone", "==", phoneClean).get();
                 if (!phoneSnap.empty) {
                     errorDiv.textContent = "❌ This phone number is already registered";
@@ -597,15 +249,10 @@
                     errorDiv.style.display = "block";
                     return;
                 }
-                // create auth + user doc
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
                 const uid = userCred.user.uid;
                 await db.collection("users").doc(uid).set({
-                    name: name,
-                    email: email,
-                    phone: phoneClean,
-                    role: "user",
-                    createdAt: new Date().toISOString()
+                    name: name, email: email, phone: phoneClean, role: "user", createdAt: new Date().toISOString()
                 });
                 alert("✅ Registration successful! Please login.");
                 closeRegisterModal();
@@ -617,19 +264,14 @@
             }
         }
 
-        // LOGIN with role enforcement + fix for admin detection
         async function handleLogin() {
             const email = document.getElementById("loginEmail").value.trim();
             const password = document.getElementById("loginPassword").value;
-            if (!email || !password) {
-                alert("Please enter email and password");
-                return;
-            }
+            if (!email || !password) { alert("Please enter email and password"); return; }
 
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
                 const uid = userCred.user.uid;
-                // 🔥 CRITICAL FIX: lookup user by UID first (firestore document id = uid). If missing, search by email.
                 let userDoc = await db.collection("users").doc(uid).get();
                 if (!userDoc.exists) {
                     const emailQuery = await db.collection("users").where("email", "==", email).get();
@@ -638,7 +280,6 @@
                 const userData = userDoc.data();
                 const actualRole = userData?.role || "user";
 
-                // Role validation
                 if (currentSelectedRole === "admin" && actualRole !== "admin") {
                     alert("❌ This account is not an admin. Please select 'User' login.");
                     await auth.signOut();
@@ -667,7 +308,6 @@
             }
         }
 
-        // LOAD SERVICES (shared)
         async function loadServices() {
             const container = document.getElementById("servicesGrid");
             container.innerHTML = "<div style='text-align:center'>Loading services ...</div>";
@@ -701,9 +341,7 @@
                         ${loggedIn ? `<button class="btn btn-primary" onclick="requestServiceById(${s.id})">Request Service</button>` : `<button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>`}
                     </div>
                 `).join('');
-            } catch(e) {
-                container.innerHTML = "<div style='text-align:center'>⚠️ Error loading services. Refresh page.</div>";
-            }
+            } catch(e) { container.innerHTML = "<div style='text-align:center'>⚠️ Error loading services. Refresh page.</div>"; }
         }
 
         window.requestServiceById = async function(serviceId) {
@@ -714,45 +352,39 @@
             const service = serviceSnap.data();
             if (!service) return;
             await db.collection("requests").add({
-                userId: userId,
-                userName: userName,
-                serviceId: serviceId,
-                serviceName: service.name,
-                price: service.price,
-                status: "pending",
-                date: new Date().toISOString(),
+                userId: userId, userName: userName, serviceId: serviceId, serviceName: service.name,
+                price: service.price, status: "pending", date: new Date().toISOString(),
                 createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
             alert(`✅ Request for "${service.name}" sent. Admin will review soon.`);
         };
 
-        // create default admin if none exists (by checking firestore)
-        async function seedDefaultAdmin() {
-            const adminEmail = "admin@reaganit.com";
-            const adminPassword = "admin123";
+        // THIS IS THE KEY FIX - Admin created with YOUR email
+        async function createAdminAccount() {
+            const adminEmail = 'jamhurireagan2@gmail.com';
+            const adminPassword = 'admin123';
             try {
-                const existing = await db.collection("users").where("email", "==", adminEmail).get();
+                const existing = await db.collection('users').where('email', '==', adminEmail).get();
                 if (existing.empty) {
                     const userCred = await auth.createUserWithEmailAndPassword(adminEmail, adminPassword);
-                    await db.collection("users").doc(userCred.user.uid).set({
-                        name: "Super Admin",
+                    await db.collection('users').doc(userCred.user.uid).set({
+                        name: 'Reagan Admin',
                         email: adminEmail,
-                        phone: "0113166257",
-                        role: "admin",
+                        phone: '0113166257',
+                        role: 'admin',
                         createdAt: new Date().toISOString()
                     });
-                    console.log("✓ Default admin created");
+                    console.log('✅ Admin created with email:', adminEmail);
                 } else {
-                    // ensure role field is set to admin (just in case)
                     const doc = existing.docs[0];
-                    if (doc.data().role !== "admin") {
-                        await db.collection("users").doc(doc.id).update({ role: "admin" });
+                    if (doc.data().role !== 'admin') {
+                        await db.collection('users').doc(doc.id).update({ role: 'admin' });
+                        console.log('✅ Updated existing user to admin role');
                     }
                 }
-            } catch (e) { console.warn("Admin seed:", e.message); }
+            } catch(e) { console.warn("Admin creation:", e.message); }
         }
 
-        // Theme handling
         function toggleTheme() {
             const body = document.body;
             const btn = document.getElementById("themeToggle");
@@ -777,24 +409,15 @@
             }
         }
 
-        // session / auto logout listener
         auth.onAuthStateChanged((user) => {
-            if (user) {
-                sessionStorage.setItem("userId", user.uid);
-            } else {
-                sessionStorage.removeItem("userId");
-                sessionStorage.removeItem("userEmail");
-                sessionStorage.removeItem("userName");
-                sessionStorage.removeItem("userRole");
-            }
+            if (user) sessionStorage.setItem("userId", user.uid);
+            else { sessionStorage.removeItem("userId"); sessionStorage.removeItem("userEmail"); sessionStorage.removeItem("userName"); sessionStorage.removeItem("userRole"); }
         });
 
-        window.onclick = function(e) {
-            if (e.target.classList && e.target.classList.contains("modal")) e.target.style.display = "none";
-        };
+        window.onclick = function(e) { if (e.target.classList && e.target.classList.contains("modal")) e.target.style.display = "none"; };
 
         loadTheme();
-        seedDefaultAdmin();
+        createAdminAccount();  // Creates admin with YOUR email
         loadServices();
     </script>
 </body>
