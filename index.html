@@ -9,48 +9,212 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.95); position: fixed; width: 100%; top: 0; z-index: 1000; }
+        
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%);
+            min-height: 100vh;
+        }
+        
+        /* Modern Navbar */
+        .navbar {
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        }
+        
         .logo { font-size: 1.5rem; font-weight: bold; color: #0f2b3d; }
         .logo span { color: #f97316; }
-        .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        
+        .btn {
+            padding: 0.5rem 1.5rem;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
         .btn-primary { background: #f97316; color: white; }
-        .btn-primary:hover { background: #e8620d; transform: scale(1.02); }
+        .btn-primary:hover { background: #ea580c; transform: scale(1.02); }
         .btn-outline { background: transparent; border: 2px solid #f97316; color: #f97316; }
         .btn-outline:hover { background: #f97316; color: white; }
-        .hero { padding: 120px 5% 60px; text-align: center; }
-        .hero h1 { font-size: 3rem; color: #0f2b3d; }
-        .services-section { padding: 60px 5%; }
-        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2rem; color: #f97316; }
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .service-card { background: white; padding: 1.5rem; border-radius: 15px; text-align: center; cursor: pointer; transition: transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .service-card:hover { transform: translateY(-5px); }
-        .service-icon { font-size: 3rem; }
+        
+        /* Hero Section */
+        .hero {
+            padding: 120px 5% 60px;
+            text-align: center;
+        }
+        .hero h1 { font-size: 3rem; color: #0f2b3d; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; color: #4a5568; margin-bottom: 2rem; }
+        
+        /* Services Grid */
+        .services-section { padding: 40px 5% 80px; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2.5rem; color: #f97316; font-weight: 700; }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .service-card {
+            background: white;
+            padding: 1.8rem;
+            border-radius: 24px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+            cursor: pointer;
+        }
+        .service-card:hover { transform: translateY(-5px); box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1); }
+        .service-icon { font-size: 3rem; margin-bottom: 0.5rem; }
         .service-price { color: #f97316; font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
         
-        /* Modal Styles */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 400px; animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-content h2 { margin-bottom: 1.5rem; text-align: center; color: #f97316; }
+        /* Modern Modals */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
         
-        /* Password Input Group with Toggle */
-        .input-group { margin-bottom: 1.2rem; position: relative; }
-        .input-group input { width: 100%; padding: 0.8rem 1rem; padding-right: 45px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s; }
-        .input-group input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.2); }
-        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 1.2rem; padding: 0; }
-        .close { float: right; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 32px;
+            width: 90%;
+            max-width: 420px;
+            animation: slideUp 0.3s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-content h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f2b3d, #f97316);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .input-group {
+            margin-bottom: 1.2rem;
+            position: relative;
+        }
+        
+        .input-group input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            padding-right: 50px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        
+        .input-group input:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
+        }
+        
+        .password-toggle {
+            position: absolute;
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+        }
+        
+        .modal-btn {
+            width: 100%;
+            padding: 0.9rem;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 0.5rem;
+        }
+        
+        .modal-btn:hover { transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(249,115,22,0.3); }
+        
+        .modal-footer {
+            text-align: center;
+            margin-top: 1.2rem;
+            font-size: 0.85rem;
+        }
+        
+        .modal-footer a {
+            color: #f97316;
+            cursor: pointer;
+            text-decoration: none;
+        }
+        
+        .close {
+            float: right;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
         .close:hover { color: #f97316; }
-        .error-message { color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; display: none; text-align: center; }
-        .success-message { color: #10b981; font-size: 0.8rem; margin-top: 0.5rem; display: none; text-align: center; }
-        .forgot-link { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
-        .forgot-link a { color: #f97316; font-size: 0.8rem; cursor: pointer; text-decoration: none; }
-        .modal-footer { text-align: center; margin-top: 1rem; }
-        .modal-footer a { color: #f97316; cursor: pointer; text-decoration: none; }
-        .admin-link { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; }
-        .admin-link a { color: #999; text-decoration: none; }
         
-        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .services-grid { gap: 1rem; } }
+        .error-message {
+            color: #dc2626;
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        
+        .forgot-link {
+            text-align: right;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+        .forgot-link a { color: #f97316; font-size: 0.8rem; cursor: pointer; }
+        
+        .admin-link {
+            text-align: center;
+            margin-top: 2rem;
+            padding: 1rem;
+            font-size: 0.7rem;
+        }
+        .admin-link a { color: #94a3b8; text-decoration: none; }
+        
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2rem; }
+            .services-grid { gap: 1rem; }
+        }
     </style>
 </head>
 <body>
@@ -86,7 +250,7 @@
                 <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">👁️</button>
             </div>
             <div class="forgot-link"><a onclick="showForgotPasswordModal()">Forgot Password?</a></div>
-            <button class="btn btn-primary" onclick="userLogin()" style="width:100%;">Login →</button>
+            <button class="modal-btn" onclick="userLogin()">Login →</button>
             <div id="loginError" class="error-message"></div>
             <div class="modal-footer">Don't have an account? <a onclick="switchToRegister()">Create one</a></div>
         </div>
@@ -97,15 +261,9 @@
         <div class="modal-content">
             <span class="close" onclick="closeRegisterModal()">&times;</span>
             <h2>Create Account 🚀</h2>
-            <div class="input-group">
-                <input type="text" id="regName" placeholder="👤 Full Name">
-            </div>
-            <div class="input-group">
-                <input type="email" id="regEmail" placeholder="📧 Email Address">
-            </div>
-            <div class="input-group">
-                <input type="tel" id="regPhone" placeholder="📱 Phone Number">
-            </div>
+            <div class="input-group"><input type="text" id="regName" placeholder="👤 Full Name"></div>
+            <div class="input-group"><input type="email" id="regEmail" placeholder="📧 Email Address"></div>
+            <div class="input-group"><input type="tel" id="regPhone" placeholder="📱 Phone Number"></div>
             <div class="input-group">
                 <input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)">
                 <button type="button" class="password-toggle" onclick="togglePassword('regPassword')">👁️</button>
@@ -115,7 +273,7 @@
                 <button type="button" class="password-toggle" onclick="togglePassword('regConfirm')">👁️</button>
             </div>
             <div id="regError" class="error-message"></div>
-            <button class="btn btn-primary" onclick="register()" style="width:100%;">Register →</button>
+            <button class="modal-btn" onclick="register()">Register →</button>
             <div class="modal-footer">Already have an account? <a onclick="switchToLogin()">Sign in</a></div>
         </div>
     </div>
@@ -124,14 +282,12 @@
     <div id="forgotModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeForgotModal()">&times;</span>
-            <h2>🔑 Reset Password</h2>
-            <p style="margin-bottom: 1rem; text-align:center;">We'll send a reset link to your email</p>
-            <div class="input-group">
-                <input type="email" id="resetEmail" placeholder="📧 Your Email Address">
-            </div>
+            <h2>🔐 Reset Password</h2>
+            <p style="text-align:center; margin-bottom:1rem;">We'll send a reset link to your email</p>
+            <div class="input-group"><input type="email" id="resetEmail" placeholder="📧 Your Email Address"></div>
             <div id="resetError" class="error-message"></div>
-            <div id="resetSuccess" class="success-message"></div>
-            <button class="btn btn-primary" onclick="sendPasswordReset()" style="width:100%;">Send Reset Link →</button>
+            <div id="resetSuccess" class="error-message" style="color:#10b981;"></div>
+            <button class="modal-btn" onclick="sendPasswordReset()">Send Reset Link →</button>
             <div class="modal-footer"><a onclick="closeForgotModal(); showLoginModal();">Back to Login</a></div>
         </div>
     </div>
@@ -153,17 +309,21 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        // Toggle Password Visibility
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            if (field.type === 'password') {
-                field.type = 'text';
-            } else {
-                field.type = 'password';
+        // Session Management
+        const USER_SESSION_KEY = "userAuthenticated";
+        
+        function checkUserSession() {
+            const isAuthenticated = sessionStorage.getItem(USER_SESSION_KEY);
+            if (!isAuthenticated && window.location.pathname.includes('dashboard.html')) {
+                window.location.href = 'index.html';
             }
         }
+        
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            field.type = field.type === 'password' ? 'text' : 'password';
+        }
 
-        // Modal Controls
         function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
@@ -173,21 +333,17 @@
         function switchToRegister() { closeLoginModal(); showRegisterModal(); }
         function switchToLogin() { closeRegisterModal(); showLoginModal(); }
 
-        // Send Password Reset
         async function sendPasswordReset() {
             const email = document.getElementById('resetEmail').value;
             const errorDiv = document.getElementById('resetError');
             const successDiv = document.getElementById('resetSuccess');
-            
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            
             if (!email) {
                 errorDiv.textContent = '❌ Please enter your email';
                 errorDiv.style.display = 'block';
                 return;
             }
-            
             try {
                 await auth.sendPasswordResetEmail(email);
                 successDiv.textContent = '✅ Reset link sent! Check your email.';
@@ -202,7 +358,6 @@
             }
         }
 
-        // User Login
         async function userLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
@@ -217,6 +372,7 @@
             
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
+                sessionStorage.setItem(USER_SESSION_KEY, 'true');
                 sessionStorage.setItem('userId', userCred.user.uid);
                 window.location.href = 'dashboard.html';
             } catch (error) {
@@ -225,7 +381,6 @@
             }
         }
 
-        // User Registration
         async function register() {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
@@ -233,7 +388,6 @@
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
             const errorDiv = document.getElementById('regError');
-            
             errorDiv.style.display = 'none';
             
             if (!name || !email || !phone || !password) {
@@ -241,13 +395,11 @@
                 errorDiv.style.display = 'block';
                 return;
             }
-            
             if (password !== confirm) {
                 errorDiv.textContent = '❌ Passwords do not match';
                 errorDiv.style.display = 'block';
                 return;
             }
-            
             if (password.length < 6) {
                 errorDiv.textContent = '❌ Password must be at least 6 characters';
                 errorDiv.style.display = 'block';
@@ -268,7 +420,6 @@
             }
         }
 
-        // Load Services
         async function loadServices() {
             const grid = document.getElementById('servicesGrid');
             grid.innerHTML = '<div style="text-align:center;">Loading services...</div>';
@@ -303,13 +454,12 @@
             } catch(e) { grid.innerHTML = '<p>Error loading services. Refresh page.</p>'; }
         }
         
-        // Close modal when clicking outside
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) {
-                event.target.style.display = 'none';
-            }
+            if (event.target.classList.contains('modal')) event.target.style.display = 'none';
         }
         
+        // Check session on dashboard
+        checkUserSession();
         loadServices();
     </script>
 </body>
