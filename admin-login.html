@@ -3,51 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login - Reagan's IT</title>
+    <title>Admin Panel - Reagan's IT</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            background: linear-gradient(135deg, #0f2b3d 0%, #1a3a4f 100%);
-            min-height: 100vh;
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .login-screen {
             display: flex;
             justify-content: center;
             align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #0f2b3d 0%, #1a3a4f 100%);
         }
-        .login-container {
+        .login-box {
             background: white;
             padding: 2rem;
             border-radius: 28px;
             width: 90%;
             max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            text-align: center;
         }
-        .logo { text-align: center; margin-bottom: 2rem; }
-        .logo h1 { color: #f97316; font-size: 1.8rem; }
-        .logo p { color: #666; font-size: 0.9rem; }
-        .input-group { margin-bottom: 1.2rem; position: relative; }
-        .input-group input {
+        .login-box h2 { color: #f97316; margin-bottom: 1.5rem; }
+        .login-box input {
             width: 100%;
-            padding: 0.9rem 1rem;
-            padding-right: 45px;
+            padding: 0.9rem;
+            margin: 0.5rem 0;
             border: 2px solid #e2e8f0;
             border-radius: 16px;
             font-size: 1rem;
         }
-        .password-toggle {
-            position: absolute;
-            right: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-        }
-        button {
+        .login-box button {
             width: 100%;
             padding: 0.9rem;
             background: #f97316;
@@ -57,41 +43,88 @@
             font-size: 1rem;
             font-weight: 600;
             cursor: pointer;
-            margin-top: 0.5rem;
+            margin-top: 1rem;
         }
-        .back-link { text-align: center; margin-top: 1rem; }
-        .back-link a { color: #f97316; text-decoration: none; font-size: 0.85rem; }
-        .error-message { color: #dc2626; font-size: 0.8rem; text-align: center; margin-top: 1rem; display: none; }
-        .admin-badge { text-align: center; margin-top: 2rem; font-size: 0.7rem; background: #fef3c7; padding: 0.5rem; border-radius: 12px; }
-        .admin-badge span { color: #d97706; }
+        .error { color: #dc2626; margin-top: 1rem; display: none; }
+        .admin-content { display: none; }
+        
+        /* Admin Panel Styles */
+        .navbar { background: #0f2b3d; color: white; padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: bold; }
+        .logo span { color: #f97316; }
+        .container { max-width: 1400px; margin: 2rem auto; padding: 0 5%; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: white; padding: 1.5rem; border-radius: 15px; text-align: center; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .stat-number { font-size: 2rem; font-weight: bold; color: #f97316; }
+        .section { background: white; border-radius: 20px; padding: 1.5rem; margin-bottom: 2rem; }
+        .section h2 { color: #f97316; margin-bottom: 1rem; }
+        .btn { padding: 0.5rem 1rem; border: none; border-radius: 10px; cursor: pointer; margin: 0 0.25rem; }
+        .btn-primary { background: #f97316; color: white; }
+        .btn-danger { background: #dc2626; color: white; }
+        .btn-warning { background: #f59e0b; color: white; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #0f2b3d; color: white; }
+        .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.5rem; border-radius: 15px; display: inline-block; }
+        .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.5rem; border-radius: 15px; display: inline-block; }
+        .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.5rem; border-radius: 15px; display: inline-block; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 500px; }
+        .modal-content input { width: 100%; padding: 0.5rem; margin: 0.5rem 0; }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="logo">
-            <h1>👑 REAGAN'S IT</h1>
-            <p>Administrator Login</p>
-        </div>
-        <form onsubmit="event.preventDefault(); adminLogin();">
-            <div class="input-group">
-                <input type="email" id="loginEmail" placeholder="📧 Admin Email" value="jamhurireagan2@gmail.com" required>
-            </div>
-            <div class="input-group">
-                <input type="password" id="loginPassword" placeholder="🔒 Password" value="admin123" required>
-                <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
-            </div>
-            <button type="submit">Login as Admin →</button>
-        </form>
-        <div class="back-link">
-            <a href="index.html">← Back to Customer Site</a>
-        </div>
-        <div id="errorMsg" class="error-message"></div>
-        <div class="admin-badge">
-            <span>🔐 Secure Admin Portal</span>
+    <!-- Password Screen -->
+    <div id="loginScreen" class="login-screen">
+        <div class="login-box">
+            <h2>🔐 Admin Access</h2>
+            <input type="password" id="adminPassword" placeholder="Enter admin password">
+            <button onclick="checkPassword()">Access Admin Panel →</button>
+            <div id="loginError" class="error"></div>
+            <p style="margin-top: 1rem; font-size: 0.8rem; color: #666;">Contact admin for password</p>
         </div>
     </div>
 
+    <!-- Admin Content (hidden until password correct) -->
+    <div id="adminContent" class="admin-content">
+        <div class="navbar">
+            <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="container">
+            <div class="stats">
+                <div class="stat-card" onclick="showSection('services')"><div class="stat-number" id="totalServices">0</div><div>Services</div></div>
+                <div class="stat-card" onclick="showSection('requests')"><div class="stat-number" id="totalRequests">0</div><div>Requests</div></div>
+                <div class="stat-card" onclick="showSection('requests')"><div class="stat-number" id="pendingCount">0</div><div>Pending</div></div>
+                <div class="stat-card" onclick="showSection('users')"><div class="stat-number" id="totalUsers">0</div><div>Users</div></div>
+            </div>
+
+            <div id="servicesSection" class="section">
+                <div style="display:flex; justify-content:space-between; margin-bottom:1rem;">
+                    <h2>📦 Services</h2>
+                    <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add Service</button>
+                </div>
+                <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table>
+            </div>
+
+            <div id="requestsSection" class="section" style="display:none;">
+                <h2>📋 User Requests</h2>
+                <table id="requestsTable"><thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody></tbody></table>
+            </div>
+
+            <div id="usersSection" class="section" style="display:none;">
+                <h2>👥 Registered Users</h2>
+                <table id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead><tbody></tbody></table>
+            </div>
+        </div>
+    </div>
+
+    <div id="serviceModal" class="modal"><div class="modal-content"><h2 id="modalTitle">Add Service</h2><input type="text" id="serviceIcon" placeholder="Icon (📄)"><input type="text" id="serviceName" placeholder="Service Name"><input type="number" id="servicePrice" placeholder="Price (KES)"><input type="hidden" id="serviceId"><button class="btn btn-primary" onclick="saveService()">Save</button><button class="btn btn-danger" onclick="closeModal('serviceModal')">Cancel</button></div></div>
+
     <script>
+        const ADMIN_PASSWORD = "ReaganAdmin2025";  // Change this to your desired password
+        
         const firebaseConfig = {
             apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
             authDomain: "reagan-it-solutions.firebaseapp.com",
@@ -100,109 +133,168 @@
             messagingSenderId: "857985673352",
             appId: "1:857985673352:web:5a066de1f543183159173d"
         };
+        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        const auth = firebase.auth();
 
-        function togglePassword() {
-            const field = document.getElementById('loginPassword');
-            field.type = field.type === 'password' ? 'text' : 'password';
-        }
-
-        async function adminLogin() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('errorMsg');
+        function checkPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorDiv = document.getElementById('loginError');
             
-            errorDiv.style.display = 'none';
-            
-            if (!email || !password) {
-                errorDiv.textContent = '❌ Please enter email and password';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
-            try {
-                // Sign in
-                const userCred = await auth.signInWithEmailAndPassword(email, password);
-                const uid = userCred.user.uid;
-                
-                console.log('User signed in with UID:', uid);
-                
-                // Try to get user by UID first
-                let userDoc = await db.collection('users').doc(uid).get();
-                
-                // If not found by UID, search by email
-                if (!userDoc.exists) {
-                    console.log('Document not found by UID, searching by email...');
-                    const emailQuery = await db.collection('users').where('email', '==', email).get();
-                    if (!emailQuery.empty) {
-                        userDoc = emailQuery.docs[0];
-                        console.log('Found user by email, role:', userDoc.data().role);
-                    }
-                } else {
-                    console.log('Found user by UID, role:', userDoc.data().role);
-                }
-                
-                const userData = userDoc.data();
-                
-                if (!userData) {
-                    errorDiv.textContent = '❌ User data not found in database';
-                    errorDiv.style.display = 'block';
-                    await auth.signOut();
-                    return;
-                }
-                
-                // Check if role is admin
-                if (userData.role !== 'admin') {
-                    console.log('Role check failed. Found role:', userData.role);
-                    errorDiv.textContent = '❌ This account does not have admin privileges. Role: ' + (userData.role || 'none');
-                    errorDiv.style.display = 'block';
-                    await auth.signOut();
-                    return;
-                }
-                
-                console.log('Admin login successful! Redirecting...');
-                
-                sessionStorage.setItem('userId', uid);
-                sessionStorage.setItem('userEmail', email);
-                sessionStorage.setItem('userName', userData.name || 'Admin');
-                sessionStorage.setItem('userRole', 'admin');
-                
-                window.location.href = 'admin-simple.html';
-                
-            } catch (error) {
-                console.error('Login error:', error);
-                if (error.code === 'auth/user-not-found') {
-                    errorDiv.textContent = '❌ No account found with this email';
-                } else if (error.code === 'auth/wrong-password') {
-                    errorDiv.textContent = '❌ Incorrect password';
-                } else {
-                    errorDiv.textContent = '❌ Error: ' + error.message;
-                }
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadStats();
+                loadServices();
+                loadRequests();
+                loadUsers();
+            } else {
+                errorDiv.textContent = '❌ Incorrect password. Access denied.';
                 errorDiv.style.display = 'block';
             }
         }
-        
-        // Debug: Check Firestore data on page load
-        async function debugCheck() {
-            try {
-                const query = await db.collection('users').where('email', '==', 'jamhurireagan2@gmail.com').get();
-                if (!query.empty) {
-                    const doc = query.docs[0];
-                    console.log('Debug - Found admin document:');
-                    console.log('- Document ID:', doc.id);
-                    console.log('- Role field:', doc.data().role);
-                    console.log('- Full data:', doc.data());
-                } else {
-                    console.log('Debug - No document found for jamhurireagan2@gmail.com');
-                }
-            } catch(e) {
-                console.log('Debug error:', e);
+
+        function logout() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('adminContent').style.display = 'none';
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('loginError').style.display = 'none';
+        }
+
+        function showSection(section) {
+            document.getElementById('servicesSection').style.display = section === 'services' ? 'block' : 'none';
+            document.getElementById('requestsSection').style.display = section === 'requests' ? 'block' : 'none';
+            document.getElementById('usersSection').style.display = section === 'users' ? 'block' : 'none';
+        }
+
+        async function loadStats() {
+            const services = await db.collection('services').get();
+            const requests = await db.collection('requests').get();
+            const users = await db.collection('users').get();
+            const pending = await db.collection('requests').where('status', '==', 'pending').get();
+            
+            document.getElementById('totalServices').innerText = services.size;
+            document.getElementById('totalRequests').innerText = requests.size;
+            document.getElementById('pendingCount').innerText = pending.size;
+            document.getElementById('totalUsers').innerText = users.size;
+        }
+
+        async function loadServices() {
+            const snapshot = await db.collection('services').orderBy('id').get();
+            const services = [];
+            snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('servicesTable').innerHTML = `
+                <thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead>
+                <tbody>${services.map(s => `
+                    <tr><td>${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td>
+                    <td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button>
+                    <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>
+                `).join('')}</tbody>
+            `;
+        }
+
+        async function loadRequests() {
+            const snapshot = await db.collection('requests').orderBy('date', 'desc').get();
+            const requests = [];
+            snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
+            
+            document.getElementById('requestsTable').innerHTML = `
+                <thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+                <tbody>${requests.map(r => `
+                    <tr><td>${r.userName}<br><small>${r.userId}</small></td><td>${r.serviceName}</td>
+                    <td>KES ${r.price.toLocaleString()}</td>
+                    <td><span class="status-${r.status}">${r.status}</span></td>
+                    <td>${new Date(r.date).toLocaleString()}</td>
+                    <td><select onchange="updateStatus('${r.id}', this.value)">
+                        <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
+                        <option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approved</option>
+                        <option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option>
+                    </select>
+                    <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button></td></tr>
+                `).join('')}</tbody>
+            `;
+        }
+
+        async function loadUsers() {
+            const snapshot = await db.collection('users').get();
+            const users = [];
+            snapshot.forEach(doc => users.push(doc.data()));
+            
+            document.getElementById('usersTable').innerHTML = `
+                <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th></tr></thead>
+                <tbody>${users.map(u => `<tr><td>${u.name}</td><td>${u.email}</td><td>${u.phone || 'N/A'}</td><td>${u.role || 'user'}</td></tr>`).join('')}</tbody>
+            `;
+        }
+
+        async function updateStatus(requestId, newStatus) {
+            await db.collection('requests').doc(requestId).update({ status: newStatus });
+            loadRequests();
+            loadStats();
+        }
+
+        async function deleteRequest(requestId) {
+            if (confirm('Delete this request?')) {
+                await db.collection('requests').doc(requestId).delete();
+                loadRequests();
+                loadStats();
             }
         }
-        
-        debugCheck();
+
+        function showAddServiceModal() {
+            document.getElementById('modalTitle').innerText = 'Add Service';
+            document.getElementById('serviceId').value = '';
+            document.getElementById('serviceIcon').value = '';
+            document.getElementById('serviceName').value = '';
+            document.getElementById('servicePrice').value = '';
+            document.getElementById('serviceModal').style.display = 'flex';
+        }
+
+        async function editService(serviceId) {
+            const doc = await db.collection('services').doc(serviceId).get();
+            const s = doc.data();
+            document.getElementById('modalTitle').innerText = 'Edit Service';
+            document.getElementById('serviceId').value = serviceId;
+            document.getElementById('serviceIcon').value = s.icon;
+            document.getElementById('serviceName').value = s.name;
+            document.getElementById('servicePrice').value = s.price;
+            document.getElementById('serviceModal').style.display = 'flex';
+        }
+
+        async function saveService() {
+            const id = document.getElementById('serviceId').value;
+            const icon = document.getElementById('serviceIcon').value;
+            const name = document.getElementById('serviceName').value;
+            const price = parseInt(document.getElementById('servicePrice').value);
+            
+            if (!icon || !name || !price) { alert('Fill all fields'); return; }
+            
+            if (id) {
+                await db.collection('services').doc(id).update({ icon, name, price });
+            } else {
+                const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get();
+                let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1;
+                await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price });
+            }
+            closeModal('serviceModal');
+            loadServices();
+            loadStats();
+        }
+
+        async function deleteService(serviceId) {
+            if (confirm('Delete this service?')) {
+                await db.collection('services').doc(serviceId).delete();
+                loadServices();
+                loadStats();
+            }
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).style.display = 'none';
+        }
+
+        // Refresh every 5 seconds
+        setInterval(() => { loadStats(); loadRequests(); }, 5000);
     </script>
 </body>
 </html>
