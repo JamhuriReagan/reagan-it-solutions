@@ -47,6 +47,7 @@
         .status-pending { background: #fef3c7; color: #d97706; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
         .status-seen { background: #e0e7ff; color: #4f46e5; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
         .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
+        .status-payment_pending { background: #fed7aa; color: #9a3412; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
         .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; font-weight: 600; }
         table { width: 100%; border-collapse: collapse; }
         th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #ddd; }
@@ -260,11 +261,6 @@
             container.innerHTML = '<div style="text-align: center;">Loading your requests...</div>';
             
             try {
-                // First, check if requests collection exists by trying to get any request
-                const testSnapshot = await db.collection('requests').limit(1).get();
-                console.log('Requests collection accessible:', !testSnapshot.empty);
-                
-                // Now get user's requests
                 const snapshot = await db.collection('requests')
                     .where('userId', '==', currentUser.uid)
                     .orderBy('date', 'desc')
@@ -286,15 +282,16 @@
                                 <th style="padding: 0.75rem; text-align: left;">Price (KES)</th>
                                 <th style="padding: 0.75rem; text-align: left;">Status</th>
                                 <th style="padding: 0.75rem; text-align: left;">Date</th>
-                            </tr>
+                             </tr>
                         </thead>
                         <tbody>
                             ${requests.map(req => {
                                 let statusClass = 'status-pending';
-                                let statusText = req.status ? req.status.toUpperCase() : 'PENDING';
-                                if (req.status === 'seen') { statusClass = 'status-seen'; statusText = '✓ SEEN BY ADMIN'; }
-                                if (req.status === 'approved') { statusClass = 'status-approved'; statusText = '✓✓ APPROVED'; }
-                                if (req.status === 'completed') { statusClass = 'status-completed'; statusText = '✓✓✓ COMPLETED'; }
+                                let statusText = 'PENDING - Awaiting admin review';
+                                if (req.status === 'seen') { statusClass = 'status-seen'; statusText = '✓ SEEN BY ADMIN - Being processed'; }
+                                if (req.status === 'approved') { statusClass = 'status-approved'; statusText = '✓✓ APPROVED - Payment required'; }
+                                if (req.status === 'payment_pending') { statusClass = 'status-payment_pending'; statusText = '💳 PAYMENT PENDING - Please complete M-Pesa payment'; }
+                                if (req.status === 'completed') { statusClass = 'status-completed'; statusText = '✅ COMPLETED & PAID - Service delivered'; }
                                 return `
                                     <tr style="border-bottom: 1px solid #ddd;">
                                         <td style="padding: 0.75rem;">${req.serviceName}</td>
