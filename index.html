@@ -2,140 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <title>Reagan's IT Solutions | Smart Computer Services</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reagan's IT Solutions</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; transition: all 0.3s ease; }
-        body.light-mode { background: linear-gradient(135deg, #f5f7fa 0%, #e9eef5 100%); color: #1e293b; }
-        body.light-mode .navbar { background: rgba(255,255,255,0.96); box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        body.light-mode .logo { color: #0f2b3d; }
-        body.light-mode .service-card { background: white; border: 1px solid rgba(0,0,0,0.03); }
-        body.light-mode .modal-content { background: rgba(255,255,255,0.98); }
-        body.dark-mode { background: linear-gradient(135deg, #0f172a 0%, #111827 100%); color: #e2e8f0; }
-        body.dark-mode .navbar { background: rgba(15,25,35,0.96); backdrop-filter: blur(8px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-        body.dark-mode .logo { color: white; }
-        body.dark-mode .service-card { background: #1e293b; border: 1px solid #334155; }
-        body.dark-mode .service-card h3 { color: #f97316; }
-        body.dark-mode .modal-content { background: #1e293b; border: 1px solid #334155; color: #f1f5f9; }
-        body.dark-mode .modal-content input { background: #0f172a; border-color: #334155; color: white; }
-        
-        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; position: fixed; width: 100%; top: 0; z-index: 1000; backdrop-filter: blur(4px); }
-        .logo { font-size: 1.6rem; font-weight: 800; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
+        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.95); position: fixed; width: 100%; top: 0; }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #0f2b3d; }
         .logo span { color: #f97316; }
-        .nav-links { display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
-        .nav-links a { text-decoration: none; font-weight: 500; cursor: pointer; }
-        .theme-toggle { background: none; border: none; font-size: 1.4rem; cursor: pointer; padding: 0.3rem; border-radius: 50%; }
-        .btn { padding: 0.5rem 1.3rem; border: none; border-radius: 40px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; }
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
+        .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; }
         .btn-primary { background: #f97316; color: white; }
-        .btn-primary:hover { background: #ea580c; transform: scale(1.02); }
         .btn-outline { background: transparent; border: 2px solid #f97316; color: #f97316; }
-        .hero { padding: 140px 5% 70px; text-align: center; }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; font-weight: 800; }
-        .services-section { padding: 40px 5% 80px; }
-        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2.5rem; color: #f97316; font-weight: 700; }
-        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1280px; margin: 0 auto; }
-        .service-card { padding: 1.8rem 1.2rem; border-radius: 28px; text-align: center; transition: all 0.25s; cursor: pointer; }
-        .service-card:hover { transform: translateY(-6px); }
-        .service-icon { font-size: 3rem; margin-bottom: 0.75rem; }
-        .service-price { color: #f97316; font-size: 1.3rem; font-weight: 700; margin: 0.7rem 0; }
-        
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.65); backdrop-filter: blur(10px); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { padding: 2rem 1.8rem; border-radius: 36px; width: 90%; max-width: 420px; animation: modalSlideUp 0.25s ease-out; }
-        @keyframes modalSlideUp { from { opacity: 0; transform: translateY(25px); } to { opacity: 1; transform: translateY(0); } }
-        .modal-content h2 { margin-bottom: 1.5rem; font-size: 1.8rem; font-weight: 700; text-align: center; background: linear-gradient(135deg, #0f2b3d, #f97316); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        
-        .input-group { margin-bottom: 1.2rem; position: relative; }
-        .input-group input { width: 100%; padding: 0.9rem 1rem; padding-right: 48px; border: 1.5px solid #e2edff; border-radius: 34px; font-size: 1rem; background: white; }
-        .input-group input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.2); }
-        .password-toggle { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 1.2rem; }
-        .forgot-link { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
-        .forgot-link a, .modal-footer a { color: #f97316; font-size: 0.85rem; cursor: pointer; text-decoration: none; font-weight: 500; }
-        button[type="submit"] { width: 100%; padding: 0.85rem; border-radius: 40px; background: #f97316; color: white; font-weight: 700; font-size: 1rem; margin-top: 0.5rem; border: none; cursor: pointer; }
-        .modal-footer { text-align: center; margin-top: 1.5rem; }
-        .close { float: right; font-size: 1.8rem; cursor: pointer; line-height: 1; }
-        .error-message { color: #dc2626; font-size: 0.75rem; margin-top: 0.25rem; display: none; }
-        .admin-link { text-align: center; margin-top: 2rem; font-size: 0.75rem; color: #64748b; }
-        .admin-link a { color: #f97316; text-decoration: none; }
-        
-        @media (max-width: 680px) { .hero h1 { font-size: 2.2rem; } .nav-links { gap: 0.7rem; } .services-grid { gap: 1rem; } }
+        .hero { padding: 120px 5% 60px; text-align: center; }
+        .hero h1 { font-size: 3rem; color: #0f2b3d; }
+        .services-section { padding: 60px 5%; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2rem; color: #f97316; }
+        .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
+        .service-card { background: white; padding: 1.5rem; border-radius: 15px; text-align: center; cursor: pointer; }
+        .service-card:hover { transform: translateY(-5px); }
+        .service-icon { font-size: 3rem; }
+        .service-price { color: #f97316; font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 400px; }
+        .modal-content input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
+        .close { float: right; font-size: 1.5rem; cursor: pointer; }
+        .footer-links { text-align: center; margin-top: 2rem; padding: 1rem; }
+        .footer-links a { color: #f97316; text-decoration: none; margin: 0 1rem; }
     </style>
 </head>
-<body class="light-mode">
+<body>
     <nav class="navbar">
         <div class="logo">REAGAN'S <span>IT</span></div>
         <div class="nav-links">
-            <a href="#home">Home</a>
-            <a href="#services">Services</a>
-            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-            <a href="#" onclick="showLoginModal()">Login</a>
-            <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
+            <button class="btn btn-primary" onclick="window.location.href='user-login.html'">Login</button>
+            <button class="btn btn-outline" onclick="showRegisterModal()">Register</button>
         </div>
     </nav>
 
-    <section id="home" class="hero">
+    <section class="hero">
         <h1>🚀 Reagan's IT Solutions</h1>
         <p>Your Digital Assistant – Fast, Reliable, Affordable</p>
         <button class="btn btn-primary" onclick="showRegisterModal()">Get Started →</button>
     </section>
 
-    <section id="services" class="services-section">
+    <section class="services-section">
         <h2 class="section-title">Our Services</h2>
         <div class="services-grid" id="servicesGrid">Loading services...</div>
     </section>
 
-    <!-- LOGIN MODAL (User only) -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeLoginModal()">&times;</span>
-            <h2>Welcome Back! 👋</h2>
-            <form onsubmit="event.preventDefault(); handleLogin();">
-                <div class="input-group"><input type="email" id="loginEmail" placeholder="📧 Email address" required></div>
-                <div class="input-group"><input type="password" id="loginPassword" placeholder="🔒 Password" required><button type="button" class="password-toggle" onclick="togglePasswordField('loginPassword')">👁️</button></div>
-                <div class="forgot-link"><a onclick="openForgotPassword()">Forgot password?</a></div>
-                <button type="submit">Login →</button>
-            </form>
-            <div class="modal-footer">No account? <a onclick="switchToRegisterModal()">Create account</a></div>
-        </div>
-    </div>
-
-    <!-- REGISTER MODAL -->
+    <!-- Register Modal -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeRegisterModal()">&times;</span>
             <h2>Create Account 🚀</h2>
-            <form onsubmit="event.preventDefault(); handleRegister();">
-                <div class="input-group"><input type="text" id="regName" placeholder="👤 Full name" required></div>
-                <div class="input-group"><input type="email" id="regEmail" placeholder="📧 Email address" required></div>
-                <div class="input-group"><input type="tel" id="regPhone" placeholder="📱 Phone number (e.g., 0712345678)" required></div>
-                <div class="input-group"><input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)" required><button type="button" class="password-toggle" onclick="togglePasswordField('regPassword')">👁️</button></div>
-                <div class="input-group"><input type="password" id="regConfirm" placeholder="✓ Confirm password" required><button type="button" class="password-toggle" onclick="togglePasswordField('regConfirm')">👁️</button></div>
-                <div id="regErrorMsg" class="error-message"></div>
-                <button type="submit">Register →</button>
-            </form>
-            <div class="modal-footer">Already have an account? <a onclick="switchToLoginModal()">Sign in</a></div>
+            <input type="text" id="regName" placeholder="Full Name">
+            <input type="email" id="regEmail" placeholder="Email Address">
+            <input type="tel" id="regPhone" placeholder="Phone Number">
+            <input type="password" id="regPassword" placeholder="Password (min 6 chars)">
+            <input type="password" id="regConfirm" placeholder="Confirm Password">
+            <div id="regError" style="color:red; font-size:0.8rem; display:none;"></div>
+            <button class="btn btn-primary" onclick="register()" style="width:100%; margin-top:1rem;">Register</button>
         </div>
     </div>
 
-    <!-- FORGOT PASSWORD MODAL -->
-    <div id="forgotModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeForgotModal()">&times;</span>
-            <h2>🔐 Reset password</h2>
-            <p style="margin-bottom: 1rem; text-align:center;">We'll send a reset link to your email</p>
-            <div class="input-group"><input type="email" id="resetEmail" placeholder="Your email address" required></div>
-            <div id="resetFeedback" class="error-message"></div>
-            <button onclick="sendPasswordReset()">Send reset link</button>
-            <div class="modal-footer"><a onclick="closeForgotModal(); showLoginModal();">Back to login</a></div>
-        </div>
-    </div>
-
-    <!-- Hidden admin link (only visible if you know it exists) -->
-    <div class="admin-link" style="text-align: center; margin: 1rem 0; font-size: 0.7rem;">
-        <a href="admin-simple.html">🔐 Admin Portal</a>
+    <div class="footer-links">
+        <a href="admin-login.html">🔐 Admin Login</a>
     </div>
 
     <script>
@@ -151,137 +86,45 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
-        function togglePasswordField(fieldId) {
-            const field = document.getElementById(fieldId);
-            field.type = field.type === "password" ? "text" : "password";
-        }
+        function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
+        function closeRegisterModal() { document.getElementById('registerModal').style.display = 'none'; }
 
-        function showLoginModal() { document.getElementById("loginModal").style.display = "flex"; }
-        function closeLoginModal() { document.getElementById("loginModal").style.display = "none"; }
-        function showRegisterModal() { document.getElementById("registerModal").style.display = "flex"; document.getElementById("regErrorMsg").style.display = "none"; }
-        function closeRegisterModal() { document.getElementById("registerModal").style.display = "none"; }
-        function openForgotPassword() { closeLoginModal(); document.getElementById("forgotModal").style.display = "flex"; }
-        function closeForgotModal() { document.getElementById("forgotModal").style.display = "none"; }
-        function switchToRegisterModal() { closeLoginModal(); showRegisterModal(); }
-        function switchToLoginModal() { closeRegisterModal(); showLoginModal(); }
-
-        async function sendPasswordReset() {
-            const email = document.getElementById("resetEmail").value;
-            const feedback = document.getElementById("resetFeedback");
-            if (!email) { feedback.textContent = "❌ Please enter your email"; feedback.style.display = "block"; return; }
-            feedback.style.display = "none";
+        async function register() {
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+            const phone = document.getElementById('regPhone').value;
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const errorDiv = document.getElementById('regError');
+            
+            if (!name || !email || !phone || !password) {
+                errorDiv.textContent = '❌ All fields required'; errorDiv.style.display = 'block'; return;
+            }
+            if (password !== confirm) { errorDiv.textContent = '❌ Passwords do not match'; errorDiv.style.display = 'block'; return; }
+            if (password.length < 6) { errorDiv.textContent = '❌ Password must be at least 6 characters'; errorDiv.style.display = 'block'; return; }
+            
+            errorDiv.style.display = 'none';
             try {
-                await auth.sendPasswordResetEmail(email);
-                alert("✅ Password reset link sent! Check your inbox.");
-                closeForgotModal();
-                showLoginModal();
-            } catch (err) {
-                feedback.textContent = err.code === "auth/user-not-found" ? "❌ No account with this email" : "❌ Error: " + err.message;
-                feedback.style.display = "block";
-            }
-        }
-
-        async function handleRegister() {
-            const name = document.getElementById("regName").value.trim();
-            const email = document.getElementById("regEmail").value.trim();
-            let phone = document.getElementById("regPhone").value.trim();
-            const password = document.getElementById("regPassword").value;
-            const confirm = document.getElementById("regConfirm").value;
-            const errorDiv = document.getElementById("regErrorMsg");
-
-            if (!name || !email || !phone || !password || !confirm) {
-                errorDiv.textContent = "❌ All fields are required";
-                errorDiv.style.display = "block";
-                return;
-            }
-            const phoneClean = phone.replace(/\s/g, '');
-            const phoneRegex = /^(07|01|02)\d{8}$|^(\+254)\d{9}$/;
-            if (!phoneRegex.test(phoneClean)) {
-                errorDiv.textContent = "❌ Use valid Kenyan phone: 0712345678 or +254712345678";
-                errorDiv.style.display = "block";
-                return;
-            }
-            const emailRegex = /^[^\s@]+@([^\s@]+\.)+[^\s@]+$/;
-            if (!emailRegex.test(email)) {
-                errorDiv.textContent = "❌ Enter a valid email address";
-                errorDiv.style.display = "block";
-                return;
-            }
-            if (password !== confirm) {
-                errorDiv.textContent = "❌ Passwords do not match";
-                errorDiv.style.display = "block";
-                return;
-            }
-            if (password.length < 6) {
-                errorDiv.textContent = "❌ Password must be at least 6 characters";
-                errorDiv.style.display = "block";
-                return;
-            }
-            errorDiv.style.display = "none";
-            try {
-                const phoneSnap = await db.collection("users").where("phone", "==", phoneClean).get();
-                if (!phoneSnap.empty) {
-                    errorDiv.textContent = "❌ This phone number is already registered";
-                    errorDiv.style.display = "block";
-                    return;
-                }
-                const emailSnap = await db.collection("users").where("email", "==", email).get();
-                if (!emailSnap.empty) {
-                    errorDiv.textContent = "❌ This email is already registered. Please login.";
-                    errorDiv.style.display = "block";
-                    return;
-                }
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
-                const uid = userCred.user.uid;
-                await db.collection("users").doc(uid).set({
-                    name: name, email: email, phone: phoneClean, role: "user", createdAt: new Date().toISOString()
+                await db.collection('users').doc(userCred.user.uid).set({
+                    name, email, phone, role: 'user', createdAt: new Date().toISOString()
                 });
-                alert("✅ Registration successful! Please login.");
+                alert('✅ Registration successful! Please login.');
                 closeRegisterModal();
-                showLoginModal();
+                window.location.href = 'user-login.html';
             } catch (err) {
-                if (err.code === "auth/email-already-in-use") errorDiv.textContent = "❌ Email already in use";
-                else errorDiv.textContent = "❌ " + err.message;
-                errorDiv.style.display = "block";
-            }
-        }
-
-        async function handleLogin() {
-            const email = document.getElementById("loginEmail").value.trim();
-            const password = document.getElementById("loginPassword").value;
-            if (!email || !password) { alert("Please enter email and password"); return; }
-
-            try {
-                const userCred = await auth.signInWithEmailAndPassword(email, password);
-                const uid = userCred.user.uid;
-                let userDoc = await db.collection("users").doc(uid).get();
-                if (!userDoc.exists) {
-                    const emailQuery = await db.collection("users").where("email", "==", email).get();
-                    if (!emailQuery.empty) userDoc = emailQuery.docs[0];
-                }
-                const userData = userDoc.data();
-                
-                sessionStorage.setItem("userId", uid);
-                sessionStorage.setItem("userEmail", email);
-                sessionStorage.setItem("userName", userData?.name || email);
-                sessionStorage.setItem("userRole", userData?.role || "user");
-
-                window.location.href = "dashboard.html";
-            } catch (err) {
-                if (err.code === "auth/user-not-found") alert("❌ No account found. Please register.");
-                else if (err.code === "auth/wrong-password") alert("❌ Incorrect password or forgot password?");
-                else alert("❌ Login error: " + err.message);
+                errorDiv.textContent = err.code === 'auth/email-already-in-use' ? '❌ Email already registered' : '❌ ' + err.message;
+                errorDiv.style.display = 'block';
             }
         }
 
         async function loadServices() {
-            const container = document.getElementById("servicesGrid");
-            container.innerHTML = "<div style='text-align:center'>Loading services ...</div>";
+            const grid = document.getElementById('servicesGrid');
             try {
-                const snapshot = await db.collection("services").orderBy("id").get();
+                const snapshot = await db.collection('services').orderBy('id').get();
                 let services = [];
                 if (snapshot.empty) {
-                    const defaultServices = [
+                    services = [
                         { id: 1, name: "CV & Cover Letter", icon: "📄", price: 500 },
                         { id: 2, name: "KRA PIN Registration", icon: "🔖", price: 300 },
                         { id: 3, name: "KRA Returns Filing", icon: "📊", price: 500 },
@@ -293,70 +136,21 @@
                         { id: 9, name: "Email Setup", icon: "📧", price: 300 },
                         { id: 10, name: "PDF Conversion", icon: "🔐", price: 100 }
                     ];
-                    for (const s of defaultServices) await db.collection("services").doc(s.id.toString()).set(s);
-                    services = defaultServices;
+                    for (const s of services) await db.collection('services').doc(s.id.toString()).set(s);
                 } else {
-                    snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
+                    snapshot.forEach(doc => services.push(doc.data()));
                 }
-                const loggedIn = sessionStorage.getItem("userId");
-                container.innerHTML = services.map(s => `
+                grid.innerHTML = services.map(s => `
                     <div class="service-card">
                         <div class="service-icon">${s.icon}</div>
                         <h3>${s.name}</h3>
                         <div class="service-price">KES ${s.price.toLocaleString()}</div>
-                        ${loggedIn ? `<button class="btn btn-primary" onclick="requestServiceById(${s.id})">Request Service</button>` : `<button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>`}
+                        <button class="btn btn-outline" onclick="window.location.href='user-login.html'">Login to Request</button>
                     </div>
                 `).join('');
-            } catch(e) { container.innerHTML = "<div style='text-align:center'>⚠️ Error loading services. Refresh page.</div>"; }
+            } catch(e) { grid.innerHTML = '<p>Error loading services. Refresh.</p>'; }
         }
-
-        window.requestServiceById = async function(serviceId) {
-            const userId = sessionStorage.getItem("userId");
-            if (!userId) { showLoginModal(); return; }
-            const userName = sessionStorage.getItem("userName") || "User";
-            const serviceSnap = await db.collection("services").doc(serviceId.toString()).get();
-            const service = serviceSnap.data();
-            if (!service) return;
-            await db.collection("requests").add({
-                userId: userId, userName: userName, serviceId: serviceId, serviceName: service.name,
-                price: service.price, status: "pending", date: new Date().toISOString(),
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-            alert(`✅ Request for "${service.name}" sent! Admin will review soon.`);
-        };
-
-        function toggleTheme() {
-            const body = document.body;
-            const btn = document.getElementById("themeToggle");
-            if (body.classList.contains("light-mode")) {
-                body.classList.remove("light-mode");
-                body.classList.add("dark-mode");
-                btn.textContent = "☀️";
-                localStorage.setItem("theme", "dark");
-            } else {
-                body.classList.remove("dark-mode");
-                body.classList.add("light-mode");
-                btn.textContent = "🌙";
-                localStorage.setItem("theme", "light");
-            }
-        }
-        function loadTheme() {
-            const saved = localStorage.getItem("theme");
-            if (saved === "dark") {
-                document.body.classList.remove("light-mode");
-                document.body.classList.add("dark-mode");
-                document.getElementById("themeToggle").textContent = "☀️";
-            }
-        }
-
-        auth.onAuthStateChanged((user) => {
-            if (user) sessionStorage.setItem("userId", user.uid);
-            else { sessionStorage.removeItem("userId"); sessionStorage.removeItem("userEmail"); sessionStorage.removeItem("userName"); sessionStorage.removeItem("userRole"); }
-        });
-
-        window.onclick = function(e) { if (e.target.classList && e.target.classList.contains("modal")) e.target.style.display = "none"; };
-
-        loadTheme();
+        
         loadServices();
     </script>
 </body>
