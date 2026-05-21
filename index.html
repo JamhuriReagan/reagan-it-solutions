@@ -10,35 +10,54 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); }
-        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.95); position: fixed; width: 100%; top: 0; }
+        .navbar { padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.95); position: fixed; width: 100%; top: 0; z-index: 1000; }
         .logo { font-size: 1.5rem; font-weight: bold; color: #0f2b3d; }
         .logo span { color: #f97316; }
-        .nav-links { display: flex; gap: 1.5rem; align-items: center; }
-        .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; }
+        .btn { padding: 0.5rem 1.5rem; border: none; border-radius: 25px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
         .btn-primary { background: #f97316; color: white; }
+        .btn-primary:hover { background: #e8620d; transform: scale(1.02); }
         .btn-outline { background: transparent; border: 2px solid #f97316; color: #f97316; }
+        .btn-outline:hover { background: #f97316; color: white; }
         .hero { padding: 120px 5% 60px; text-align: center; }
         .hero h1 { font-size: 3rem; color: #0f2b3d; }
         .services-section { padding: 60px 5%; }
         .section-title { text-align: center; font-size: 2rem; margin-bottom: 2rem; color: #f97316; }
         .services-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; max-width: 1200px; margin: 0 auto; }
-        .service-card { background: white; padding: 1.5rem; border-radius: 15px; text-align: center; cursor: pointer; }
+        .service-card { background: white; padding: 1.5rem; border-radius: 15px; text-align: center; cursor: pointer; transition: transform 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .service-card:hover { transform: translateY(-5px); }
         .service-icon { font-size: 3rem; }
         .service-price { color: #f97316; font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 2000; }
-        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 400px; }
-        .modal-content input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
-        .close { float: right; font-size: 1.5rem; cursor: pointer; }
-        .footer-links { text-align: center; margin-top: 2rem; padding: 1rem; }
-        .footer-links a { color: #f97316; text-decoration: none; margin: 0 1rem; }
+        
+        /* Modal Styles */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); justify-content: center; align-items: center; z-index: 2000; }
+        .modal-content { background: white; padding: 2rem; border-radius: 20px; width: 90%; max-width: 400px; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        .modal-content h2 { margin-bottom: 1.5rem; text-align: center; color: #f97316; }
+        
+        /* Password Input Group with Toggle */
+        .input-group { margin-bottom: 1.2rem; position: relative; }
+        .input-group input { width: 100%; padding: 0.8rem 1rem; padding-right: 45px; border: 2px solid #e2e8f0; border-radius: 12px; font-size: 1rem; transition: all 0.3s; }
+        .input-group input:focus { outline: none; border-color: #f97316; box-shadow: 0 0 0 3px rgba(249,115,22,0.2); }
+        .password-toggle { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; background: none; border: none; font-size: 1.2rem; padding: 0; }
+        .close { float: right; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
+        .close:hover { color: #f97316; }
+        .error-message { color: #dc2626; font-size: 0.8rem; margin-top: 0.5rem; display: none; text-align: center; }
+        .success-message { color: #10b981; font-size: 0.8rem; margin-top: 0.5rem; display: none; text-align: center; }
+        .forgot-link { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
+        .forgot-link a { color: #f97316; font-size: 0.8rem; cursor: pointer; text-decoration: none; }
+        .modal-footer { text-align: center; margin-top: 1rem; }
+        .modal-footer a { color: #f97316; cursor: pointer; text-decoration: none; }
+        .admin-link { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; }
+        .admin-link a { color: #999; text-decoration: none; }
+        
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .services-grid { gap: 1rem; } }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <div class="logo">REAGAN'S <span>IT</span></div>
-        <div class="nav-links">
-            <button class="btn btn-primary" onclick="window.location.href='user-login.html'">Login</button>
+        <div>
+            <button class="btn btn-primary" onclick="showLoginModal()">Login</button>
             <button class="btn btn-outline" onclick="showRegisterModal()">Register</button>
         </div>
     </nav>
@@ -54,23 +73,71 @@
         <div class="services-grid" id="servicesGrid">Loading services...</div>
     </section>
 
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <h2>Welcome Back! 👋</h2>
+            <div class="input-group">
+                <input type="email" id="loginEmail" placeholder="📧 Email Address">
+            </div>
+            <div class="input-group">
+                <input type="password" id="loginPassword" placeholder="🔒 Password">
+                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">👁️</button>
+            </div>
+            <div class="forgot-link"><a onclick="showForgotPasswordModal()">Forgot Password?</a></div>
+            <button class="btn btn-primary" onclick="userLogin()" style="width:100%;">Login →</button>
+            <div id="loginError" class="error-message"></div>
+            <div class="modal-footer">Don't have an account? <a onclick="switchToRegister()">Create one</a></div>
+        </div>
+    </div>
+
     <!-- Register Modal -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeRegisterModal()">&times;</span>
             <h2>Create Account 🚀</h2>
-            <input type="text" id="regName" placeholder="Full Name">
-            <input type="email" id="regEmail" placeholder="Email Address">
-            <input type="tel" id="regPhone" placeholder="Phone Number">
-            <input type="password" id="regPassword" placeholder="Password (min 6 chars)">
-            <input type="password" id="regConfirm" placeholder="Confirm Password">
-            <div id="regError" style="color:red; font-size:0.8rem; display:none;"></div>
-            <button class="btn btn-primary" onclick="register()" style="width:100%; margin-top:1rem;">Register</button>
+            <div class="input-group">
+                <input type="text" id="regName" placeholder="👤 Full Name">
+            </div>
+            <div class="input-group">
+                <input type="email" id="regEmail" placeholder="📧 Email Address">
+            </div>
+            <div class="input-group">
+                <input type="tel" id="regPhone" placeholder="📱 Phone Number">
+            </div>
+            <div class="input-group">
+                <input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)">
+                <button type="button" class="password-toggle" onclick="togglePassword('regPassword')">👁️</button>
+            </div>
+            <div class="input-group">
+                <input type="password" id="regConfirm" placeholder="✓ Confirm Password">
+                <button type="button" class="password-toggle" onclick="togglePassword('regConfirm')">👁️</button>
+            </div>
+            <div id="regError" class="error-message"></div>
+            <button class="btn btn-primary" onclick="register()" style="width:100%;">Register →</button>
+            <div class="modal-footer">Already have an account? <a onclick="switchToLogin()">Sign in</a></div>
         </div>
     </div>
 
-    <div class="footer-links">
-        <a href="admin-login.html">🔐 Admin Login</a>
+    <!-- Forgot Password Modal -->
+    <div id="forgotModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeForgotModal()">&times;</span>
+            <h2>🔑 Reset Password</h2>
+            <p style="margin-bottom: 1rem; text-align:center;">We'll send a reset link to your email</p>
+            <div class="input-group">
+                <input type="email" id="resetEmail" placeholder="📧 Your Email Address">
+            </div>
+            <div id="resetError" class="error-message"></div>
+            <div id="resetSuccess" class="success-message"></div>
+            <button class="btn btn-primary" onclick="sendPasswordReset()" style="width:100%;">Send Reset Link →</button>
+            <div class="modal-footer"><a onclick="closeForgotModal(); showLoginModal();">Back to Login</a></div>
+        </div>
+    </div>
+
+    <div class="admin-link">
+        <a href="admin-simple.html">🔐 Admin Access</a>
     </div>
 
     <script>
@@ -86,9 +153,79 @@
         const db = firebase.firestore();
         const auth = firebase.auth();
 
+        // Toggle Password Visibility
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            if (field.type === 'password') {
+                field.type = 'text';
+            } else {
+                field.type = 'password';
+            }
+        }
+
+        // Modal Controls
+        function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
+        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
         function closeRegisterModal() { document.getElementById('registerModal').style.display = 'none'; }
+        function showForgotPasswordModal() { closeLoginModal(); document.getElementById('forgotModal').style.display = 'flex'; }
+        function closeForgotModal() { document.getElementById('forgotModal').style.display = 'none'; }
+        function switchToRegister() { closeLoginModal(); showRegisterModal(); }
+        function switchToLogin() { closeRegisterModal(); showLoginModal(); }
 
+        // Send Password Reset
+        async function sendPasswordReset() {
+            const email = document.getElementById('resetEmail').value;
+            const errorDiv = document.getElementById('resetError');
+            const successDiv = document.getElementById('resetSuccess');
+            
+            errorDiv.style.display = 'none';
+            successDiv.style.display = 'none';
+            
+            if (!email) {
+                errorDiv.textContent = '❌ Please enter your email';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                await auth.sendPasswordResetEmail(email);
+                successDiv.textContent = '✅ Reset link sent! Check your email.';
+                successDiv.style.display = 'block';
+                setTimeout(() => {
+                    closeForgotModal();
+                    showLoginModal();
+                }, 3000);
+            } catch (error) {
+                errorDiv.textContent = error.code === 'auth/user-not-found' ? '❌ No account found' : '❌ Error sending reset link';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // User Login
+        async function userLogin() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const errorDiv = document.getElementById('loginError');
+            errorDiv.style.display = 'none';
+            
+            if (!email || !password) {
+                errorDiv.textContent = '❌ Please enter email and password';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const userCred = await auth.signInWithEmailAndPassword(email, password);
+                sessionStorage.setItem('userId', userCred.user.uid);
+                window.location.href = 'dashboard.html';
+            } catch (error) {
+                errorDiv.textContent = error.code === 'auth/user-not-found' ? '❌ No account found' : '❌ Invalid email or password';
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        // User Registration
         async function register() {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
@@ -97,13 +234,26 @@
             const confirm = document.getElementById('regConfirm').value;
             const errorDiv = document.getElementById('regError');
             
-            if (!name || !email || !phone || !password) {
-                errorDiv.textContent = '❌ All fields required'; errorDiv.style.display = 'block'; return;
-            }
-            if (password !== confirm) { errorDiv.textContent = '❌ Passwords do not match'; errorDiv.style.display = 'block'; return; }
-            if (password.length < 6) { errorDiv.textContent = '❌ Password must be at least 6 characters'; errorDiv.style.display = 'block'; return; }
-            
             errorDiv.style.display = 'none';
+            
+            if (!name || !email || !phone || !password) {
+                errorDiv.textContent = '❌ Please fill all fields';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password !== confirm) {
+                errorDiv.textContent = '❌ Passwords do not match';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            if (password.length < 6) {
+                errorDiv.textContent = '❌ Password must be at least 6 characters';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(userCred.user.uid).set({
@@ -111,15 +261,17 @@
                 });
                 alert('✅ Registration successful! Please login.');
                 closeRegisterModal();
-                window.location.href = 'user-login.html';
-            } catch (err) {
-                errorDiv.textContent = err.code === 'auth/email-already-in-use' ? '❌ Email already registered' : '❌ ' + err.message;
+                showLoginModal();
+            } catch (error) {
+                errorDiv.textContent = error.code === 'auth/email-already-in-use' ? '❌ Email already registered' : '❌ ' + error.message;
                 errorDiv.style.display = 'block';
             }
         }
 
+        // Load Services
         async function loadServices() {
             const grid = document.getElementById('servicesGrid');
+            grid.innerHTML = '<div style="text-align:center;">Loading services...</div>';
             try {
                 const snapshot = await db.collection('services').orderBy('id').get();
                 let services = [];
@@ -145,10 +297,17 @@
                         <div class="service-icon">${s.icon}</div>
                         <h3>${s.name}</h3>
                         <div class="service-price">KES ${s.price.toLocaleString()}</div>
-                        <button class="btn btn-outline" onclick="window.location.href='user-login.html'">Login to Request</button>
+                        <button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>
                     </div>
                 `).join('');
-            } catch(e) { grid.innerHTML = '<p>Error loading services. Refresh.</p>'; }
+            } catch(e) { grid.innerHTML = '<p>Error loading services. Refresh page.</p>'; }
+        }
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
         }
         
         loadServices();
