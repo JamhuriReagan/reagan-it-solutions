@@ -534,7 +534,7 @@
         async function loadServices() {
             const snapshot = await db.collection('services').orderBy('id').get();
             const services = []; snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
-            document.getElementById('servicesTable').innerHTML = `<thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>${services.map(s => `<td><td style="text-align:center;">${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td><td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
+            document.getElementById('servicesTable').innerHTML = `<thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>${services.map(s => `<tr><td style="text-align:center;">${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td><td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
         }
 
         async function loadRequests() {
@@ -601,7 +601,7 @@
             `).join('');
         }
 
-        // ============ M-Pesa Functions (Updated with Render Backend) ============
+        // ============ M-Pesa Functions ============
         
         // Send STK Push to customer's phone
         async function requestMpesaPayment(requestId, customerId, serviceName, amount) {
@@ -621,12 +621,6 @@
                 formattedPhone = '254' + formattedPhone.substring(1);
             }
             
-            // Show loading indicator
-            const btn = event.target;
-            const originalText = btn.innerText;
-            btn.innerText = '⏳ Sending...';
-            btn.disabled = true;
-            
             try {
                 const response = await fetch(`${BACKEND_URL}/api/mpesa/stkpush`, {
                     method: 'POST',
@@ -641,6 +635,7 @@
                 });
                 
                 const result = await response.json();
+                console.log("Payment response:", result);
                 
                 if (result.success) {
                     alert(`✅ Payment request sent to ${customerPhone}!\n\nCustomer will receive an M-Pesa prompt on their phone.\n\nTest PIN for Sandbox: 123456`);
@@ -652,10 +647,7 @@
                 }
             } catch (error) {
                 console.error('Payment error:', error);
-                alert('❌ Error sending payment request. Please check if backend server is running.');
-            } finally {
-                btn.innerText = originalText;
-                btn.disabled = false;
+                alert('❌ Error sending payment request. Please check if backend server is running.\n\nError: ' + error.message);
             }
         }
         
