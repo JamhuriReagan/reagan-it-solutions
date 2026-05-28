@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.reagan.it.solutions",
+        "sha256_cert_fingerprints": ["EF:B3:94:0F:27:8D:82:DC:F5:10:42:78:1A:1B:0D:B6:90:49:24:C6:A6:EA:4B:D3:48:A0:21:B5:19:7A:5F:29"]
+      }
+    }]
