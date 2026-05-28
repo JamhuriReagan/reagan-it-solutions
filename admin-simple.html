@@ -6,6 +6,7 @@
     <title>Admin Portal - Reagan's IT</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -173,7 +174,7 @@
         
         .container { max-width: 1400px; margin: 2rem auto; padding: 0 5%; }
         
-        /* NEW: Admin Profile Card */
+        /* Admin Profile Card */
         .profile-card {
             background: white;
             border-radius: 24px;
@@ -220,7 +221,7 @@
         .stat-number { font-size: 2.2rem; font-weight: bold; color: #f97316; }
         .stat-label { color: #64748b; margin-top: 0.3rem; }
         
-        /* NEW: Filter Tabs for Request History */
+        /* Filter Tabs for Request History */
         .filter-tabs {
             display: flex;
             gap: 0.5rem;
@@ -391,7 +392,7 @@
         </div>
 
         <div class="container">
-            <!-- NEW: Admin Profile Card -->
+            <!-- Admin Profile Card -->
             <div class="profile-card">
                 <div class="profile-info">
                     <p><span class="profile-label">👤 Admin Name:</span> <span class="profile-value" id="adminName"></span></p>
@@ -412,7 +413,7 @@
                 <div class="stat-card" onclick="showUsersSection()"><div class="stat-number" id="totalUsers">0</div><div class="stat-label">👥 Users</div></div>
             </div>
 
-            <!-- NEW: Filter Tabs for Request History -->
+            <!-- Filter Tabs for Request History -->
             <div class="filter-tabs" id="filterTabs">
                 <div class="filter-tab active" data-filter="all" onclick="filterRequests('all')">📋 All Requests</div>
                 <div class="filter-tab" data-filter="pending" onclick="filterRequests('pending')">⏳ Pending</div>
@@ -429,7 +430,7 @@
                 <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table>
             </div>
 
-            <!-- UPDATED: Requests Section with more columns -->
+            <!-- Requests Section with more columns -->
             <div id="requestsSection" class="section" style="display: block;">
                 <h2>📋 Request History</h2>
                 <table id="requestsTable">
@@ -456,7 +457,7 @@
         </div>
     </div>
 
-    <!-- NEW: Edit Profile Modal -->
+    <!-- Edit Profile Modal -->
     <div id="editProfileModal" class="modal">
         <div class="modal-content">
             <h2>✏️ Edit Admin Profile</h2>
@@ -467,7 +468,7 @@
         </div>
     </div>
 
-    <!-- NEW: Change Password Modal -->
+    <!-- Change Password Modal -->
     <div id="changePasswordModal" class="modal">
         <div class="modal-content">
             <h2>🔑 Change Password</h2>
@@ -479,7 +480,7 @@
         </div>
     </div>
 
-    <!-- NEW: Forgot Password Modal -->
+    <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal" class="modal">
         <div class="modal-content">
             <h2>📧 Forgot Password?</h2>
@@ -495,40 +496,14 @@
     <div id="mpesaModal" class="modal">
         <div class="modal-content">
             <h2>💳 M-Pesa Payment Request</h2>
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" id="mpesaCustomerName" readonly style="background:#f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>Customer Phone (M-Pesa Number)</label>
-                <input type="text" id="mpesaCustomerPhone" placeholder="0712345678">
-                <small style="color: #666;">Customer's M-Pesa registered phone number</small>
-            </div>
-            <div class="form-group">
-                <label>Amount (KES)</label>
-                <input type="number" id="mpesaAmount" readonly style="background:#f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>Service</label>
-                <input type="text" id="mpesaService" readonly style="background:#f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>M-Pesa Instructions</label>
-                <textarea id="mpesaInstructions" rows="4" style="width:100%; padding:0.5rem; border-radius:10px; border:1px solid #ddd;" readonly>1. Go to M-Pesa on your phone
-2. Select "Lipa na M-Pesa" → "Pay Bill"
-3. Enter Business Number: 123456
-4. Enter Account Number: REAGANXXXXXX
-5. Enter Amount: KES XXXX
-6. Enter your M-Pesa PIN
-7. Confirm and send</textarea>
-            </div>
-            <div class="form-group">
-                <label>M-Pesa Transaction Code (after payment)</label>
-                <input type="text" id="mpesaTransactionCode" placeholder="e.g., QWERTY123">
-            </div>
+            <div class="form-group"><label>Customer Name</label><input type="text" id="mpesaCustomerName" readonly style="background:#f0f0f0;"></div>
+            <div class="form-group"><label>Customer Phone</label><input type="text" id="mpesaCustomerPhone" placeholder="0712345678"></div>
+            <div class="form-group"><label>Amount (KES)</label><input type="number" id="mpesaAmount" readonly style="background:#f0f0f0;"></div>
+            <div class="form-group"><label>Service</label><input type="text" id="mpesaService" readonly style="background:#f0f0f0;"></div>
+            <div class="form-group"><label>Transaction Code</label><input type="text" id="mpesaTransactionCode" placeholder="e.g., QWERTY123"></div>
             <input type="hidden" id="mpesaRequestId">
-            <button class="btn btn-success" onclick="confirmMpesaPayment()" style="width:100%; margin-top:0.5rem;">✓ Confirm Payment Received</button>
-            <button class="btn btn-danger" onclick="closeMpesaModal()" style="width:100%; margin-top:0.5rem;">Cancel</button>
+            <button class="btn btn-success" onclick="confirmMpesaPayment()">✓ Confirm Payment</button>
+            <button class="btn btn-danger" onclick="closeMpesaModal()">Cancel</button>
         </div>
     </div>
 
@@ -556,6 +531,8 @@
 
         let currentFilter = 'all';
         let allRequests = [];
+        let currentAdminDocId = null;
+        let currentAdminData = null;
 
         // Session Management
         function checkSession() {
@@ -570,13 +547,13 @@
             pwd.type = pwd.type === 'password' ? 'text' : 'password';
         }
 
-        function checkPassword() {
+        async function checkPassword() {
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === ADMIN_PASSWORD) {
                 sessionStorage.setItem(SESSION_KEY, 'true');
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
-                loadAdminProfile();
+                await loadAdminProfile();
                 loadStats(); loadServices(); loadAllRequests(); loadUsers();
                 window.addEventListener('beforeunload', () => { sessionStorage.removeItem(SESSION_KEY); });
             } else {
@@ -593,30 +570,73 @@
             document.getElementById('errorMsg').style.display = 'none';
         }
 
-        // NEW: Admin Profile Functions
+        // Admin Profile Functions - FIXED to load from users collection by email
         async function loadAdminProfile() {
-            // Get admin from Firestore (assuming admin is in users collection with role='admin')
-            const adminQuery = await db.collection('users').where('role', '==', 'admin').limit(1).get();
-            if (!adminQuery.empty) {
-                const adminData = adminQuery.docs[0].data();
-                document.getElementById('adminName').innerText = adminData.name || 'Admin';
-                document.getElementById('adminEmail').innerText = adminData.email;
-                document.getElementById('adminPhone').innerText = adminData.phone || 'Not set';
-                document.getElementById('editAdminName').value = adminData.name || '';
-                document.getElementById('editAdminPhone').value = adminData.phone || '';
-                document.getElementById('forgotEmail').value = adminData.email;
+            try {
+                // First try to find by email (jamhurireagan2@gmail.com)
+                const emailQuery = await db.collection('users').where('email', '==', 'jamhurireagan2@gmail.com').get();
+                if (!emailQuery.empty) {
+                    const doc = emailQuery.docs[0];
+                    currentAdminDocId = doc.id;
+                    currentAdminData = doc.data();
+                    // Make sure role is admin
+                    if (currentAdminData.role !== 'admin') {
+                        await db.collection('users').doc(currentAdminDocId).update({ role: 'admin' });
+                        currentAdminData.role = 'admin';
+                    }
+                    updateProfileDisplay();
+                    return;
+                }
+                
+                // If not found by email, try by role
+                const roleQuery = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+                if (!roleQuery.empty) {
+                    const doc = roleQuery.docs[0];
+                    currentAdminDocId = doc.id;
+                    currentAdminData = doc.data();
+                    updateProfileDisplay();
+                    return;
+                }
+                
+                console.log('No admin found in Firestore');
+            } catch (error) {
+                console.error('Error loading admin:', error);
+            }
+        }
+        
+        function updateProfileDisplay() {
+            if (currentAdminData) {
+                document.getElementById('adminName').innerText = currentAdminData.name || 'Admin User';
+                document.getElementById('adminEmail').innerText = currentAdminData.email || 'admin@example.com';
+                document.getElementById('adminPhone').innerText = currentAdminData.phone || 'Not set';
+                document.getElementById('editAdminName').value = currentAdminData.name || '';
+                document.getElementById('editAdminPhone').value = currentAdminData.phone || '';
+                document.getElementById('forgotEmail').value = currentAdminData.email || '';
             }
         }
 
         async function updateAdminProfile() {
             const newName = document.getElementById('editAdminName').value;
             const newPhone = document.getElementById('editAdminPhone').value;
-            const adminQuery = await db.collection('users').where('role', '==', 'admin').limit(1).get();
-            if (!adminQuery.empty) {
-                await db.collection('users').doc(adminQuery.docs[0].id).update({ name: newName, phone: newPhone });
-                alert('✅ Profile updated!');
+            
+            if (!currentAdminDocId) {
+                alert('❌ Admin not found');
+                return;
+            }
+            
+            try {
+                await db.collection('users').doc(currentAdminDocId).update({
+                    name: newName,
+                    phone: newPhone
+                });
+                currentAdminData.name = newName;
+                currentAdminData.phone = newPhone;
+                updateProfileDisplay();
+                alert('✅ Profile updated successfully!');
                 closeModal('editProfileModal');
-                loadAdminProfile();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('❌ Error updating profile');
             }
         }
 
@@ -628,15 +648,18 @@
             if (newPwd !== confirmPwd) { alert('❌ Passwords do not match'); return; }
             if (newPwd.length < 6) { alert('❌ Password must be at least 6 characters'); return; }
             
-            const adminQuery = await db.collection('users').where('role', '==', 'admin').limit(1).get();
-            if (!adminQuery.empty) {
-                const adminEmail = adminQuery.docs[0].data().email;
-                try {
-                    const user = await auth.signInWithEmailAndPassword(adminEmail, currentPwd);
-                    await user.user.updatePassword(newPwd);
-                    alert('✅ Password changed! Please login again.');
-                    logout();
-                } catch(e) { alert('❌ Current password is incorrect'); }
+            if (!currentAdminData || !currentAdminData.email) {
+                alert('❌ Admin email not found');
+                return;
+            }
+            
+            try {
+                const user = await auth.signInWithEmailAndPassword(currentAdminData.email, currentPwd);
+                await user.user.updatePassword(newPwd);
+                alert('✅ Password changed! Please login again.');
+                logout();
+            } catch(e) { 
+                alert('❌ Current password is incorrect'); 
             }
             closeModal('changePasswordModal');
         }
@@ -655,7 +678,7 @@
         function showChangePasswordModal() { document.getElementById('changePasswordModal').style.display = 'flex'; }
         function showForgotPasswordModal() { document.getElementById('forgotPasswordModal').style.display = 'flex'; }
 
-        // NEW: Request Filtering
+        // Request Filtering
         function filterRequests(status) {
             currentFilter = status;
             document.querySelectorAll('.filter-tab').forEach(tab => {
@@ -788,100 +811,53 @@
             `).join('');
         }
 
-        // ============ M-Pesa Functions ============
+        // M-Pesa Functions
         async function requestMpesaPayment(requestId, customerId, serviceName, amount) {
             const userDoc = await db.collection('users').doc(customerId).get();
-            const userData = userDoc.data();
-            const customerPhone = userData?.phone || '';
-            
-            if (!customerPhone) {
-                alert('❌ Customer has no phone number registered. Please ask them to update their profile.');
-                return;
-            }
-            
-            let formattedPhone = customerPhone;
-            if (formattedPhone.startsWith('0')) {
-                formattedPhone = '254' + formattedPhone.substring(1);
-            }
-            
+            const customerPhone = userDoc.data()?.phone || '';
+            if (!customerPhone) { alert('❌ Customer has no phone number'); return; }
+            let formattedPhone = customerPhone.startsWith('0') ? '254' + customerPhone.substring(1) : customerPhone;
             try {
                 const response = await fetch(`${BACKEND_URL}/api/mpesa/stkpush`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phoneNumber: formattedPhone,
-                        amount: amount,
-                        accountReference: `REAGAN${requestId.slice(-8)}`,
-                        transactionDesc: serviceName,
-                        requestId: requestId
-                    })
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phoneNumber: formattedPhone, amount, accountReference: `REAGAN${requestId.slice(-8)}`, transactionDesc: serviceName, requestId })
                 });
-                
                 const result = await response.json();
-                console.log("Payment response:", result);
-                
                 if (result.success) {
                     alert(`✅ Payment request sent to ${customerPhone}!`);
                     await updateStatus(requestId, 'payment_pending');
                     await loadAllRequests();
-                } else {
-                    alert('❌ Failed to send payment request: ' + (result.message || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Payment error:', error);
-                alert('❌ Error sending payment request.');
-            }
+                } else { alert('❌ Failed'); }
+            } catch(e) { alert('Error sending payment'); }
         }
-        
+
         async function confirmMpesaPayment() {
             const requestId = document.getElementById('mpesaRequestId').value;
-            const transactionCode = document.getElementById('mpesaTransactionCode').value;
-            const customerPhone = document.getElementById('mpesaCustomerPhone').value;
-            
-            if (!transactionCode) {
-                alert('❌ Please enter the M-Pesa transaction code');
-                return;
-            }
-            
+            const code = document.getElementById('mpesaTransactionCode').value;
+            if (!code) { alert('Enter transaction code'); return; }
             await db.collection('requests').doc(requestId).update({
-                status: 'completed',
-                paymentStatus: 'paid',
-                transactionCode: transactionCode,
-                customerPhone: customerPhone,
-                paidAt: new Date().toISOString(),
-                completedAt: new Date().toISOString()
+                status: 'completed', paymentStatus: 'paid', transactionCode: code, paidAt: new Date().toISOString(), completedAt: new Date().toISOString()
             });
-            
-            alert(`✅ Payment confirmed! Transaction Code: ${transactionCode}`);
+            alert('✅ Payment confirmed!');
             closeMpesaModal();
             await loadAllRequests();
             await loadStats();
         }
-        
+
         async function showMpesaModal(requestId, customerName, customerId, serviceName, amount) {
             const userDoc = await db.collection('users').doc(customerId).get();
-            const userData = userDoc.data();
-            const customerPhone = userData?.phone || '';
-            
             document.getElementById('mpesaCustomerName').value = customerName;
-            document.getElementById('mpesaCustomerPhone').value = customerPhone;
+            document.getElementById('mpesaCustomerPhone').value = userDoc.data()?.phone || '';
             document.getElementById('mpesaAmount').value = amount;
             document.getElementById('mpesaService').value = serviceName;
             document.getElementById('mpesaRequestId').value = requestId;
             document.getElementById('mpesaTransactionCode').value = '';
-            
-            const shortId = requestId.slice(-6);
-            const instructions = `1. Go to M-Pesa on your phone\n2. Select "Lipa na M-Pesa" → "Pay Bill"\n3. Enter Business Number: 123456\n4. Enter Account Number: REAGAN${shortId}\n5. Enter Amount: KES ${amount}\n6. Enter your M-Pesa PIN\n7. Confirm and send\n\nAfter payment, enter the transaction code below.`;
-            document.getElementById('mpesaInstructions').value = instructions;
-            
             document.getElementById('mpesaModal').style.display = 'flex';
         }
-        
-        function closeMpesaModal() {
-            document.getElementById('mpesaModal').style.display = 'none';
-        }
 
-        // ============ User Management Functions ============
+        function closeMpesaModal() { document.getElementById('mpesaModal').style.display = 'none'; }
+
+        // User Management Functions
         function showEditUserModal(uid, name, phone, role) {
             document.getElementById('editUserId').value = uid;
             document.getElementById('editUserName').value = name;
@@ -892,64 +868,41 @@
 
         async function updateUser() {
             const uid = document.getElementById('editUserId').value;
-            await db.collection('users').doc(uid).update({ 
-                name: document.getElementById('editUserName').value, 
-                phone: document.getElementById('editUserPhone').value, 
-                role: document.getElementById('editUserRole').value 
-            });
+            await db.collection('users').doc(uid).update({ name: document.getElementById('editUserName').value, phone: document.getElementById('editUserPhone').value, role: document.getElementById('editUserRole').value });
             alert('✅ User updated');
             closeModal('editUserModal');
-            loadUsers(); 
-            loadStats();
+            loadUsers(); loadStats();
         }
 
         async function deleteUser(uid) {
-            if (confirm('⚠️ Delete this user and all their data?')) {
+            if (confirm('Delete user?')) {
                 await db.collection('users').doc(uid).delete();
-                const requests = await db.collection('requests').where('userId', '==', uid).get();
-                requests.forEach(async (doc) => await db.collection('requests').doc(doc.id).delete());
-                alert('✅ User deleted');
-                loadUsers(); 
-                loadStats();
+                loadUsers(); loadStats();
             }
         }
-        
+
         function showResetPasswordModal(uid, email) {
             document.getElementById('resetUserId').value = uid;
             document.getElementById('resetUserEmail').innerText = email;
             document.getElementById('resetPasswordModal').style.display = 'flex';
         }
-        
+
         async function sendPasswordReset() {
             const email = document.getElementById('resetUserEmail').innerText;
-            try {
-                await auth.sendPasswordResetEmail(email);
-                alert(`✅ Password reset email sent to ${email}`);
-                closeModal('resetPasswordModal');
-            } catch (error) { 
-                alert('❌ Error: ' + error.message); 
-            }
+            try { await auth.sendPasswordResetEmail(email); alert(`✅ Reset email sent to ${email}`); closeModal('resetPasswordModal'); } catch(e) { alert('Error: ' + e.message); }
         }
 
-        // ============ Service Management ============
+        // Service Management
         async function updateStatus(id, status) { 
             let updateData = { status };
-            if (status === 'completed') {
-                updateData.completedAt = new Date().toISOString();
-            }
+            if (status === 'completed') updateData.completedAt = new Date().toISOString();
             await db.collection('requests').doc(id).update(updateData); 
             await loadAllRequests(); 
             await loadStats(); 
         }
-        
-        async function deleteRequest(id) { 
-            if (confirm('Delete this request?')) { 
-                await db.collection('requests').doc(id).delete(); 
-                await loadAllRequests(); 
-                await loadStats(); 
-            } 
-        }
-        
+
+        async function deleteRequest(id) { if (confirm('Delete request?')) { await db.collection('requests').doc(id).delete(); await loadAllRequests(); await loadStats(); } }
+
         function showAddServiceModal() { 
             document.getElementById('modalTitle').innerText = 'Add Service'; 
             document.getElementById('serviceId').value = ''; 
@@ -958,7 +911,7 @@
             document.getElementById('servicePrice').value = ''; 
             document.getElementById('serviceModal').style.display = 'flex'; 
         }
-        
+
         async function editService(id) { 
             const doc = await db.collection('services').doc(id).get(); 
             const s = doc.data(); 
@@ -969,7 +922,7 @@
             document.getElementById('servicePrice').value = s.price; 
             document.getElementById('serviceModal').style.display = 'flex'; 
         }
-        
+
         async function saveService() { 
             const id = document.getElementById('serviceId').value; 
             const icon = document.getElementById('serviceIcon').value; 
@@ -987,31 +940,22 @@
             loadServices(); 
             loadStats(); 
         }
-        
-        async function deleteService(id) { 
-            if (confirm('Delete this service?')) { 
-                await db.collection('services').doc(id).delete(); 
-                loadServices(); 
-                loadStats(); 
-            } 
-        }
-        
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-        }
-        
-        // Auto refresh and session check
+
+        async function deleteService(id) { if (confirm('Delete service?')) { await db.collection('services').doc(id).delete(); loadServices(); loadStats(); } }
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
         window.onload = function() {
             loadTheme();
-            const isAuthenticated = sessionStorage.getItem(SESSION_KEY);
-            if (isAuthenticated) {
+            if (sessionStorage.getItem(SESSION_KEY)) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
-                loadAdminProfile();
-                loadStats(); loadServices(); loadAllRequests(); loadUsers();
+                loadAdminProfile().then(() => {
+                    loadStats(); loadServices(); loadAllRequests(); loadUsers();
+                });
             }
         };
-        
+
         setInterval(checkSession, 1000);
         setInterval(() => { if (document.getElementById('adminPanel').style.display === 'block') { loadStats(); loadAllRequests(); } }, 5000);
     </script>
