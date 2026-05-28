@@ -1,0 +1,26 @@
+{
+  "name": "Reagan's IT Solutions",
+  "short_name": "Reagan IT",
+  "description": "Professional IT Services - CV, KRA PIN, SHA, Data Entry, Computer Training",
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#f97316",
+  "background_color": "#0f2b3d",
+  "icons": [
+    {
+      "src": "https://reagan-it-solutions.vercel.app/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "https://reagan-it-solutions.vercel.app/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://reagan-it-solutions.vercel.app/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
