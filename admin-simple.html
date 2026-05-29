@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal - Reagan's IT</title>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <!-- Firebase SDKs (Modular) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Glassmorphism Login Screen */
         .login-screen {
             display: flex;
             justify-content: center;
@@ -142,7 +142,6 @@
             color: #94a3b8;
         }
         
-        /* Modern Admin Panel */
         .admin-panel { display: none; }
         
         .navbar {
@@ -276,8 +275,6 @@
         .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
         .status-payment_pending { background: #fed7aa; color: #9a3412; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
         .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
-        .role-badge-admin { background: #f97316; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
-        .role-badge-user { background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
         
         @media (max-width: 768px) {
             .stats { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
@@ -300,7 +297,6 @@
             color: white;
         }
         
-        /* M-Pesa Instructions Styling */
         .mpesa-instruction {
             background: linear-gradient(135deg, #6b21a5, #4c1d95);
             color: white;
@@ -319,7 +315,6 @@
     </style>
 </head>
 <body>
-    <!-- Modern Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h2>👑 Welcome Back</h2>
@@ -334,7 +329,6 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel">
         <div class="navbar">
             <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
@@ -385,78 +379,42 @@
         </div>
     </div>
 
-    <!-- M-Pesa Payment Modal -->
     <div id="mpesaModal" class="modal">
         <div class="modal-content">
             <h2>💳 M-Pesa Payment Request</h2>
-            <div class="form-group">
-                <label>Customer Name</label>
-                <input type="text" id="mpesaCustomerName" readonly style="background:#f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>Customer Phone (M-Pesa Number)</label>
-                <input type="text" id="mpesaCustomerPhone" placeholder="0712345678">
-                <small style="color: #666;">Customer's M-Pesa registered phone number</small>
-            </div>
-            <div class="form-group">
-                <label>Amount (KES)</label>
-                <input type="number" id="mpesaAmount" readonly style="background:#f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>Service</label>
-                <input type="text" id="mpesaService" readonly style="background:#f0f0f0;">
-            </div>
-            <div class="form-group">
-                <label>M-Pesa Instructions</label>
-                <textarea id="mpesaInstructions" rows="4" style="width:100%; padding:0.5rem; border-radius:10px; border:1px solid #ddd;" readonly>1. Go to M-Pesa on your phone
-2. Select "Lipa na M-Pesa" → "Pay Bill"
-3. Enter Business Number: 123456
-4. Enter Account Number: REAGANXXXXXX
-5. Enter Amount: KES XXXX
-6. Enter your M-Pesa PIN
-7. Confirm and send</textarea>
-            </div>
-            <div class="form-group">
-                <label>M-Pesa Transaction Code (after payment)</label>
-                <input type="text" id="mpesaTransactionCode" placeholder="e.g., QWERTY123">
-            </div>
+            <div class="form-group"><label>Customer Name</label><input type="text" id="mpesaCustomerName" readonly style="background:#f0f0f0;"></div>
+            <div class="form-group"><label>Customer Phone</label><input type="text" id="mpesaCustomerPhone" placeholder="0712345678"></div>
+            <div class="form-group"><label>Amount</label><input type="number" id="mpesaAmount" readonly style="background:#f0f0f0;"></div>
+            <div class="form-group"><label>Service</label><input type="text" id="mpesaService" readonly style="background:#f0f0f0;"></div>
+            <div class="form-group"><label>Transaction Code</label><input type="text" id="mpesaTransactionCode" placeholder="e.g., QWERTY123"></div>
             <input type="hidden" id="mpesaRequestId">
-            <button class="btn btn-success" onclick="confirmMpesaPayment()" style="width:100%; margin-top:0.5rem;">✓ Confirm Payment Received</button>
-            <button class="btn btn-danger" onclick="closeMpesaModal()" style="width:100%; margin-top:0.5rem;">Cancel</button>
+            <button class="btn btn-success" onclick="confirmMpesaPayment()">✓ Confirm Payment</button>
+            <button class="btn btn-danger" onclick="closeMpesaModal()">Cancel</button>
         </div>
     </div>
 
-    <!-- Service Modal -->
     <div id="serviceModal" class="modal"><div class="modal-content"><h2 id="modalTitle">Add Service</h2><input type="text" id="serviceIcon" placeholder="Icon (📄)"><input type="text" id="serviceName" placeholder="Service Name"><input type="number" id="servicePrice" placeholder="Price (KES)"><input type="hidden" id="serviceId"><button class="btn btn-primary" onclick="saveService()">Save</button><button class="btn btn-danger" onclick="closeModal('serviceModal')">Cancel</button></div></div>
     <div id="editUserModal" class="modal"><div class="modal-content"><h2>✏️ Edit User</h2><input type="hidden" id="editUserId"><input type="text" id="editUserName" placeholder="Name"><input type="text" id="editUserPhone" placeholder="Phone"><select id="editUserRole"><option value="user">User</option><option value="admin">Admin</option></select><button class="btn btn-primary" onclick="updateUser()">Save</button><button class="btn btn-danger" onclick="closeModal('editUserModal')">Cancel</button></div></div>
-    <div id="resetPasswordModal" class="modal"><div class="modal-content"><h2>🔑 Reset Password</h2><p id="resetUserEmail" style="margin:1rem 0; font-weight:bold;"></p><button class="btn btn-primary" onclick="sendPasswordReset()">Send Reset Email</button><button class="btn btn-danger" onclick="closeModal('resetPasswordModal')">Cancel</button></div></div>
+    <div id="resetPasswordModal" class="modal"><div class="modal-content"><h2>🔑 Reset Password</h2><p id="resetUserEmail" style="margin:1rem 0;"></p><button class="btn btn-primary" onclick="sendPasswordReset()">Send Reset Email</button><button class="btn btn-danger" onclick="closeModal('resetPasswordModal')">Cancel</button></div></div>
 
     <script>
         const ADMIN_PASSWORD = "ReaganAdmin2025";
-        const SESSION_KEY = "adminAuthenticated";
-        
-        // Backend API URL (Render)
         const BACKEND_URL = "https://mpesa-backend-6s46.onrender.com";
         
+        // Firebase configuration
         const firebaseConfig = {
-            apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",  // This is correct
+            apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
             authDomain: "reagan-it-solutions.firebaseapp.com",
             projectId: "reagan-it-solutions",
             storageBucket: "reagan-it-solutions.firebasestorage.app",
             messagingSenderId: "857985673352",
             appId: "1:857985673352:web:5a066de1f543183159173d"
         };
+        
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
-
-        // Session Management
-        function checkSession() {
-            const isAuthenticated = sessionStorage.getItem(SESSION_KEY);
-            if (!isAuthenticated && document.getElementById('adminPanel').style.display !== 'none') {
-                logout();
-            }
-        }
 
         function togglePassword() {
             const pwd = document.getElementById('adminPassword');
@@ -464,60 +422,45 @@
         }
 
         function checkPassword() {
-            const pwd = document.getElementById('adminPassword').value;
-            if (pwd === ADMIN_PASSWORD) {
-                sessionStorage.setItem(SESSION_KEY, 'true');
+            if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 loadStats(); loadServices(); loadRequests(); loadUsers();
-                window.addEventListener('beforeunload', () => { sessionStorage.removeItem(SESSION_KEY); });
             } else {
-                document.getElementById('errorMsg').textContent = '❌ Incorrect password. Access denied.';
+                document.getElementById('errorMsg').textContent = '❌ Incorrect password';
                 document.getElementById('errorMsg').style.display = 'block';
             }
         }
 
         function logout() {
-            sessionStorage.removeItem(SESSION_KEY);
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('adminPassword').value = '';
-            document.getElementById('errorMsg').style.display = 'none';
         }
 
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const btn = document.getElementById('themeToggle');
-            if (document.body.classList.contains('dark-mode')) {
-                btn.textContent = '☀️';
-                localStorage.setItem('adminTheme', 'dark');
-            } else {
-                btn.textContent = '🌙';
-                localStorage.setItem('adminTheme', 'light');
-            }
+            btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
         }
 
-        function loadTheme() {
-            if (localStorage.getItem('adminTheme') === 'dark') {
-                document.body.classList.add('dark-mode');
-                document.getElementById('themeToggle').textContent = '☀️';
-            }
-        }
-
-        function showServicesSection() { 
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById('servicesSection').style.display = 'block'; 
+        function showServicesSection() {
+            document.getElementById('servicesSection').style.display = 'block';
+            document.getElementById('requestsSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
             loadServices();
         }
-        function showRequestsSection() { 
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById('requestsSection').style.display = 'block'; 
+        function showRequestsSection() {
+            document.getElementById('servicesSection').style.display = 'none';
+            document.getElementById('requestsSection').style.display = 'block';
+            document.getElementById('usersSection').style.display = 'none';
             loadRequests();
         }
         function showPendingSection() { showRequestsSection(); }
-        function showUsersSection() { 
-            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
-            document.getElementById('usersSection').style.display = 'block'; 
+        function showUsersSection() {
+            document.getElementById('servicesSection').style.display = 'none';
+            document.getElementById('requestsSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'block';
             loadUsers();
         }
 
@@ -535,174 +478,45 @@
         async function loadServices() {
             const snapshot = await db.collection('services').orderBy('id').get();
             const services = []; snapshot.forEach(doc => services.push({ id: doc.id, ...doc.data() }));
-            document.getElementById('servicesTable').innerHTML = `<thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>${services.map(s => `<tr><td style="text-align:center;">${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td><td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
+            document.getElementById('servicesTable').innerHTML = `<thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>${services.map(s => `<td><td style="text-align:center;">${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td><td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
         }
 
         async function loadRequests() {
             const snapshot = await db.collection('requests').orderBy('date', 'desc').get();
-            const requests = []; 
-            snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
-            
+            const requests = []; snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
             document.getElementById('requestsTableBody').innerHTML = requests.map(r => {
-                let statusClass = 'status-pending';
-                let statusText = r.status ? r.status.toUpperCase() : 'PENDING';
+                let statusClass = 'status-pending', statusText = (r.status || 'PENDING').toUpperCase();
                 if (r.status === 'approved') { statusClass = 'status-approved'; statusText = 'APPROVED'; }
-                if (r.status === 'payment_pending') { statusClass = 'status-payment_pending'; statusText = '💳 PAYMENT PENDING'; }
+                if (r.status === 'payment_pending') { statusClass = 'status-payment_pending'; statusText = 'PAYMENT PENDING'; }
                 if (r.status === 'completed') { statusClass = 'status-completed'; statusText = 'COMPLETED'; }
-                
-                // Payment button (only show for approved requests)
-                let paymentHtml = '';
-                if (r.status === 'approved') {
-                    paymentHtml = `<button class="btn btn-primary payment-btn" onclick="requestMpesaPayment('${r.id}', '${r.userId}', '${r.serviceName}', ${r.price})" style="font-size:0.7rem;">💳 Request Payment</button>`;
-                } else if (r.status === 'payment_pending') {
-                    paymentHtml = `<span class="mpesa-instruction">⏳ Awaiting Payment</span>`;
-                } else if (r.status === 'completed') {
-                    paymentHtml = `<span style="color:#10b981;">✅ Paid</span>`;
-                } else {
-                    paymentHtml = `<span style="color:#94a3b8;">-</span>`;
-                }
-                
-                return `
-                    <tr>
-                        <td>${r.userName}<br><small>${r.userEmail || r.userId}</small></td>
-                        <td>${r.serviceName}</td>
-                        <td>KES ${r.price.toLocaleString()}</td>
-                        <td><span class="${statusClass}">${statusText}</span></td>
-                        <td>${new Date(r.date).toLocaleString()}</td>
-                        <td>${paymentHtml}</td>
-                        <td>
-                            <select onchange="updateStatus('${r.id}', this.value)" style="padding:5px;border-radius:10px;">
-                                <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approve</option>
-                                <option value="payment_pending" ${r.status === 'payment_pending' ? 'selected' : ''}>Payment Pending</option>
-                                <option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option>
-                            </select>
-                            <button class="btn btn-danger" onclick="deleteRequest('${r.id}')" style="margin-top:0.25rem;">Delete</button>
-                        </td>
-                    </tr>
-                `;
+                let paymentHtml = (r.status === 'approved') ? `<button class="btn btn-primary payment-btn" onclick="showMpesaModal('${r.id}', '${r.userName}', '${r.userId}', '${r.serviceName}', ${r.price})">Request Payment</button>` : (r.status === 'completed' ? '✅ Paid' : '-');
+                return `<tr>
+                    <td>${r.userName}<br><small>${r.userEmail || r.userId}</small></td>
+                    <td>${r.serviceName}</td>
+                    <td>KES ${r.price?.toLocaleString() || 0}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${new Date(r.date).toLocaleString()}</td>
+                    <td>${paymentHtml}</td>
+                    <td><select onchange="updateStatus('${r.id}', this.value)"><option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option><option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approve</option><option value="payment_pending" ${r.status === 'payment_pending' ? 'selected' : ''}>Payment Pending</option><option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option></select>
+                    <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button></td>
+                </tr>`;
             }).join('');
         }
 
         async function loadUsers() {
             const snapshot = await db.collection('users').get();
             const users = []; snapshot.forEach(doc => users.push({ id: doc.id, uid: doc.id, ...doc.data() }));
-            document.getElementById('usersTableBody').innerHTML = users.map(user => `
-                <tr>
-                    <td>${user.name || 'N/A'}</td>
-                    <td>${user.email}</td>
-                    <td>${user.phone || 'N/A'}</td>
-                    <td><span class="role-badge-${user.role === 'admin' ? 'admin' : 'user'}">${user.role || 'user'}</span></td>
-                    <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
-                    <td>
-                        <button class="btn btn-info" onclick="showEditUserModal('${user.uid}', '${user.name || ''}', '${user.phone || ''}', '${user.role || 'user'}')">Edit</button>
-                        ${user.role !== 'admin' ? `<button class="btn btn-danger" onclick="deleteUser('${user.uid}')">Delete</button>` : ''}
-                    </td>
-                </tr>
+            document.getElementById('usersTableBody').innerHTML = users.map(user => `<tr>
+                <td>${user.name || 'N/A'}</td>
+                <td>${user.email}</td>
+                <td>${user.phone || 'N/A'}</td>
+                <td><span class="role-badge-${user.role === 'admin' ? 'admin' : 'user'}">${user.role || 'user'}</span></td>
+                <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                <td><button class="btn btn-info" onclick="showEditUserModal('${user.uid}', '${user.name || ''}', '${user.phone || ''}', '${user.role || 'user'}')">Edit</button>
+                ${user.role !== 'admin' ? `<button class="btn btn-danger" onclick="deleteUser('${user.uid}')">Delete</button>` : ''} </td>
             `).join('');
         }
 
-        // ============ M-Pesa Functions ============
-        
-        // Send STK Push to customer's phone
-        async function requestMpesaPayment(requestId, customerId, serviceName, amount) {
-            // Get customer phone number from users collection
-            const userDoc = await db.collection('users').doc(customerId).get();
-            const userData = userDoc.data();
-            const customerPhone = userData?.phone || '';
-            
-            if (!customerPhone) {
-                alert('❌ Customer has no phone number registered. Please ask them to update their profile.');
-                return;
-            }
-            
-            // Format phone number (remove leading 0 if exists)
-            let formattedPhone = customerPhone;
-            if (formattedPhone.startsWith('0')) {
-                formattedPhone = '254' + formattedPhone.substring(1);
-            }
-            
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/mpesa/stkpush`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        phoneNumber: formattedPhone,
-                        amount: amount,
-                        accountReference: `REAGAN${requestId.slice(-8)}`,
-                        transactionDesc: serviceName,
-                        requestId: requestId
-                    })
-                });
-                
-                const result = await response.json();
-                console.log("Payment response:", result);
-                
-                if (result.success) {
-                    alert(`✅ Payment request sent to ${customerPhone}!\n\nCustomer will receive an M-Pesa prompt on their phone.\n\nTest PIN for Sandbox: 123456`);
-                    // Update request status to payment_pending
-                    await updateStatus(requestId, 'payment_pending');
-                    loadRequests();
-                } else {
-                    alert('❌ Failed to send payment request: ' + (result.message || 'Unknown error'));
-                }
-            } catch (error) {
-                console.error('Payment error:', error);
-                alert('❌ Error sending payment request. Please check if backend server is running.\n\nError: ' + error.message);
-            }
-        }
-        
-        // Confirm payment manually (for sandbox testing)
-        async function confirmMpesaPayment() {
-            const requestId = document.getElementById('mpesaRequestId').value;
-            const transactionCode = document.getElementById('mpesaTransactionCode').value;
-            const customerPhone = document.getElementById('mpesaCustomerPhone').value;
-            
-            if (!transactionCode) {
-                alert('❌ Please enter the M-Pesa transaction code');
-                return;
-            }
-            
-            // Update request status to completed and save transaction info
-            await db.collection('requests').doc(requestId).update({
-                status: 'completed',
-                paymentStatus: 'paid',
-                transactionCode: transactionCode,
-                customerPhone: customerPhone,
-                paidAt: new Date().toISOString()
-            });
-            
-            alert(`✅ Payment confirmed!\n\nTransaction Code: ${transactionCode}\nAmount: KES ${document.getElementById('mpesaAmount').value}\n\nService marked as COMPLETED.`);
-            closeMpesaModal();
-            loadRequests();
-            loadStats();
-        }
-        
-        // Show payment modal (for manual confirmation)
-        async function showMpesaModal(requestId, customerName, customerId, serviceName, amount) {
-            const userDoc = await db.collection('users').doc(customerId).get();
-            const userData = userDoc.data();
-            const customerPhone = userData?.phone || '';
-            
-            document.getElementById('mpesaCustomerName').value = customerName;
-            document.getElementById('mpesaCustomerPhone').value = customerPhone;
-            document.getElementById('mpesaAmount').value = amount;
-            document.getElementById('mpesaService').value = serviceName;
-            document.getElementById('mpesaRequestId').value = requestId;
-            document.getElementById('mpesaTransactionCode').value = '';
-            
-            const shortId = requestId.slice(-6);
-            const instructions = `1. Go to M-Pesa on your phone\n2. Select "Lipa na M-Pesa" → "Pay Bill"\n3. Enter Business Number: 123456\n4. Enter Account Number: REAGAN${shortId}\n5. Enter Amount: KES ${amount}\n6. Enter your M-Pesa PIN\n7. Confirm and send\n\nAfter payment, enter the transaction code below.`;
-            document.getElementById('mpesaInstructions').value = instructions;
-            
-            document.getElementById('mpesaModal').style.display = 'flex';
-        }
-        
-        function closeMpesaModal() {
-            document.getElementById('mpesaModal').style.display = 'none';
-        }
-
-        // ============ User Management Functions ============
         function showEditUserModal(uid, name, phone, role) {
             document.getElementById('editUserId').value = uid;
             document.getElementById('editUserName').value = name;
@@ -713,34 +527,25 @@
 
         async function updateUser() {
             const uid = document.getElementById('editUserId').value;
-            await db.collection('users').doc(uid).update({ 
-                name: document.getElementById('editUserName').value, 
-                phone: document.getElementById('editUserPhone').value, 
-                role: document.getElementById('editUserRole').value 
-            });
-            alert('✅ User updated');
+            await db.collection('users').doc(uid).update({ name: document.getElementById('editUserName').value, phone: document.getElementById('editUserPhone').value, role: document.getElementById('editUserRole').value });
+            alert('User updated');
             closeModal('editUserModal');
-            loadUsers(); 
-            loadStats();
+            loadUsers(); loadStats();
         }
 
         async function deleteUser(uid) {
-            if (confirm('⚠️ Delete this user and all their data?')) {
+            if (confirm('Delete user?')) {
                 await db.collection('users').doc(uid).delete();
-                const requests = await db.collection('requests').where('userId', '==', uid).get();
-                requests.forEach(async (doc) => await db.collection('requests').doc(doc.id).delete());
-                alert('✅ User deleted');
-                loadUsers(); 
-                loadStats();
+                loadUsers(); loadStats();
             }
         }
-        
+
         function showResetPasswordModal(uid, email) {
             document.getElementById('resetUserId').value = uid;
             document.getElementById('resetUserEmail').innerText = email;
             document.getElementById('resetPasswordModal').style.display = 'flex';
         }
-        
+
         async function sendPasswordReset() {
             const email = document.getElementById('resetUserEmail').innerText;
             try {
@@ -748,88 +553,42 @@
                 alert(`✅ Password reset email sent to ${email}`);
                 closeModal('resetPasswordModal');
             } catch (error) { 
-                alert('❌ Error: ' + error.message); 
+                alert('❌ Error sending email: ' + error.message);
             }
         }
 
-        // ============ Service Management ============
-        async function updateStatus(id, status) { 
-            await db.collection('requests').doc(id).update({ status }); 
-            loadRequests(); 
-            loadStats(); 
+        async function updateStatus(id, status) { await db.collection('requests').doc(id).update({ status }); loadRequests(); loadStats(); }
+        async function deleteRequest(id) { if (confirm('Delete request?')) { await db.collection('requests').doc(id).delete(); loadRequests(); loadStats(); } }
+
+        function showAddServiceModal() { document.getElementById('modalTitle').innerText = 'Add Service'; document.getElementById('serviceId').value = ''; document.getElementById('serviceIcon').value = ''; document.getElementById('serviceName').value = ''; document.getElementById('servicePrice').value = ''; document.getElementById('serviceModal').style.display = 'flex'; }
+        async function editService(id) { const doc = await db.collection('services').doc(id).get(); const s = doc.data(); document.getElementById('modalTitle').innerText = 'Edit Service'; document.getElementById('serviceId').value = id; document.getElementById('serviceIcon').value = s.icon; document.getElementById('serviceName').value = s.name; document.getElementById('servicePrice').value = s.price; document.getElementById('serviceModal').style.display = 'flex'; }
+        async function saveService() { const id = document.getElementById('serviceId').value; const icon = document.getElementById('serviceIcon').value; const name = document.getElementById('serviceName').value; const price = parseInt(document.getElementById('servicePrice').value); if (!icon || !name || !price) { alert('Fill all fields'); return; } if (id) { await db.collection('services').doc(id).update({ icon, name, price }); } else { const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get(); let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1; await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price }); } closeModal('serviceModal'); loadServices(); loadStats(); }
+        async function deleteService(id) { if (confirm('Delete service?')) { await db.collection('services').doc(id).delete(); loadServices(); loadStats(); } }
+
+        async function showMpesaModal(requestId, customerName, customerId, serviceName, amount) {
+            const userDoc = await db.collection('users').doc(customerId).get();
+            document.getElementById('mpesaCustomerName').value = customerName;
+            document.getElementById('mpesaCustomerPhone').value = userDoc.data()?.phone || '';
+            document.getElementById('mpesaAmount').value = amount;
+            document.getElementById('mpesaService').value = serviceName;
+            document.getElementById('mpesaRequestId').value = requestId;
+            document.getElementById('mpesaTransactionCode').value = '';
+            document.getElementById('mpesaModal').style.display = 'flex';
         }
-        
-        async function deleteRequest(id) { 
-            if (confirm('Delete this request?')) { 
-                await db.collection('requests').doc(id).delete(); 
-                loadRequests(); 
-                loadStats(); 
-            } 
+
+        async function confirmMpesaPayment() {
+            const requestId = document.getElementById('mpesaRequestId').value;
+            const code = document.getElementById('mpesaTransactionCode').value;
+            if (!code) { alert('Enter transaction code'); return; }
+            await db.collection('requests').doc(requestId).update({ status: 'completed', paymentStatus: 'paid', transactionCode: code, paidAt: new Date().toISOString() });
+            alert('Payment confirmed!');
+            closeModal('mpesaModal');
+            loadRequests(); loadStats();
         }
-        
-        function showAddServiceModal() { 
-            document.getElementById('modalTitle').innerText = 'Add Service'; 
-            document.getElementById('serviceId').value = ''; 
-            document.getElementById('serviceIcon').value = ''; 
-            document.getElementById('serviceName').value = ''; 
-            document.getElementById('servicePrice').value = ''; 
-            document.getElementById('serviceModal').style.display = 'flex'; 
-        }
-        
-        async function editService(id) { 
-            const doc = await db.collection('services').doc(id).get(); 
-            const s = doc.data(); 
-            document.getElementById('modalTitle').innerText = 'Edit Service'; 
-            document.getElementById('serviceId').value = id; 
-            document.getElementById('serviceIcon').value = s.icon; 
-            document.getElementById('serviceName').value = s.name; 
-            document.getElementById('servicePrice').value = s.price; 
-            document.getElementById('serviceModal').style.display = 'flex'; 
-        }
-        
-        async function saveService() { 
-            const id = document.getElementById('serviceId').value; 
-            const icon = document.getElementById('serviceIcon').value; 
-            const name = document.getElementById('serviceName').value; 
-            const price = parseInt(document.getElementById('servicePrice').value); 
-            if (!icon || !name || !price) { alert('Fill all fields'); return; } 
-            if (id) { 
-                await db.collection('services').doc(id).update({ icon, name, price }); 
-            } else { 
-                const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get(); 
-                let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1; 
-                await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price }); 
-            } 
-            closeModal('serviceModal'); 
-            loadServices(); 
-            loadStats(); 
-        }
-        
-        async function deleteService(id) { 
-            if (confirm('Delete this service?')) { 
-                await db.collection('services').doc(id).delete(); 
-                loadServices(); 
-                loadStats(); 
-            } 
-        }
-        
-        function closeModal(id) { 
-            document.getElementById(id).style.display = 'none'; 
-        }
-        
-        // Auto refresh and session check
-        window.onload = function() {
-            loadTheme();
-            const isAuthenticated = sessionStorage.getItem(SESSION_KEY);
-            if (isAuthenticated) {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminPanel').style.display = 'block';
-                loadStats(); loadServices(); loadRequests(); loadUsers();
-            }
-        };
-        
-        setInterval(checkSession, 1000);
-        setInterval(() => { if (document.getElementById('adminPanel').style.display === 'block') { loadStats(); loadRequests(); } }, 5000);
+
+        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+        window.onload = function() { loadStats(); loadServices(); loadRequests(); loadUsers(); };
     </script>
 </body>
 </html>
