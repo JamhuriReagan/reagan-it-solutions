@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Admin Portal - Reagan's IT</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -13,7 +13,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
-        /* Login Screen */
         .login-screen {
             display: flex;
             justify-content: center;
@@ -157,7 +156,6 @@
             color: #94a3b8;
         }
         
-        /* Admin Panel */
         .admin-panel { display: none; }
         
         .navbar {
@@ -189,7 +187,6 @@
         
         .container { max-width: 1400px; margin: 2rem auto; padding: 0 5%; }
         
-        /* Profile Card */
         .profile-card {
             background: white;
             border-radius: 24px;
@@ -210,7 +207,6 @@
         .profile-value { color: #333; }
         body.dark-mode .profile-value { color: #e2e8f0; }
         
-        /* Stats */
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -231,7 +227,6 @@
         .stat-number { font-size: 1.8rem; font-weight: bold; color: #f97316; }
         .stat-label { font-size: 0.8rem; color: #64748b; }
         
-        /* Filter Tabs */
         .filter-tabs {
             display: flex;
             gap: 0.5rem;
@@ -249,7 +244,6 @@
         body.dark-mode .filter-tab { background: #334155; color: #e2e8f0; }
         .filter-tab.active { background: #f97316; color: white; }
         
-        /* Sections */
         .section {
             background: white;
             border-radius: 20px;
@@ -260,7 +254,6 @@
         body.dark-mode .section { background: #1e293b; }
         .section h2 { color: #f97316; margin-bottom: 0.8rem; font-size: 1.1rem; }
         
-        /* Buttons */
         .btn {
             padding: 0.4rem 0.8rem;
             border: none;
@@ -275,12 +268,10 @@
         .btn-info { background: #3b82f6; color: white; }
         .btn-success { background: #10b981; color: white; }
         
-        /* Tables */
         table { width: 100%; border-collapse: collapse; font-size: 0.75rem; }
         th, td { padding: 0.5rem; text-align: left; border-bottom: 1px solid #e2e8f0; }
         th { background: #0f2b3d; color: white; }
         
-        /* Modals */
         .modal {
             display: none;
             position: fixed;
@@ -313,7 +304,6 @@
         .form-group { margin-bottom: 0.8rem; }
         .form-group label { display: block; margin-bottom: 0.2rem; font-size: 0.8rem; font-weight: 500; }
         
-        /* Status Badges */
         .status-pending { background: #fef3c7; color: #d97706; padding: 0.2rem 0.5rem; border-radius: 15px; font-size: 0.7rem; display: inline-block; }
         .status-approved { background: #d1fae5; color: #059669; padding: 0.2rem 0.5rem; border-radius: 15px; font-size: 0.7rem; display: inline-block; }
         .status-payment_pending { background: #fed7aa; color: #9a3412; padding: 0.2rem 0.5rem; border-radius: 15px; font-size: 0.7rem; display: inline-block; }
@@ -346,7 +336,6 @@
     </style>
 </head>
 <body>
-    <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h2>👑 Welcome Back</h2>
@@ -364,7 +353,6 @@
         </div>
     </div>
 
-    <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel">
         <div class="navbar">
             <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
@@ -375,7 +363,6 @@
         </div>
 
         <div class="container">
-            <!-- Admin Profile Card -->
             <div class="profile-card">
                 <div class="profile-info">
                     <p><span class="profile-label">👤 Admin Name:</span> <span class="profile-value" id="adminName">Loading...</span></p>
@@ -388,7 +375,6 @@
                 </div>
             </div>
 
-            <!-- Stats Cards -->
             <div class="stats">
                 <div class="stat-card" onclick="showServicesSection()"><div class="stat-number" id="totalServices">0</div><div class="stat-label">📦 Services</div></div>
                 <div class="stat-card" onclick="showAllRequests()"><div class="stat-number" id="totalRequests">0</div><div class="stat-label">📋 All</div></div>
@@ -397,7 +383,6 @@
                 <div class="stat-card" onclick="showUsersSection()"><div class="stat-number" id="totalUsers">0</div><div class="stat-label">👥 Users</div></div>
             </div>
 
-            <!-- Filter Tabs -->
             <div class="filter-tabs">
                 <div class="filter-tab active" data-filter="all" onclick="filterRequests('all')">All</div>
                 <div class="filter-tab" data-filter="pending" onclick="filterRequests('pending')">Pending</div>
@@ -406,56 +391,31 @@
                 <div class="filter-tab" data-filter="completed" onclick="filterRequests('completed')">Completed</div>
             </div>
 
-            <!-- Services Section -->
             <div id="servicesSection" class="section">
                 <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
                     <h2>🛠️ Manage Services</h2>
                     <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add</button>
                 </div>
-                <div style="overflow-x:auto;">
-                    <table id="servicesTable">
-                        <thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
+                <div style="overflow-x:auto;"><table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table></div>
             </div>
 
-            <!-- Requests Section with History -->
             <div id="requestsSection" class="section" style="display: block;">
                 <h2>📋 Request History</h2>
                 <div style="overflow-x:auto;">
                     <table id="requestsTable">
-                        <thead>
-                            <tr>
-                                <th>User</th>
-                                <th>Service</th>
-                                <th>Price</th>
-                                <th>Status</th>
-                                <th>Requested</th>
-                                <th>Completed Date</th>
-                                <th>Transaction Code</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>User</th><th>Service</th><th>Price</th><th>Status</th><th>Requested</th><th>Completed Date</th><th>Transaction Code</th><th>Actions</th></tr></thead>
                         <tbody id="requestsTableBody"></tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- Users Section -->
             <div id="usersSection" class="section" style="display:none;">
                 <h2>👥 User Management</h2>
-                <div style="overflow-x:auto;">
-                    <table id="usersTable">
-                        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
-                        <tbody id="usersTableBody"></tbody>
-                    </table>
-                </div>
+                <div style="overflow-x:auto;"><table id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
             </div>
         </div>
     </div>
 
-    <!-- Modals -->
     <div id="editProfileModal" class="modal"><div class="modal-content"><h2>✏️ Edit Profile</h2><input type="text" id="editAdminName" placeholder="Name"><input type="text" id="editAdminPhone" placeholder="Phone"><button class="btn btn-primary" onclick="updateAdminProfile()">Save</button><button class="btn btn-danger" onclick="closeModal('editProfileModal')">Cancel</button></div></div>
     <div id="changePasswordModal" class="modal"><div class="modal-content"><h2>🔑 Change Password</h2><input type="password" id="currentAdminPwd" placeholder="Current Password"><input type="password" id="newAdminPwd" placeholder="New Password"><input type="password" id="confirmAdminPwd" placeholder="Confirm Password"><button class="btn btn-primary" onclick="changeAdminPassword()">Update</button><button class="btn btn-danger" onclick="closeModal('changePasswordModal')">Cancel</button></div></div>
     <div id="forgotPasswordModal" class="modal"><div class="modal-content"><h2>📧 Forgot Password</h2><input type="email" id="forgotEmail" placeholder="Admin Email"><button class="btn btn-primary" onclick="sendAdminPasswordReset()">Send Reset Link</button><button class="btn btn-danger" onclick="closeModal('forgotPasswordModal')">Cancel</button></div></div>
@@ -465,8 +425,6 @@
     <div id="mpesaModal" class="modal"><div class="modal-content"><h2>💳 M-Pesa Payment</h2><input type="text" id="mpesaCustomerName" placeholder="Customer" readonly><input type="text" id="mpesaCustomerPhone" placeholder="Phone"><input type="number" id="mpesaAmount" placeholder="Amount" readonly><input type="text" id="mpesaService" placeholder="Service" readonly><input type="text" id="mpesaTransactionCode" placeholder="Transaction Code"><input type="hidden" id="mpesaRequestId"><button class="btn btn-success" onclick="confirmMpesaPayment()">Confirm</button><button class="btn btn-danger" onclick="closeModal('mpesaModal')">Cancel</button></div></div>
 
     <script>
-        // Admin password (change this to anything you want)
-        let ADMIN_PASSWORD = "ReaganAdmin2025";
         const BACKEND_URL = "https://mpesa-backend-6s46.onrender.com";
         
         const firebaseConfig = {
@@ -486,6 +444,42 @@
         let currentAdminData = null;
         let currentFilter = 'all';
         let allRequests = [];
+        
+        // Admin password will be loaded from Firestore
+        let ADMIN_PASSWORD = "ReaganAdmin2025"; // Default fallback
+
+        // ============ PASSWORD FUNCTIONS (Permanent Storage) ============
+        async function loadAdminPassword() {
+            try {
+                // Get admin password from Firestore settings collection
+                const settingsDoc = await db.collection('settings').doc('admin').get();
+                if (settingsDoc.exists && settingsDoc.data().password) {
+                    ADMIN_PASSWORD = settingsDoc.data().password;
+                } else {
+                    // Create default password in Firestore
+                    await db.collection('settings').doc('admin').set({
+                        password: "ReaganAdmin2025",
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+            } catch(e) {
+                console.error("Error loading admin password:", e);
+            }
+        }
+        
+        async function saveAdminPassword(newPassword) {
+            try {
+                await db.collection('settings').doc('admin').set({
+                    password: newPassword,
+                    updatedAt: new Date().toISOString()
+                });
+                ADMIN_PASSWORD = newPassword;
+                return true;
+            } catch(e) {
+                console.error("Error saving admin password:", e);
+                return false;
+            }
+        }
 
         // ============ LOGIN FUNCTIONS ============
         function togglePassword() {
@@ -494,8 +488,12 @@
         }
 
         async function checkPassword() {
+            // Make sure password is loaded before checking
+            await loadAdminPassword();
+            
             const pwd = document.getElementById('adminPassword').value;
             if (pwd === ADMIN_PASSWORD) {
+                sessionStorage.setItem('adminLoggedIn', 'true');
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
                 await loadAdminProfile();
@@ -507,6 +505,7 @@
         }
 
         function logout() {
+            sessionStorage.removeItem('adminLoggedIn');
             document.getElementById('loginScreen').style.display = 'flex';
             document.getElementById('adminPanel').style.display = 'none';
             document.getElementById('adminPassword').value = '';
@@ -541,10 +540,13 @@
             loadAdminProfile();
         }
 
-        function changeAdminPassword() {
+        async function changeAdminPassword() {
             const currentPwd = document.getElementById('currentAdminPwd').value;
             const newPwd = document.getElementById('newAdminPwd').value;
             const confirmPwd = document.getElementById('confirmAdminPwd').value;
+            
+            // Load latest password from Firestore
+            await loadAdminPassword();
             
             if (currentPwd !== ADMIN_PASSWORD) {
                 alert('❌ Current password is incorrect');
@@ -559,10 +561,15 @@
                 return;
             }
             
-            ADMIN_PASSWORD = newPwd;
-            alert('✅ Password changed! Please login with your new password.');
-            closeModal('changePasswordModal');
-            logout();
+            // Save new password to Firestore (PERMANENT)
+            const saved = await saveAdminPassword(newPwd);
+            if (saved) {
+                alert('✅ Password changed permanently! Please login with your new password.');
+                closeModal('changePasswordModal');
+                logout();
+            } else {
+                alert('❌ Failed to save password. Please try again.');
+            }
         }
 
         async function sendAdminPasswordReset() {
@@ -694,7 +701,7 @@
         async function loadUsers() {
             const snapshot = await db.collection('users').get();
             const users = []; snapshot.forEach(doc => users.push({ id: doc.id, uid: doc.id, ...doc.data() }));
-            document.getElementById('usersTableBody').innerHTML = users.map(user => `<tr>
+            document.getElementById('usersTableBody').innerHTML = users.map(user => `<td>
                 <td>${user.name || 'N/A'}</td>
                 <td>${user.email}</td>
                 <td>${user.phone || 'N/A'}</td>
@@ -842,11 +849,18 @@
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        // ============ INITIALIZE ============
-        window.onload = function() {
+        // ============ CHECK LOGIN STATUS ON LOAD ============
+        window.onload = async function() {
             loadTheme();
-            loadAdminProfile();
-            loadStats(); loadServices(); loadAllRequests(); loadUsers();
+            await loadAdminPassword();
+            
+            // Check if already logged in (session storage)
+            if (sessionStorage.getItem('adminLoggedIn') === 'true') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('adminPanel').style.display = 'block';
+                await loadAdminProfile();
+                loadStats(); loadServices(); loadAllRequests(); loadUsers();
+            }
         };
     </script>
 </body>
