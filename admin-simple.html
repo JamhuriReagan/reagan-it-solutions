@@ -4,13 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Portal - Reagan's IT</title>
-    <!-- Firebase SDKs (Modular) -->
+    <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
+        /* Login Screen */
         .login-screen {
             display: flex;
             justify-content: center;
@@ -107,6 +108,18 @@
         
         .password-toggle:hover { color: #f97316; }
         
+        .forgot-link {
+            text-align: right;
+            margin-top: -0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .forgot-link a {
+            color: #f97316;
+            cursor: pointer;
+            font-size: 0.8rem;
+        }
+        
         .login-btn {
             width: 100%;
             padding: 1rem;
@@ -142,6 +155,7 @@
             color: #94a3b8;
         }
         
+        /* Admin Panel */
         .admin-panel { display: none; }
         
         .navbar {
@@ -173,6 +187,27 @@
         
         .container { max-width: 1400px; margin: 2rem auto; padding: 0 5%; }
         
+        /* Profile Card */
+        .profile-card {
+            background: white;
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        body.dark-mode .profile-card { background: #1e293b; }
+        .profile-info { flex: 1; }
+        .profile-info p { margin: 0.5rem 0; }
+        .profile-label { font-weight: bold; color: #0f2b3d; }
+        body.dark-mode .profile-label { color: #f97316; }
+        .profile-value { color: #333; }
+        body.dark-mode .profile-value { color: #e2e8f0; }
+        
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -198,6 +233,26 @@
         
         .stat-number { font-size: 2.2rem; font-weight: bold; color: #f97316; }
         .stat-label { color: #64748b; margin-top: 0.3rem; }
+        
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .filter-tab {
+            padding: 0.5rem 1rem;
+            border-radius: 30px;
+            background: #f1f5f9;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        body.dark-mode .filter-tab { background: #334155; color: #e2e8f0; }
+        .filter-tab.active { background: #f97316; color: white; }
+        .filter-tab:hover:not(.active) { background: #e2e8f0; }
         
         .section {
             background: white;
@@ -275,16 +330,21 @@
         .status-approved { background: #d1fae5; color: #059669; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
         .status-payment_pending { background: #fed7aa; color: #9a3412; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
         .status-completed { background: #dbeafe; color: #2563eb; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
+        .role-badge-admin { background: #f97316; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
+        .role-badge-user { background: #10b981; color: white; padding: 0.25rem 0.75rem; border-radius: 20px; display: inline-block; font-size: 0.8rem; }
         
         @media (max-width: 768px) {
             .stats { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
             table { font-size: 0.75rem; }
             th, td { padding: 0.5rem; }
+            .profile-card { flex-direction: column; text-align: center; }
+            .filter-tabs { justify-content: center; }
         }
         
         body.dark-mode .stat-card,
         body.dark-mode .section,
-        body.dark-mode .modal-content {
+        body.dark-mode .modal-content,
+        body.dark-mode .profile-card {
             background: #1e293b;
             color: #e2e8f0;
             border-color: #334155;
@@ -315,6 +375,7 @@
     </style>
 </head>
 <body>
+    <!-- Login Screen -->
     <div id="loginScreen" class="login-screen">
         <div class="login-box">
             <h2>👑 Welcome Back</h2>
@@ -323,12 +384,16 @@
                 <input type="password" id="adminPassword" placeholder="Enter secure password">
                 <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
             </div>
+            <div class="forgot-link">
+                <a onclick="showForgotPasswordModal()">Forgot Password?</a>
+            </div>
             <button class="login-btn" onclick="checkPassword()">🔓 Access Dashboard →</button>
             <div id="errorMsg" class="error"></div>
             <div class="admin-badge">🔐 Secure Admin Area</div>
         </div>
     </div>
 
+    <!-- Admin Panel -->
     <div id="adminPanel" class="admin-panel">
         <div class="navbar">
             <div class="logo">REAGAN'S <span>IT</span> - ADMIN</div>
@@ -339,39 +404,69 @@
         </div>
 
         <div class="container">
+            <!-- Admin Profile Card -->
+            <div class="profile-card">
+                <div class="profile-info">
+                    <p><span class="profile-label">👤 Admin Name:</span> <span class="profile-value" id="adminName">Loading...</span></p>
+                    <p><span class="profile-label">📧 Email:</span> <span class="profile-value" id="adminEmail">Loading...</span></p>
+                    <p><span class="profile-label">📱 Phone:</span> <span class="profile-value" id="adminPhone">Loading...</span></p>
+                </div>
+                <div>
+                    <button class="btn btn-primary" onclick="showEditProfileModal()">✏️ Edit Profile</button>
+                    <button class="btn btn-warning" onclick="showChangePasswordModal()">🔑 Change Password</button>
+                </div>
+            </div>
+
+            <!-- Stats Cards -->
             <div class="stats">
                 <div class="stat-card" onclick="showServicesSection()"><div class="stat-number" id="totalServices">0</div><div class="stat-label">📦 Services</div></div>
-                <div class="stat-card" onclick="showRequestsSection()"><div class="stat-number" id="totalRequests">0</div><div class="stat-label">📋 Requests</div></div>
+                <div class="stat-card" onclick="showAllRequests()"><div class="stat-number" id="totalRequests">0</div><div class="stat-label">📋 All Requests</div></div>
                 <div class="stat-card" onclick="showPendingSection()"><div class="stat-number" id="pendingRequests">0</div><div class="stat-label">⏳ Pending</div></div>
+                <div class="stat-card" onclick="showCompletedSection()"><div class="stat-number" id="completedRequests">0</div><div class="stat-label">✅ Completed</div></div>
                 <div class="stat-card" onclick="showUsersSection()"><div class="stat-number" id="totalUsers">0</div><div class="stat-label">👥 Users</div></div>
             </div>
 
+            <!-- Filter Tabs for Request History -->
+            <div class="filter-tabs" id="filterTabs">
+                <div class="filter-tab active" data-filter="all" onclick="filterRequests('all')">📋 All Requests</div>
+                <div class="filter-tab" data-filter="pending" onclick="filterRequests('pending')">⏳ Pending</div>
+                <div class="filter-tab" data-filter="approved" onclick="filterRequests('approved')">✓ Approved</div>
+                <div class="filter-tab" data-filter="payment_pending" onclick="filterRequests('payment_pending')">💳 Payment Pending</div>
+                <div class="filter-tab" data-filter="completed" onclick="filterRequests('completed')">✅ Completed</div>
+            </div>
+
+            <!-- Services Section -->
             <div id="servicesSection" class="section">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                     <h2>🛠️ Manage Services</h2>
                     <button class="btn btn-primary" onclick="showAddServiceModal()">+ Add Service</button>
                 </div>
-                <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></table>
+                <table id="servicesTable"><thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody></tbody></tr>
             </div>
 
-            <div id="requestsSection" class="section" style="display: none;">
-                <h2>📋 All User Requests</h2>
-                <table id="requestsTable">
-                    <thead>
-                        <tr>
-                            <th>User</th>
-                            <th>Service</th>
-                            <th>Price</th>
-                            <th>Status</th>
-                            <th>Date</th>
-                            <th>Payment</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="requestsTableBody"></tbody>
-                </table>
+            <!-- Requests Section with History -->
+            <div id="requestsSection" class="section" style="display: block;">
+                <h2>📋 Request History</h2>
+                <div style="overflow-x: auto;">
+                    <table id="requestsTable">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Service</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Request Date</th>
+                                <th>Completed Date</th>
+                                <th>Transaction Code</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody"></tbody>
+                    </table>
+                </div>
             </div>
 
+            <!-- Users Section -->
             <div id="usersSection" class="section" style="display: none;">
                 <h2>👥 User Management</h2>
                 <table id="usersTable"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead><tbody id="usersTableBody"></tbody></table>
@@ -379,29 +474,66 @@
         </div>
     </div>
 
-    <div id="mpesaModal" class="modal">
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="modal">
         <div class="modal-content">
-            <h2>💳 M-Pesa Payment Request</h2>
-            <div class="form-group"><label>Customer Name</label><input type="text" id="mpesaCustomerName" readonly style="background:#f0f0f0;"></div>
-            <div class="form-group"><label>Customer Phone</label><input type="text" id="mpesaCustomerPhone" placeholder="0712345678"></div>
-            <div class="form-group"><label>Amount</label><input type="number" id="mpesaAmount" readonly style="background:#f0f0f0;"></div>
-            <div class="form-group"><label>Service</label><input type="text" id="mpesaService" readonly style="background:#f0f0f0;"></div>
-            <div class="form-group"><label>Transaction Code</label><input type="text" id="mpesaTransactionCode" placeholder="e.g., QWERTY123"></div>
-            <input type="hidden" id="mpesaRequestId">
-            <button class="btn btn-success" onclick="confirmMpesaPayment()">✓ Confirm Payment</button>
-            <button class="btn btn-danger" onclick="closeMpesaModal()">Cancel</button>
+            <h2>✏️ Edit Admin Profile</h2>
+            <div class="form-group"><label>Name</label><input type="text" id="editAdminName"></div>
+            <div class="form-group"><label>Phone</label><input type="text" id="editAdminPhone"></div>
+            <div class="form-group"><label>Email (cannot change)</label><input type="email" id="editAdminEmail" readonly style="background:#f0f0f0;"></div>
+            <button class="btn btn-primary" onclick="updateAdminProfile()">Save Changes</button>
+            <button class="btn btn-danger" onclick="closeModal('editProfileModal')">Cancel</button>
         </div>
     </div>
 
+    <!-- Change Password Modal -->
+    <div id="changePasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>🔑 Change Password</h2>
+            <div class="form-group"><label>Current Password</label><input type="password" id="currentAdminPwd"></div>
+            <div class="form-group"><label>New Password</label><input type="password" id="newAdminPwd"></div>
+            <div class="form-group"><label>Confirm Password</label><input type="password" id="confirmAdminPwd"></div>
+            <button class="btn btn-primary" onclick="changeAdminPassword()">Update Password</button>
+            <button class="btn btn-danger" onclick="closeModal('changePasswordModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Forgot Password Modal -->
+    <div id="forgotPasswordModal" class="modal">
+        <div class="modal-content">
+            <h2>📧 Reset Password</h2>
+            <p style="margin-bottom: 1rem;">Enter your admin email to receive a password reset link.</p>
+            <div class="form-group"><label>Email</label><input type="email" id="forgotEmail" placeholder="admin@example.com"></div>
+            <div id="forgotError" class="error"></div>
+            <button class="btn btn-primary" onclick="sendAdminPasswordReset()">Send Reset Link</button>
+            <button class="btn btn-danger" onclick="closeModal('forgotPasswordModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- M-Pesa Payment Modal -->
+    <div id="mpesaModal" class="modal">
+        <div class="modal-content">
+            <h2>💳 M-Pesa Payment</h2>
+            <div class="form-group"><label>Customer Name</label><input type="text" id="mpesaCustomerName" readonly></div>
+            <div class="form-group"><label>Phone Number</label><input type="text" id="mpesaCustomerPhone" placeholder="0712345678"></div>
+            <div class="form-group"><label>Amount (KES)</label><input type="number" id="mpesaAmount" readonly></div>
+            <div class="form-group"><label>Service</label><input type="text" id="mpesaService" readonly></div>
+            <div class="form-group"><label>Transaction Code</label><input type="text" id="mpesaTransactionCode" placeholder="Enter M-Pesa code"></div>
+            <input type="hidden" id="mpesaRequestId">
+            <button class="btn btn-success" onclick="confirmMpesaPayment()">✓ Confirm Payment</button>
+            <button class="btn btn-danger" onclick="closeModal('mpesaModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Service Modal -->
     <div id="serviceModal" class="modal"><div class="modal-content"><h2 id="modalTitle">Add Service</h2><input type="text" id="serviceIcon" placeholder="Icon (📄)"><input type="text" id="serviceName" placeholder="Service Name"><input type="number" id="servicePrice" placeholder="Price (KES)"><input type="hidden" id="serviceId"><button class="btn btn-primary" onclick="saveService()">Save</button><button class="btn btn-danger" onclick="closeModal('serviceModal')">Cancel</button></div></div>
     <div id="editUserModal" class="modal"><div class="modal-content"><h2>✏️ Edit User</h2><input type="hidden" id="editUserId"><input type="text" id="editUserName" placeholder="Name"><input type="text" id="editUserPhone" placeholder="Phone"><select id="editUserRole"><option value="user">User</option><option value="admin">Admin</option></select><button class="btn btn-primary" onclick="updateUser()">Save</button><button class="btn btn-danger" onclick="closeModal('editUserModal')">Cancel</button></div></div>
-    <div id="resetPasswordModal" class="modal"><div class="modal-content"><h2>🔑 Reset Password</h2><p id="resetUserEmail" style="margin:1rem 0;"></p><button class="btn btn-primary" onclick="sendPasswordReset()">Send Reset Email</button><button class="btn btn-danger" onclick="closeModal('resetPasswordModal')">Cancel</button></div></div>
+    <div id="resetPasswordModal" class="modal"><div class="modal-content"><h2>🔑 Reset User Password</h2><p id="resetUserEmail" style="margin:1rem 0;"></p><button class="btn btn-primary" onclick="sendUserPasswordReset()">Send Reset Email</button><button class="btn btn-danger" onclick="closeModal('resetPasswordModal')">Cancel</button></div></div>
 
     <script>
         const ADMIN_PASSWORD = "ReaganAdmin2025";
         const BACKEND_URL = "https://mpesa-backend-6s46.onrender.com";
         
-        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBU0Nc6nDv8soHy_MoXyaUQ8fbx-UnLqWI",
             authDomain: "reagan-it-solutions.firebaseapp.com",
@@ -411,21 +543,29 @@
             appId: "1:857985673352:web:5a066de1f543183159173d"
         };
         
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const auth = firebase.auth();
 
+        let currentAdminId = null;
+        let currentAdminData = null;
+        let currentFilter = 'all';
+        let allRequests = [];
+
+        // Toggle Password
         function togglePassword() {
             const pwd = document.getElementById('adminPassword');
             pwd.type = pwd.type === 'password' ? 'text' : 'password';
         }
 
+        // Login
         function checkPassword() {
-            if (document.getElementById('adminPassword').value === ADMIN_PASSWORD) {
+            const pwd = document.getElementById('adminPassword').value;
+            if (pwd === ADMIN_PASSWORD) {
                 document.getElementById('loginScreen').style.display = 'none';
                 document.getElementById('adminPanel').style.display = 'block';
-                loadStats(); loadServices(); loadRequests(); loadUsers();
+                loadAdminProfile();
+                loadStats(); loadServices(); loadAllRequests(); loadUsers();
             } else {
                 document.getElementById('errorMsg').textContent = '❌ Incorrect password';
                 document.getElementById('errorMsg').style.display = 'block';
@@ -438,29 +578,150 @@
             document.getElementById('adminPassword').value = '';
         }
 
+        // Load Admin Profile from Firestore
+        async function loadAdminProfile() {
+            try {
+                const query = await db.collection('users').where('role', '==', 'admin').limit(1).get();
+                if (!query.empty) {
+                    const doc = query.docs[0];
+                    currentAdminId = doc.id;
+                    currentAdminData = doc.data();
+                    document.getElementById('adminName').innerText = currentAdminData.name || 'Admin';
+                    document.getElementById('adminEmail').innerText = currentAdminData.email;
+                    document.getElementById('adminPhone').innerText = currentAdminData.phone || 'Not set';
+                    document.getElementById('editAdminName').value = currentAdminData.name || '';
+                    document.getElementById('editAdminPhone').value = currentAdminData.phone || '';
+                    document.getElementById('editAdminEmail').value = currentAdminData.email || '';
+                    document.getElementById('forgotEmail').value = currentAdminData.email || '';
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        // Update Admin Profile
+        async function updateAdminProfile() {
+            if (!currentAdminId) { alert('Admin not found'); return; }
+            const newName = document.getElementById('editAdminName').value;
+            const newPhone = document.getElementById('editAdminPhone').value;
+            await db.collection('users').doc(currentAdminId).update({ name: newName, phone: newPhone });
+            currentAdminData.name = newName;
+            currentAdminData.phone = newPhone;
+            document.getElementById('adminName').innerText = newName;
+            document.getElementById('adminPhone').innerText = newPhone;
+            alert('✅ Profile updated!');
+            closeModal('editProfileModal');
+        }
+
+        // Change Admin Password
+        async function changeAdminPassword() {
+            const current = document.getElementById('currentAdminPwd').value;
+            const newPwd = document.getElementById('newAdminPwd').value;
+            const confirm = document.getElementById('confirmAdminPwd').value;
+            if (newPwd !== confirm) { alert('Passwords do not match'); return; }
+            if (newPwd.length < 6) { alert('Password must be 6+ characters'); return; }
+            try {
+                const user = await auth.signInWithEmailAndPassword(currentAdminData.email, current);
+                await user.user.updatePassword(newPwd);
+                alert('✅ Password changed! Please login again.');
+                logout();
+            } catch(e) { alert('❌ Current password is incorrect'); }
+            closeModal('changePasswordModal');
+        }
+
+        // Forgot Password (Admin)
+        async function sendAdminPasswordReset() {
+            const email = document.getElementById('forgotEmail').value;
+            if (!email) { alert('Enter email'); return; }
+            try {
+                await auth.sendPasswordResetEmail(email);
+                alert(`✅ Reset link sent to ${email}! Check your spam folder.`);
+                closeModal('forgotPasswordModal');
+            } catch(e) { alert('❌ Error: ' + e.message); }
+        }
+
+        function showEditProfileModal() { document.getElementById('editProfileModal').style.display = 'flex'; }
+        function showChangePasswordModal() { document.getElementById('changePasswordModal').style.display = 'flex'; }
+        function showForgotPasswordModal() { document.getElementById('forgotPasswordModal').style.display = 'flex'; }
+
+        // Request Filtering
+        function filterRequests(status) {
+            currentFilter = status;
+            document.querySelectorAll('.filter-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.getAttribute('data-filter') === status) tab.classList.add('active');
+            });
+            displayFilteredRequests();
+        }
+
+        function displayFilteredRequests() {
+            let filtered = currentFilter === 'all' ? allRequests : allRequests.filter(r => r.status === currentFilter);
+            document.getElementById('requestsTableBody').innerHTML = filtered.map(r => {
+                let statusClass = 'status-pending', statusText = (r.status || 'PENDING').toUpperCase();
+                if (r.status === 'approved') { statusClass = 'status-approved'; statusText = 'APPROVED'; }
+                if (r.status === 'payment_pending') { statusClass = 'status-payment_pending'; statusText = 'PAYMENT PENDING'; }
+                if (r.status === 'completed') { statusClass = 'status-completed'; statusText = 'COMPLETED'; }
+                
+                let paymentHtml = '';
+                if (r.status === 'approved') {
+                    paymentHtml = `<button class="btn btn-primary payment-btn" onclick="showMpesaModal('${r.id}', '${r.userName}', '${r.userId}', '${r.serviceName}', ${r.price})">💳 Request Payment</button>`;
+                } else if (r.status === 'payment_pending') {
+                    paymentHtml = `<span class="mpesa-instruction">⏳ Awaiting Payment</span>`;
+                } else if (r.status === 'completed') {
+                    paymentHtml = `<span style="color:#10b981;">✅ Paid</span>`;
+                } else {
+                    paymentHtml = `<span style="color:#94a3b8;">-</span>`;
+                }
+                
+                return `<tr>
+                    <td>${r.userName}<br><small>${r.userEmail || r.userId}</small></td>
+                    <td>${r.serviceName}</td>
+                    <td>KES ${r.price?.toLocaleString() || 0}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td>${r.date ? new Date(r.date).toLocaleString() : '-'}</td>
+                    <td>${r.completedAt ? new Date(r.completedAt).toLocaleString() : '-'}</td>
+                    <td>${r.transactionCode || '-'}</td>
+                    <td>
+                        <select onchange="updateStatus('${r.id}', this.value)">
+                            <option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approve</option>
+                            <option value="payment_pending" ${r.status === 'payment_pending' ? 'selected' : ''}>Payment Pending</option>
+                            <option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option>
+                        </select>
+                        <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button>
+                    </td>
+                </table>`;
+            }).join('');
+        }
+
+        function showAllRequests() { filterRequests('all'); showRequestsSection(); }
+        function showPendingSection() { filterRequests('pending'); showRequestsSection(); }
+        function showCompletedSection() { filterRequests('completed'); showRequestsSection(); }
+
         function toggleTheme() {
             document.body.classList.toggle('dark-mode');
             const btn = document.getElementById('themeToggle');
             btn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+            localStorage.setItem('adminTheme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
         }
 
-        function showServicesSection() {
-            document.getElementById('servicesSection').style.display = 'block';
-            document.getElementById('requestsSection').style.display = 'none';
-            document.getElementById('usersSection').style.display = 'none';
+        function loadTheme() {
+            if (localStorage.getItem('adminTheme') === 'dark') {
+                document.body.classList.add('dark-mode');
+                document.getElementById('themeToggle').textContent = '☀️';
+            }
+        }
+
+        function showServicesSection() { 
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById('servicesSection').style.display = 'block'; 
             loadServices();
         }
-        function showRequestsSection() {
-            document.getElementById('servicesSection').style.display = 'none';
-            document.getElementById('requestsSection').style.display = 'block';
-            document.getElementById('usersSection').style.display = 'none';
-            loadRequests();
+        function showRequestsSection() { 
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById('requestsSection').style.display = 'block'; 
         }
-        function showPendingSection() { showRequestsSection(); }
-        function showUsersSection() {
-            document.getElementById('servicesSection').style.display = 'none';
-            document.getElementById('requestsSection').style.display = 'none';
-            document.getElementById('usersSection').style.display = 'block';
+        function showUsersSection() { 
+            document.querySelectorAll('.section').forEach(s => s.style.display = 'none');
+            document.getElementById('usersSection').style.display = 'block'; 
             loadUsers();
         }
 
@@ -469,9 +730,11 @@
             const requests = await db.collection('requests').get();
             const users = await db.collection('users').get();
             const pending = await db.collection('requests').where('status', '==', 'pending').get();
+            const completed = await db.collection('requests').where('status', '==', 'completed').get();
             document.getElementById('totalServices').innerText = services.size;
             document.getElementById('totalRequests').innerText = requests.size;
             document.getElementById('pendingRequests').innerText = pending.size;
+            document.getElementById('completedRequests').innerText = completed.size;
             document.getElementById('totalUsers').innerText = users.size;
         }
 
@@ -481,26 +744,11 @@
             document.getElementById('servicesTable').innerHTML = `<thead><tr><th>Icon</th><th>Name</th><th>Price</th><th>Actions</th></tr></thead><tbody>${services.map(s => `<td><td style="text-align:center;">${s.icon}</td><td>${s.name}</td><td>KES ${s.price.toLocaleString()}</td><td><button class="btn btn-warning" onclick="editService('${s.id}')">Edit</button> <button class="btn btn-danger" onclick="deleteService('${s.id}')">Delete</button></td></tr>`).join('')}</tbody>`;
         }
 
-        async function loadRequests() {
+        async function loadAllRequests() {
             const snapshot = await db.collection('requests').orderBy('date', 'desc').get();
-            const requests = []; snapshot.forEach(doc => requests.push({ id: doc.id, ...doc.data() }));
-            document.getElementById('requestsTableBody').innerHTML = requests.map(r => {
-                let statusClass = 'status-pending', statusText = (r.status || 'PENDING').toUpperCase();
-                if (r.status === 'approved') { statusClass = 'status-approved'; statusText = 'APPROVED'; }
-                if (r.status === 'payment_pending') { statusClass = 'status-payment_pending'; statusText = 'PAYMENT PENDING'; }
-                if (r.status === 'completed') { statusClass = 'status-completed'; statusText = 'COMPLETED'; }
-                let paymentHtml = (r.status === 'approved') ? `<button class="btn btn-primary payment-btn" onclick="showMpesaModal('${r.id}', '${r.userName}', '${r.userId}', '${r.serviceName}', ${r.price})">Request Payment</button>` : (r.status === 'completed' ? '✅ Paid' : '-');
-                return `<tr>
-                    <td>${r.userName}<br><small>${r.userEmail || r.userId}</small></td>
-                    <td>${r.serviceName}</td>
-                    <td>KES ${r.price?.toLocaleString() || 0}</td>
-                    <td><span class="${statusClass}">${statusText}</span></td>
-                    <td>${new Date(r.date).toLocaleString()}</td>
-                    <td>${paymentHtml}</td>
-                    <td><select onchange="updateStatus('${r.id}', this.value)"><option value="pending" ${r.status === 'pending' ? 'selected' : ''}>Pending</option><option value="approved" ${r.status === 'approved' ? 'selected' : ''}>Approve</option><option value="payment_pending" ${r.status === 'payment_pending' ? 'selected' : ''}>Payment Pending</option><option value="completed" ${r.status === 'completed' ? 'selected' : ''}>Completed</option></select>
-                    <button class="btn btn-danger" onclick="deleteRequest('${r.id}')">Delete</button></td>
-                </tr>`;
-            }).join('');
+            allRequests = []; 
+            snapshot.forEach(doc => allRequests.push({ id: doc.id, ...doc.data() }));
+            displayFilteredRequests();
         }
 
         async function loadUsers() {
@@ -514,7 +762,7 @@
                 <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
                 <td><button class="btn btn-info" onclick="showEditUserModal('${user.uid}', '${user.name || ''}', '${user.phone || ''}', '${user.role || 'user'}')">Edit</button>
                 ${user.role !== 'admin' ? `<button class="btn btn-danger" onclick="deleteUser('${user.uid}')">Delete</button>` : ''} </td>
-            `).join('');
+            </tr>`).join('');
         }
 
         function showEditUserModal(uid, name, phone, role) {
@@ -527,14 +775,18 @@
 
         async function updateUser() {
             const uid = document.getElementById('editUserId').value;
-            await db.collection('users').doc(uid).update({ name: document.getElementById('editUserName').value, phone: document.getElementById('editUserPhone').value, role: document.getElementById('editUserRole').value });
-            alert('User updated');
+            await db.collection('users').doc(uid).update({ 
+                name: document.getElementById('editUserName').value, 
+                phone: document.getElementById('editUserPhone').value, 
+                role: document.getElementById('editUserRole').value 
+            });
+            alert('✅ User updated');
             closeModal('editUserModal');
             loadUsers(); loadStats();
         }
 
         async function deleteUser(uid) {
-            if (confirm('Delete user?')) {
+            if (confirm('⚠️ Delete this user?')) {
                 await db.collection('users').doc(uid).delete();
                 loadUsers(); loadStats();
             }
@@ -546,25 +798,79 @@
             document.getElementById('resetPasswordModal').style.display = 'flex';
         }
 
-        async function sendPasswordReset() {
+        async function sendUserPasswordReset() {
             const email = document.getElementById('resetUserEmail').innerText;
             try {
                 await auth.sendPasswordResetEmail(email);
-                alert(`✅ Password reset email sent to ${email}`);
+                alert(`✅ Reset email sent to ${email}`);
                 closeModal('resetPasswordModal');
-            } catch (error) { 
-                alert('❌ Error sending email: ' + error.message);
-            }
+            } catch(e) { alert('❌ Error: ' + e.message); }
         }
 
-        async function updateStatus(id, status) { await db.collection('requests').doc(id).update({ status }); loadRequests(); loadStats(); }
-        async function deleteRequest(id) { if (confirm('Delete request?')) { await db.collection('requests').doc(id).delete(); loadRequests(); loadStats(); } }
+        // Service Management
+        async function updateStatus(id, status) { 
+            let updateData = { status };
+            if (status === 'completed') updateData.completedAt = new Date().toISOString();
+            await db.collection('requests').doc(id).update(updateData); 
+            await loadAllRequests(); 
+            await loadStats(); 
+        }
+        
+        async function deleteRequest(id) { 
+            if (confirm('Delete this request?')) { 
+                await db.collection('requests').doc(id).delete(); 
+                await loadAllRequests(); 
+                await loadStats(); 
+            } 
+        }
+        
+        function showAddServiceModal() { 
+            document.getElementById('modalTitle').innerText = 'Add Service'; 
+            document.getElementById('serviceId').value = ''; 
+            document.getElementById('serviceIcon').value = ''; 
+            document.getElementById('serviceName').value = ''; 
+            document.getElementById('servicePrice').value = ''; 
+            document.getElementById('serviceModal').style.display = 'flex'; 
+        }
+        
+        async function editService(id) { 
+            const doc = await db.collection('services').doc(id).get(); 
+            const s = doc.data(); 
+            document.getElementById('modalTitle').innerText = 'Edit Service'; 
+            document.getElementById('serviceId').value = id; 
+            document.getElementById('serviceIcon').value = s.icon; 
+            document.getElementById('serviceName').value = s.name; 
+            document.getElementById('servicePrice').value = s.price; 
+            document.getElementById('serviceModal').style.display = 'flex'; 
+        }
+        
+        async function saveService() { 
+            const id = document.getElementById('serviceId').value; 
+            const icon = document.getElementById('serviceIcon').value; 
+            const name = document.getElementById('serviceName').value; 
+            const price = parseInt(document.getElementById('servicePrice').value); 
+            if (!icon || !name || !price) { alert('Fill all fields'); return; } 
+            if (id) { 
+                await db.collection('services').doc(id).update({ icon, name, price }); 
+            } else { 
+                const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get(); 
+                let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1; 
+                await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price }); 
+            } 
+            closeModal('serviceModal'); 
+            loadServices(); 
+            loadStats(); 
+        }
+        
+        async function deleteService(id) { 
+            if (confirm('Delete this service?')) { 
+                await db.collection('services').doc(id).delete(); 
+                loadServices(); 
+                loadStats(); 
+            } 
+        }
 
-        function showAddServiceModal() { document.getElementById('modalTitle').innerText = 'Add Service'; document.getElementById('serviceId').value = ''; document.getElementById('serviceIcon').value = ''; document.getElementById('serviceName').value = ''; document.getElementById('servicePrice').value = ''; document.getElementById('serviceModal').style.display = 'flex'; }
-        async function editService(id) { const doc = await db.collection('services').doc(id).get(); const s = doc.data(); document.getElementById('modalTitle').innerText = 'Edit Service'; document.getElementById('serviceId').value = id; document.getElementById('serviceIcon').value = s.icon; document.getElementById('serviceName').value = s.name; document.getElementById('servicePrice').value = s.price; document.getElementById('serviceModal').style.display = 'flex'; }
-        async function saveService() { const id = document.getElementById('serviceId').value; const icon = document.getElementById('serviceIcon').value; const name = document.getElementById('serviceName').value; const price = parseInt(document.getElementById('servicePrice').value); if (!icon || !name || !price) { alert('Fill all fields'); return; } if (id) { await db.collection('services').doc(id).update({ icon, name, price }); } else { const snapshot = await db.collection('services').orderBy('id', 'desc').limit(1).get(); let newId = snapshot.empty ? 1 : parseInt(snapshot.docs[0].id) + 1; await db.collection('services').doc(newId.toString()).set({ id: newId, icon, name, price }); } closeModal('serviceModal'); loadServices(); loadStats(); }
-        async function deleteService(id) { if (confirm('Delete service?')) { await db.collection('services').doc(id).delete(); loadServices(); loadStats(); } }
-
+        // M-Pesa Functions
         async function showMpesaModal(requestId, customerName, customerId, serviceName, amount) {
             const userDoc = await db.collection('users').doc(customerId).get();
             document.getElementById('mpesaCustomerName').value = customerName;
@@ -580,15 +886,27 @@
             const requestId = document.getElementById('mpesaRequestId').value;
             const code = document.getElementById('mpesaTransactionCode').value;
             if (!code) { alert('Enter transaction code'); return; }
-            await db.collection('requests').doc(requestId).update({ status: 'completed', paymentStatus: 'paid', transactionCode: code, paidAt: new Date().toISOString() });
-            alert('Payment confirmed!');
+            await db.collection('requests').doc(requestId).update({ 
+                status: 'completed', 
+                paymentStatus: 'paid', 
+                transactionCode: code, 
+                paidAt: new Date().toISOString(),
+                completedAt: new Date().toISOString()
+            });
+            alert('✅ Payment confirmed!');
             closeModal('mpesaModal');
-            loadRequests(); loadStats();
+            await loadAllRequests();
+            await loadStats();
         }
 
         function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-        window.onload = function() { loadStats(); loadServices(); loadRequests(); loadUsers(); };
+        // Initialize
+        window.onload = function() {
+            loadTheme();
+            loadAdminProfile();
+            loadStats(); loadServices(); loadAllRequests(); loadUsers();
+        };
     </script>
 </body>
 </html>
