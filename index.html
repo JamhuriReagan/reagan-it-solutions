@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="/manifest.json">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reagan's IT Solutions</title>
+    <title>Reagan's IT Solutions | Professional Computer Services</title>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Segoe UI', system-ui, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             transition: all 0.3s ease;
         }
         
@@ -23,17 +23,14 @@
         }
         
         body.light-mode .navbar {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
+            background: rgba(255,255,255,0.96);
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
         }
         
         body.light-mode .logo { color: #0f2b3d; }
-        body.light-mode .service-card { background: white; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05); }
-        body.light-mode .modal-content { background: white; }
-        body.light-mode .input-group input { background: white; border-color: #e2e8f0; }
-        body.light-mode .hero h1 { color: #0f2b3d; }
-        body.light-mode .hero p { color: #4a5568; }
+        body.light-mode .service-card { background: white; }
+        body.light-mode .stat-card { background: white; }
+        body.light-mode .footer { background: #0f2b3d; color: #94a3b8; }
         
         /* Dark Mode */
         body.dark-mode {
@@ -42,52 +39,20 @@
         }
         
         body.dark-mode .navbar {
-            background: rgba(15, 25, 35, 0.95);
+            background: rgba(15, 25, 35, 0.96);
             backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             border-bottom: 1px solid rgba(255,255,255,0.05);
         }
         
         body.dark-mode .logo { color: white; }
         body.dark-mode .logo span { color: #f97316; }
-        
-        body.dark-mode .service-card {
-            background: #1e293b;
-            box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3);
-            border: 1px solid #334155;
-        }
-        
+        body.dark-mode .service-card { background: #1e293b; border: 1px solid #334155; }
         body.dark-mode .service-card h3 { color: #f97316; }
-        body.dark-mode .service-card .service-price { color: #f97316; }
+        body.dark-mode .stat-card { background: #1e293b; }
+        body.dark-mode .footer { background: #0f2b3d; }
+        body.dark-mode .footer a { color: #94a3b8; }
         
-        body.dark-mode .modal-content {
-            background: #1e293b;
-            border: 1px solid #334155;
-        }
-        
-        body.dark-mode .modal-content h2 {
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-        
-        body.dark-mode .input-group input {
-            background: #0f172a;
-            border-color: #334155;
-            color: white;
-        }
-        
-        body.dark-mode .input-group input:focus {
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249,115,22,0.2);
-        }
-        
-        body.dark-mode .hero h1 { color: white; }
-        body.dark-mode .hero p { color: #94a3b8; }
-        body.dark-mode .admin-link a { color: #64748b; }
-        
-        /* Modern Navbar */
+        /* Navbar */
         .navbar {
             padding: 1rem 5%;
             display: flex;
@@ -100,43 +65,37 @@
             transition: all 0.3s;
         }
         
-        .logo { font-size: 1.5rem; font-weight: bold; transition: color 0.3s; }
+        .logo { font-size: 1.6rem; font-weight: 800; }
         .logo span { color: #f97316; }
         
-        .nav-buttons {
+        .nav-links {
             display: flex;
-            gap: 1rem;
+            gap: 2rem;
             align-items: center;
         }
         
+        .nav-links a {
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+        
+        .nav-links a:hover { color: #f97316; }
+        
         .theme-toggle {
-            background: rgba(0,0,0,0.1);
+            background: none;
             border: none;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             cursor: pointer;
             padding: 0.5rem;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            transition: all 0.3s;
         }
-        
-        body.light-mode .theme-toggle {
-            background: #e2e8f0;
-            color: #0f2b3d;
-        }
-        
-        body.dark-mode .theme-toggle {
-            background: #334155;
-            color: #f97316;
-        }
-        
-        .theme-toggle:hover { transform: scale(1.05); }
         
         .btn {
-            padding: 0.5rem 1.5rem;
+            padding: 0.6rem 1.5rem;
             border: none;
-            border-radius: 30px;
+            border-radius: 40px;
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s;
@@ -149,15 +108,45 @@
         
         /* Hero Section */
         .hero {
-            padding: 140px 5% 70px;
+            padding: 140px 5% 80px;
             text-align: center;
+            background: linear-gradient(135deg, rgba(15,43,61,0.9), rgba(26,58,79,0.9));
+            color: white;
+            position: relative;
         }
-        .hero h1 { font-size: 3rem; margin-bottom: 1rem; transition: color 0.3s; }
-        .hero p { font-size: 1.2rem; margin-bottom: 2rem; transition: color 0.3s; }
         
-        /* Services Grid */
-        .services-section { padding: 40px 5% 80px; }
-        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2.5rem; color: #f97316; font-weight: 700; }
+        body.light-mode .hero { background: linear-gradient(135deg, #0f2b3d, #1a3a4f); }
+        
+        .hero h1 { font-size: 3.5rem; margin-bottom: 1rem; }
+        .hero p { font-size: 1.2rem; margin-bottom: 2rem; opacity: 0.9; }
+        
+        .hero-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        
+        /* Stats Section */
+        .stats-section {
+            padding: 60px 5%;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .stat-card {
+            text-align: center;
+            padding: 2rem;
+            border-radius: 20px;
+            transition: transform 0.3s;
+        }
+        
+        .stat-card:hover { transform: translateY(-5px); }
+        
+        .stat-number { font-size: 2.5rem; font-weight: 800; color: #f97316; }
+        .stat-label { font-size: 0.9rem; margin-top: 0.5rem; }
+        
+        /* Services Section */
+        .services-section { padding: 60px 5%; }
+        .section-title { text-align: center; font-size: 2rem; margin-bottom: 2.5rem; color: #f97316; }
         
         .services-grid {
             display: grid;
@@ -168,18 +157,165 @@
         }
         
         .service-card {
-            padding: 1.8rem;
+            padding: 2rem;
             border-radius: 24px;
             text-align: center;
             transition: all 0.3s;
             cursor: pointer;
         }
         
-        .service-card:hover { transform: translateY(-5px); }
-        .service-icon { font-size: 3rem; margin-bottom: 0.5rem; }
-        .service-price { font-size: 1.2rem; font-weight: bold; margin: 0.5rem 0; }
+        .service-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        .service-icon { font-size: 3rem; margin-bottom: 1rem; }
+        .service-price { color: #f97316; font-size: 1.2rem; font-weight: bold; margin-top: 0.5rem; }
         
-        /* Modern Modals */
+        /* Benefits Section */
+        .benefits-section {
+            padding: 60px 5%;
+            background: rgba(249,115,22,0.05);
+        }
+        
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .benefit-card { text-align: center; padding: 1.5rem; }
+        .benefit-icon { font-size: 2.5rem; color: #f97316; margin-bottom: 1rem; }
+        .benefit-card h3 { margin-bottom: 0.5rem; }
+        .benefit-card p { font-size: 0.9rem; opacity: 0.8; }
+        
+        /* How It Works */
+        .howitworks-section { padding: 60px 5%; }
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .step-number {
+            width: 50px;
+            height: 50px;
+            background: #f97316;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin: 0 auto 1rem;
+        }
+        
+        /* Testimonials */
+        .testimonials-section {
+            padding: 60px 5%;
+            background: rgba(249,115,22,0.05);
+        }
+        
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .testimonial-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 20px;
+            text-align: center;
+        }
+        
+        body.dark-mode .testimonial-card { background: #1e293b; }
+        
+        .testimonial-text { font-style: italic; margin-bottom: 1rem; }
+        .testimonial-name { font-weight: bold; color: #f97316; }
+        
+        /* FAQ Section */
+        .faq-section { padding: 60px 5%; max-width: 800px; margin: 0 auto; }
+        .faq-item { margin-bottom: 1rem; border-bottom: 1px solid #e2e8f0; }
+        .faq-question {
+            padding: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+        }
+        .faq-answer { padding: 0 1rem 1rem; display: none; }
+        .faq-answer.active { display: block; }
+        
+        /* CTA Section */
+        .cta-section {
+            padding: 60px 5%;
+            text-align: center;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: white;
+        }
+        
+        .cta-section h2 { font-size: 2rem; margin-bottom: 1rem; }
+        .cta-section .btn { background: white; color: #f97316; margin-top: 1rem; }
+        .cta-section .btn:hover { transform: scale(1.05); }
+        
+        /* Footer */
+        .footer {
+            background: #0f2b3d;
+            color: #94a3b8;
+            padding: 40px 5% 20px;
+        }
+        
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .footer h4 { color: white; margin-bottom: 1rem; }
+        .footer a { color: #94a3b8; text-decoration: none; display: block; margin-bottom: 0.5rem; }
+        .footer a:hover { color: #f97316; }
+        
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            margin-top: 2rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        /* WhatsApp Button */
+        .whatsapp-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #25D366;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+        
+        .whatsapp-btn:hover { transform: scale(1.1); }
+        
+        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -195,180 +331,257 @@
         }
         
         .modal-content {
+            background: white;
             padding: 2rem;
-            border-radius: 32px;
+            border-radius: 28px;
             width: 90%;
-            max-width: 420px;
+            max-width: 400px;
             animation: slideUp 0.3s ease;
-            transition: all 0.3s;
         }
+        
+        body.dark-mode .modal-content { background: #1e293b; }
         
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .modal-content h2 {
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-align: center;
-            margin-bottom: 1.5rem;
-        }
-        
-        .input-group {
-            margin-bottom: 1.2rem;
-            position: relative;
-        }
-        
-        .input-group input {
-            width: 100%;
-            padding: 0.9rem 1rem;
-            padding-right: 50px;
-            border: 2px solid;
-            border-radius: 20px;
-            font-size: 1rem;
-            transition: 0.3s;
-        }
-        
-        .input-group input:focus { outline: none; border-color: #f97316; }
-        
-        .password-toggle {
-            position: absolute;
-            right: 18px;
-            top: 50%;
-            transform: translateY(-50%);
-            cursor: pointer;
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-        }
-        
-        .modal-btn {
-            width: 100%;
-            padding: 0.9rem;
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            color: white;
-            border: none;
-            border-radius: 20px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-top: 0.5rem;
-        }
-        
-        .modal-btn:hover { transform: scale(1.02); box-shadow: 0 10px 20px -5px rgba(249,115,22,0.3); }
-        
-        .modal-footer {
-            text-align: center;
-            margin-top: 1.2rem;
-            font-size: 0.85rem;
-        }
-        
-        .modal-footer a { color: #f97316; cursor: pointer; text-decoration: none; }
-        .close { float: right; font-size: 1.5rem; cursor: pointer; transition: 0.2s; }
-        .close:hover { color: #f97316; }
-        
-        .error-message {
-            color: #dc2626;
-            font-size: 0.8rem;
-            text-align: center;
-            margin-top: 0.5rem;
-            display: none;
-        }
-        
-        .forgot-link { text-align: right; margin-top: -0.5rem; margin-bottom: 1rem; }
-        .forgot-link a { color: #f97316; font-size: 0.8rem; cursor: pointer; }
-        
-        .admin-link { text-align: center; margin-top: 2rem; padding: 1rem; font-size: 0.7rem; }
-        .admin-link a { text-decoration: none; transition: color 0.3s; }
+        .modal-content h2 { margin-bottom: 1.5rem; text-align: center; color: #f97316; }
+        .modal-content input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
+        body.dark-mode .modal-content input { background: #0f172a; border-color: #334155; color: white; }
         
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
+            .nav-links { gap: 1rem; }
             .services-grid { gap: 1rem; }
-            .nav-buttons { gap: 0.5rem; }
-            .btn { padding: 0.4rem 1rem; font-size: 0.9rem; }
         }
     </style>
 </head>
 <body class="light-mode">
+    <!-- Navbar -->
     <nav class="navbar">
         <div class="logo">REAGAN'S <span>IT</span></div>
-        <div class="nav-buttons">
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#services">Services</a>
+            <a href="#howitworks">How It Works</a>
+            <a href="#contact">Contact</a>
             <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">🌙</button>
-            <button class="btn btn-primary" onclick="showLoginModal()">Login</button>
-            <button class="btn btn-outline" onclick="showRegisterModal()">Register</button>
+            <a href="#" onclick="showLoginModal()">Login</a>
+            <button class="btn btn-primary" onclick="showRegisterModal()">Register</button>
         </div>
     </nav>
 
-    <section class="hero">
+    <!-- Hero Section -->
+    <section id="home" class="hero">
         <h1>🚀 Reagan's IT Solutions</h1>
-        <p>Your Digital Assistant – Fast, Reliable, Affordable</p>
-        <button class="btn btn-primary" onclick="showRegisterModal()">Get Started →</button>
+        <p>Your Digital Assistant – Fast, Reliable, Affordable Computer Services in Kenya</p>
+        <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="showRegisterModal()">Get Started →</button>
+            <button class="btn btn-outline" onclick="window.location.href='#services'">View Services</button>
+        </div>
     </section>
 
-    <section class="services-section">
-        <h2 class="section-title">Our Services</h2>
+    <!-- Stats Section -->
+    <div class="stats-section">
+        <div class="stat-card">
+            <div class="stat-number" id="totalServicesStat">0</div>
+            <div class="stat-label">Services Offered</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">500+</div>
+            <div class="stat-label">Happy Customers</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">24/7</div>
+            <div class="stat-label">Online Support</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">100%</div>
+            <div class="stat-label">Satisfaction Guaranteed</div>
+        </div>
+    </div>
+
+    <!-- Services Section -->
+    <section id="services" class="services-section">
+        <h2 class="section-title">Our Computer Services</h2>
         <div class="services-grid" id="servicesGrid">Loading services...</div>
     </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits-section">
+        <h2 class="section-title">Why Choose Reagan's IT?</h2>
+        <div class="benefits-grid">
+            <div class="benefit-card">
+                <div class="benefit-icon">⚡</div>
+                <h3>Fast Turnaround</h3>
+                <p>Same-day delivery for most services</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">🔒</div>
+                <h3>100% Confidential</h3>
+                <p>Your data and documents are safe with us</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">💰</div>
+                <h3>Affordable Prices</h3>
+                <p>Quality service at competitive rates</p>
+            </div>
+            <div class="benefit-card">
+                <div class="benefit-icon">📞</div>
+                <h3>24/7 Support</h3>
+                <p>Call or WhatsApp anytime</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="howitworks" class="howitworks-section">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps-grid">
+            <div class="step">
+                <div class="step-number">1</div>
+                <h3>Register</h3>
+                <p>Create your free account in seconds</p>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <h3>Request Service</h3>
+                <p>Choose the service you need</p>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <h3>Get Results</h3>
+                <p>Receive your completed work via email</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials-section">
+        <h2 class="section-title">What Our Customers Say</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Reagan created my CV and I got a job within a week! Highly recommended."</p>
+                <p class="testimonial-name">— Mary W., Nairobi</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Fast and professional service. My KRA PIN was done in minutes."</p>
+                <p class="testimonial-name">— James K., Westlands</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">"Very affordable prices and excellent customer support."</p>
+                <p class="testimonial-name">— Aisha M., South B</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">How do I request a service? <span>▼</span></div>
+            <div class="faq-answer">Simply register an account, log in, browse our services, and click "Request Service" on any service you need.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">How long does it take? <span>▼</span></div>
+            <div class="faq-answer">Most services are completed within 24 hours. CV writing and document formatting are usually same-day.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">How do I pay? <span>▼</span></div>
+            <div class="faq-answer">We accept M-Pesa (Till: 9260276), bank transfer, or cash. Payment is required after service completion.</div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">Is my information secure? <span>▼</span></div>
+            <div class="faq-answer">Yes! We take privacy seriously. All documents are handled confidentially and deleted after delivery.</div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Ready to Get Your Computer Services Done?</h2>
+        <p>Join hundreds of satisfied customers who trust Reagan's IT Solutions.</p>
+        <button class="btn" onclick="showRegisterModal()">Register Now →</button>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-grid">
+            <div>
+                <h4>REAGAN'S IT</h4>
+                <p>Your trusted partner for professional computer services in Kenya.</p>
+            </div>
+            <div>
+                <h4>Quick Links</h4>
+                <a href="#home">Home</a>
+                <a href="#services">Services</a>
+                <a href="#howitworks">How It Works</a>
+                <a href="#" onclick="showLoginModal()">Login</a>
+            </div>
+            <div>
+                <h4>Contact</h4>
+                <a href="tel:0113166257">📞 0113 166 257</a>
+                <a href="mailto:jamhurireagan2@gmail.com">✉️ jamhurireagan2@gmail.com</a>
+                <a href="https://reagan-it-solutions.vercel.app">🌐 reagan-it-solutions.vercel.app</a>
+            </div>
+            <div>
+                <h4>M-Pesa Till</h4>
+                <p><strong>Business Number:</strong> 9260276</p>
+                <p><strong>Account Name:</strong> REAGAN IT</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2026 Reagan's IT Solutions. All rights reserved. Nairobi, Kenya.</p>
+        </div>
+    </footer>
+
+    <!-- WhatsApp Button -->
+    <a href="https://wa.me/254113166257" class="whatsapp-btn" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
 
     <!-- Login Modal -->
     <div id="loginModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeLoginModal()">&times;</span>
+            <span class="close" onclick="closeLoginModal()" style="float:right; font-size:1.5rem; cursor:pointer;">&times;</span>
             <h2>Welcome Back! 👋</h2>
-            <div class="input-group">
-                <input type="email" id="loginEmail" placeholder="📧 Email Address">
+            <input type="email" id="loginEmail" placeholder="📧 Email Address">
+            <input type="password" id="loginPassword" placeholder="🔒 Password">
+            <button class="btn btn-primary" onclick="userLogin()" style="width:100%; margin-top:1rem;">Login →</button>
+            <div style="text-align:center; margin-top:1rem;">
+                <a onclick="showForgotPasswordModal()" style="color:#f97316; cursor:pointer;">Forgot Password?</a>
             </div>
-            <div class="input-group">
-                <input type="password" id="loginPassword" placeholder="🔒 Password">
-                <button type="button" class="password-toggle" onclick="togglePassword('loginPassword')">👁️</button>
-            </div>
-            <div class="forgot-link"><a onclick="showForgotPasswordModal()">Forgot Password?</a></div>
-            <button class="modal-btn" onclick="userLogin()">Login →</button>
-            <div id="loginError" class="error-message"></div>
-            <div class="modal-footer">Don't have an account? <a onclick="switchToRegister()">Create one</a></div>
+            <div style="text-align:center; margin-top:0.5rem;">Don't have an account? <a onclick="switchToRegister()" style="color:#f97316; cursor:pointer;">Register</a></div>
         </div>
     </div>
 
     <!-- Register Modal -->
     <div id="registerModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeRegisterModal()">&times;</span>
+            <span class="close" onclick="closeRegisterModal()" style="float:right; font-size:1.5rem; cursor:pointer;">&times;</span>
             <h2>Create Account 🚀</h2>
-            <div class="input-group"><input type="text" id="regName" placeholder="👤 Full Name"></div>
-            <div class="input-group"><input type="email" id="regEmail" placeholder="📧 Email Address"></div>
-            <div class="input-group"><input type="tel" id="regPhone" placeholder="📱 Phone Number"></div>
-            <div class="input-group">
-                <input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)">
-                <button type="button" class="password-toggle" onclick="togglePassword('regPassword')">👁️</button>
-            </div>
-            <div class="input-group">
-                <input type="password" id="regConfirm" placeholder="✓ Confirm Password">
-                <button type="button" class="password-toggle" onclick="togglePassword('regConfirm')">👁️</button>
-            </div>
-            <div id="regError" class="error-message"></div>
-            <button class="modal-btn" onclick="register()">Register →</button>
-            <div class="modal-footer">Already have an account? <a onclick="switchToLogin()">Sign in</a></div>
+            <input type="text" id="regName" placeholder="👤 Full Name">
+            <input type="email" id="regEmail" placeholder="📧 Email Address">
+            <input type="tel" id="regPhone" placeholder="📱 Phone Number">
+            <input type="password" id="regPassword" placeholder="🔒 Password (min 6 chars)">
+            <input type="password" id="regConfirm" placeholder="✓ Confirm Password">
+            <div id="regError" style="color:red; font-size:0.8rem; display:none;"></div>
+            <button class="btn btn-primary" onclick="register()" style="width:100%; margin-top:1rem;">Register →</button>
+            <div style="text-align:center; margin-top:0.5rem;">Already have an account? <a onclick="switchToLogin()" style="color:#f97316; cursor:pointer;">Login</a></div>
         </div>
     </div>
 
     <!-- Forgot Password Modal -->
     <div id="forgotModal" class="modal">
         <div class="modal-content">
-            <span class="close" onclick="closeForgotModal()">&times;</span>
+            <span class="close" onclick="closeForgotModal()" style="float:right; font-size:1.5rem; cursor:pointer;">&times;</span>
             <h2>🔐 Reset Password</h2>
-            <p style="text-align:center; margin-bottom:1rem;">We'll send a reset link to your email</p>
-            <div class="input-group"><input type="email" id="resetEmail" placeholder="📧 Your Email Address"></div>
-            <div id="resetError" class="error-message"></div>
-            <div id="resetSuccess" class="error-message" style="color:#10b981;"></div>
-            <button class="modal-btn" onclick="sendPasswordReset()">Send Reset Link →</button>
-            <div class="modal-footer"><a onclick="closeForgotModal(); showLoginModal();">Back to Login</a></div>
+            <p>We'll send a reset link to your email</p>
+            <input type="email" id="resetEmail" placeholder="📧 Your Email Address">
+            <div id="resetError" style="color:red; font-size:0.8rem; display:none;"></div>
+            <div id="resetSuccess" style="color:green; font-size:0.8rem; display:none;"></div>
+            <button class="btn btn-primary" onclick="sendPasswordReset()" style="width:100%; margin-top:1rem;">Send Reset Link →</button>
         </div>
-    </div>
-
-    <div class="admin-link">
-        <a href="admin-simple.html">🔐 Admin Access</a>
     </div>
 
     <script>
@@ -400,24 +613,22 @@
                 localStorage.setItem('theme', 'light');
             }
         }
-        
+
         function loadTheme() {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
+            if (localStorage.getItem('theme') === 'dark') {
                 document.body.classList.remove('light-mode');
                 document.body.classList.add('dark-mode');
                 document.getElementById('themeToggle').textContent = '☀️';
             }
         }
 
-        // Session Management
-        const USER_SESSION_KEY = "userAuthenticated";
-        
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            field.type = field.type === 'password' ? 'text' : 'password';
+        // FAQ Toggle
+        function toggleFaq(element) {
+            const answer = element.nextElementSibling;
+            answer.classList.toggle('active');
         }
 
+        // Modal Functions
         function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
         function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
         function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
@@ -427,54 +638,34 @@
         function switchToRegister() { closeLoginModal(); showRegisterModal(); }
         function switchToLogin() { closeRegisterModal(); showLoginModal(); }
 
+        // Password Reset
         async function sendPasswordReset() {
             const email = document.getElementById('resetEmail').value;
             const errorDiv = document.getElementById('resetError');
             const successDiv = document.getElementById('resetSuccess');
             errorDiv.style.display = 'none';
             successDiv.style.display = 'none';
-            if (!email) {
-                errorDiv.textContent = '❌ Please enter your email';
-                errorDiv.style.display = 'block';
-                return;
-            }
+            if (!email) { errorDiv.textContent = 'Enter email'; errorDiv.style.display = 'block'; return; }
             try {
                 await auth.sendPasswordResetEmail(email);
-                successDiv.textContent = '✅ Reset link sent! Check your inbox AND spam/junk folder.';
+                successDiv.textContent = '✅ Reset link sent! Check your spam folder.';
                 successDiv.style.display = 'block';
-                setTimeout(() => {
-                    closeForgotModal();
-                    showLoginModal();
-                }, 4000);
-            } catch (error) {
-                errorDiv.textContent = error.code === 'auth/user-not-found' ? '❌ No account found' : '❌ Error sending reset link';
-                errorDiv.style.display = 'block';
-            }
+                setTimeout(() => { closeForgotModal(); showLoginModal(); }, 3000);
+            } catch(e) { errorDiv.textContent = 'Error sending reset link'; errorDiv.style.display = 'block'; }
         }
 
+        // Login
         async function userLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            const errorDiv = document.getElementById('loginError');
-            errorDiv.style.display = 'none';
-            
-            if (!email || !password) {
-                errorDiv.textContent = '❌ Please enter email and password';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
-                sessionStorage.setItem(USER_SESSION_KEY, 'true');
                 sessionStorage.setItem('userId', userCred.user.uid);
                 window.location.href = 'dashboard.html';
-            } catch (error) {
-                errorDiv.textContent = error.code === 'auth/user-not-found' ? '❌ No account found' : '❌ Invalid email or password';
-                errorDiv.style.display = 'block';
-            }
+            } catch(e) { alert('Invalid email or password'); }
         }
 
+        // Register
         async function register() {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
@@ -483,40 +674,21 @@
             const confirm = document.getElementById('regConfirm').value;
             const errorDiv = document.getElementById('regError');
             errorDiv.style.display = 'none';
-            
-            if (!name || !email || !phone || !password) {
-                errorDiv.textContent = '❌ Please fill all fields';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            if (password !== confirm) {
-                errorDiv.textContent = '❌ Passwords do not match';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            if (password.length < 6) {
-                errorDiv.textContent = '❌ Password must be at least 6 characters';
-                errorDiv.style.display = 'block';
-                return;
-            }
-            
+            if (!name || !email || !phone || !password) { errorDiv.textContent = 'Fill all fields'; errorDiv.style.display = 'block'; return; }
+            if (password !== confirm) { errorDiv.textContent = 'Passwords do not match'; errorDiv.style.display = 'block'; return; }
+            if (password.length < 6) { errorDiv.textContent = 'Password must be 6+ characters'; errorDiv.style.display = 'block'; return; }
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
-                await db.collection('users').doc(userCred.user.uid).set({
-                    name, email, phone, role: 'user', createdAt: new Date().toISOString()
-                });
-                alert('✅ Registration successful! Please login.');
+                await db.collection('users').doc(userCred.user.uid).set({ name, email, phone, role: 'user', createdAt: new Date().toISOString() });
+                alert('Registration successful! Please login.');
                 closeRegisterModal();
                 showLoginModal();
-            } catch (error) {
-                errorDiv.textContent = error.code === 'auth/email-already-in-use' ? '❌ Email already registered' : '❌ ' + error.message;
-                errorDiv.style.display = 'block';
-            }
+            } catch(e) { errorDiv.textContent = e.code === 'auth/email-already-in-use' ? 'Email already registered' : e.message; errorDiv.style.display = 'block'; }
         }
 
+        // Load Services
         async function loadServices() {
             const grid = document.getElementById('servicesGrid');
-            grid.innerHTML = '<div style="text-align:center;">Loading services...</div>';
             try {
                 const snapshot = await db.collection('services').orderBy('id').get();
                 let services = [];
@@ -537,29 +709,24 @@
                 } else {
                     snapshot.forEach(doc => services.push(doc.data()));
                 }
+                document.getElementById('totalServicesStat').innerText = services.length;
                 grid.innerHTML = services.map(s => `
                     <div class="service-card">
                         <div class="service-icon">${s.icon}</div>
                         <h3>${s.name}</h3>
                         <div class="service-price">KES ${s.price.toLocaleString()}</div>
-                        <button class="btn btn-outline" onclick="showLoginModal()">Login to Request</button>
+                        <button class="btn btn-outline" onclick="showLoginModal()">Request Service</button>
                     </div>
                 `).join('');
-            } catch(e) { grid.innerHTML = '<p>Error loading services. Refresh page.</p>'; }
+            } catch(e) { grid.innerHTML = '<p>Error loading services</p>'; }
         }
-        
+
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) event.target.style.display = 'none';
         }
-        
+
         loadTheme();
         loadServices();
     </script>
-    <script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log('Service Worker registered'));
-  }
-</script>
 </body>
 </html>
