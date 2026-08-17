@@ -2,7 +2,7 @@
   "name": "Reagan's IT Solutions",
   "short_name": "Reagan IT",
   "description": "Professional IT Services - CV, KRA PIN, SHA, Data Entry, Computer Training",
-  "start_url": "/",
+  "start_url": "/splash.html",
   "display": "standalone",
   "theme_color": "#f97316",
   "background_color": "#0f2b3d",
