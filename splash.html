@@ -1,172 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Splash Screen</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        /* ─── RESET ─── */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #0f2b3d, #1a3a4f);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0b1926;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
             overflow: hidden;
-        }
-        
-        /* Floating particles background */
-        .particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-        }
-        .particle {
-            position: absolute;
-            background: rgba(249, 115, 22, 0.15);
-            border-radius: 50%;
-            animation: floatParticle 8s infinite ease-in-out;
-        }
-        .particle:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 5%; animation-delay: 0s; }
-        .particle:nth-child(2) { width: 120px; height: 120px; top: 60%; right: 8%; animation-delay: 2s; }
-        .particle:nth-child(3) { width: 60px; height: 60px; bottom: 20%; left: 20%; animation-delay: 4s; }
-        .particle:nth-child(4) { width: 100px; height: 100px; top: 30%; right: 20%; animation-delay: 1s; }
-        .particle:nth-child(5) { width: 50px; height: 50px; bottom: 40%; left: 40%; animation-delay: 3s; }
-        
-        @keyframes floatParticle {
-            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
-            25% { transform: translate(30px, -40px) scale(1.2); opacity: 0.6; }
-            50% { transform: translate(-20px, -80px) scale(0.8); opacity: 0.4; }
-            75% { transform: translate(40px, -30px) scale(1.1); opacity: 0.7; }
-        }
-        
-        .splash-container {
-            text-align: center;
             position: relative;
-            z-index: 1;
-            animation: fadeInUp 0.8s ease;
         }
-        
-        /* Logo animation - pulse and glow */
+
+        /* ─── DYNAMIC GRADIENT ORB BACKGROUND ─── */
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: orbFloat 10s ease-in-out infinite alternate;
+        }
+        .orb--1 {
+            width: 400px;
+            height: 400px;
+            background: #f97316;
+            top: -10%;
+            right: -10%;
+        }
+        .orb--2 {
+            width: 350px;
+            height: 350px;
+            background: #0f2b3d;
+            bottom: -10%;
+            left: -10%;
+            animation-delay: 2s;
+        }
+        .orb--3 {
+            width: 200px;
+            height: 200px;
+            background: #ea580c;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: 4s;
+            opacity: 0.2;
+        }
+
+        @keyframes orbFloat {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+            100% {
+                transform: translate(40px, -30px) scale(1.1);
+            }
+        }
+
+        /* ─── GLASS CARD ─── */
+        .splash-container {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 3.5rem 3rem;
+            border-radius: 48px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+            min-width: 340px;
+            max-width: 90vw;
+        }
+
+        /* ─── LOGO WITH GRADIENT & GLOW ─── */
         .logo {
-            font-size: 4rem;
+            font-size: 3.2rem;
             font-weight: 800;
-            color: white;
-            animation: logoPulse 2s ease-in-out infinite, logoGlow 2s ease-in-out infinite;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 0%, #f97316 80%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: logoPulse 2.4s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px rgba(249, 115, 22, 0.15));
         }
+
         .logo span {
-            color: #f97316;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
+
         @keyframes logoPulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
+            0%,
+            100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.03);
+            }
         }
-        @keyframes logoGlow {
-            0%, 100% { text-shadow: 0 0 20px rgba(249, 115, 22, 0.2); }
-            50% { text-shadow: 0 0 40px rgba(249, 115, 22, 0.5), 0 0 80px rgba(249, 115, 22, 0.2); }
-        }
-        
+
+        /* ─── SUBTITLE ─── */
         .subtitle {
-            color: #94a3b8;
-            font-size: 1rem;
-            margin-top: 0.5rem;
-            letter-spacing: 3px;
-            animation: subtitleFade 1.5s ease-in-out infinite;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            margin-top: 0.6rem;
+            font-weight: 300;
+            animation: subtitleFade 2s ease-in-out infinite;
         }
-        
+
         @keyframes subtitleFade {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
+            0%,
+            100% {
+                opacity: 0.4;
+            }
+            50% {
+                opacity: 0.9;
+            }
         }
-        
-        /* Animated loading dots */
+
+        /* ─── DIVIDER ─── */
+        .divider {
+            width: 60px;
+            height: 2px;
+            margin: 1.5rem auto 1.8rem;
+            background: linear-gradient(90deg, transparent, #f97316, transparent);
+            border-radius: 2px;
+        }
+
+        /* ─── MODERN LOADER: DOTS WITH PULSE ─── */
         .loader {
-            margin-top: 2.5rem;
             display: flex;
             justify-content: center;
-            gap: 0.8rem;
+            gap: 10px;
         }
+
         .loader span {
-            width: 14px;
-            height: 14px;
-            background: #f97316;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
-            animation: bounce 1.4s infinite ease-in-out;
+            background: #f97316;
+            animation: dotBounce 1.2s ease-in-out infinite;
+            box-shadow: 0 0 12px rgba(249, 115, 22, 0.3);
         }
-        .loader span:nth-child(1) { animation-delay: 0s; }
-        .loader span:nth-child(2) { animation-delay: 0.2s; }
-        .loader span:nth-child(3) { animation-delay: 0.4s; }
-        .loader span:nth-child(4) { animation-delay: 0.6s; }
-        .loader span:nth-child(5) { animation-delay: 0.8s; }
-        
-        @keyframes bounce {
-            0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
-            40% { transform: scale(1.2); opacity: 1; }
+
+        .loader span:nth-child(1) {
+            animation-delay: 0s;
         }
-        
-        /* Loading bar */
+        .loader span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+        .loader span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+        .loader span:nth-child(4) {
+            animation-delay: 0.45s;
+        }
+        .loader span:nth-child(5) {
+            animation-delay: 0.6s;
+        }
+
+        @keyframes dotBounce {
+            0%,
+            80%,
+            100% {
+                transform: scale(0.4);
+                opacity: 0.3;
+            }
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* ─── PROGRESS BAR (GLASS) ─── */
         .loading-bar-container {
-            width: 200px;
+            width: 220px;
             height: 4px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
             margin: 2rem auto 0;
             overflow: hidden;
+            box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.4);
         }
+
         .loading-bar {
             width: 0%;
             height: 100%;
-            background: linear-gradient(90deg, #f97316, #ea580c);
-            border-radius: 4px;
-            animation: loadingProgress 5s linear forwards;
+            background: linear-gradient(90deg, #f97316, #ea580c, #f97316);
+            background-size: 200% 100%;
+            border-radius: 12px;
+            animation: loadingProgress 5s ease-in-out forwards, shimmer 1.5s infinite;
         }
-        
+
         @keyframes loadingProgress {
-            0% { width: 0%; }
-            20% { width: 15%; }
-            40% { width: 35%; }
-            60% { width: 55%; }
-            80% { width: 80%; }
-            100% { width: 100%; }
+            0% {
+                width: 0%;
+            }
+            20% {
+                width: 18%;
+            }
+            40% {
+                width: 38%;
+            }
+            60% {
+                width: 58%;
+            }
+            80% {
+                width: 82%;
+            }
+            100% {
+                width: 100%;
+            }
         }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        @keyframes shimmer {
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
         }
-        
-        /* Version text */
+
+        /* ─── TIMER TEXT ─── */
+        .timer-text {
+            color: rgba(255, 255, 255, 0.15);
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+            margin-top: 1rem;
+            font-weight: 300;
+        }
+
+        /* ─── VERSION BADGE ─── */
         .version {
             position: absolute;
-            bottom: 30px;
-            color: #64748b;
-            font-size: 0.7rem;
-            letter-spacing: 1px;
+            bottom: 28px;
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 0.65rem;
+            letter-spacing: 1.5px;
             z-index: 1;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 0.3rem 1rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(4px);
+        }
+
+        /* ─── ANIMATIONS ─── */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 480px) {
+            .splash-container {
+                padding: 2.5rem 1.5rem;
+                min-width: unset;
+                width: 92%;
+            }
+            .logo {
+                font-size: 2.4rem;
+            }
+            .loading-bar-container {
+                width: 160px;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Floating Particles -->
-    <div class="particles">
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-        <div class="particle"></div>
-    </div>
 
+    <!-- ─── ORBS ─── -->
+    <div class="orb orb--1"></div>
+    <div class="orb orb--2"></div>
+    <div class="orb orb--3"></div>
+
+    <!-- ─── SPLASH ─── -->
     <div class="splash-container">
         <div class="logo">REAGAN'S <span>IT</span></div>
         <div class="subtitle">Your Digital Assistant</div>
-        
-        <!-- Animated Loader -->
+
+        <div class="divider"></div>
+
         <div class="loader">
             <span></span>
             <span></span>
@@ -174,20 +311,22 @@
             <span></span>
             <span></span>
         </div>
-        
-        <!-- Loading Bar (5 seconds) -->
+
         <div class="loading-bar-container">
             <div class="loading-bar"></div>
         </div>
+
+        <div class="timer-text">Loading experience&hellip;</div>
     </div>
 
-    <div class="version">v2.0</div>
+    <div class="version">✦ v3.0</div>
 
     <script>
-        // Redirect to main page after 5 seconds
+        // ─── REDIRECT AFTER 5 SECONDS ───
         setTimeout(() => {
             window.location.href = '/index.html';
         }, 5000);
     </script>
+
 </body>
 </html>
