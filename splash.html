@@ -15,66 +15,179 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             overflow: hidden;
         }
+        
+        /* Floating particles background */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+        .particle {
+            position: absolute;
+            background: rgba(249, 115, 22, 0.15);
+            border-radius: 50%;
+            animation: floatParticle 8s infinite ease-in-out;
+        }
+        .particle:nth-child(1) { width: 80px; height: 80px; top: 10%; left: 5%; animation-delay: 0s; }
+        .particle:nth-child(2) { width: 120px; height: 120px; top: 60%; right: 8%; animation-delay: 2s; }
+        .particle:nth-child(3) { width: 60px; height: 60px; bottom: 20%; left: 20%; animation-delay: 4s; }
+        .particle:nth-child(4) { width: 100px; height: 100px; top: 30%; right: 20%; animation-delay: 1s; }
+        .particle:nth-child(5) { width: 50px; height: 50px; bottom: 40%; left: 40%; animation-delay: 3s; }
+        
+        @keyframes floatParticle {
+            0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.3; }
+            25% { transform: translate(30px, -40px) scale(1.2); opacity: 0.6; }
+            50% { transform: translate(-20px, -80px) scale(0.8); opacity: 0.4; }
+            75% { transform: translate(40px, -30px) scale(1.1); opacity: 0.7; }
+        }
+        
         .splash-container {
             text-align: center;
+            position: relative;
+            z-index: 1;
             animation: fadeInUp 0.8s ease;
         }
+        
+        /* Logo animation - pulse and glow */
         .logo {
-            font-size: 3.5rem;
+            font-size: 4rem;
             font-weight: 800;
             color: white;
+            animation: logoPulse 2s ease-in-out infinite, logoGlow 2s ease-in-out infinite;
         }
         .logo span {
             color: #f97316;
         }
+        
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        @keyframes logoGlow {
+            0%, 100% { text-shadow: 0 0 20px rgba(249, 115, 22, 0.2); }
+            50% { text-shadow: 0 0 40px rgba(249, 115, 22, 0.5), 0 0 80px rgba(249, 115, 22, 0.2); }
+        }
+        
         .subtitle {
             color: #94a3b8;
             font-size: 1rem;
             margin-top: 0.5rem;
-            letter-spacing: 2px;
+            letter-spacing: 3px;
+            animation: subtitleFade 1.5s ease-in-out infinite;
         }
+        
+        @keyframes subtitleFade {
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
+        }
+        
+        /* Animated loading dots */
         .loader {
-            margin-top: 2rem;
+            margin-top: 2.5rem;
             display: flex;
             justify-content: center;
-            gap: 0.5rem;
+            gap: 0.8rem;
         }
         .loader span {
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             background: #f97316;
             border-radius: 50%;
-            animation: bounce 5.0s infinite ease-in-out;
+            animation: bounce 1.4s infinite ease-in-out;
         }
+        .loader span:nth-child(1) { animation-delay: 0s; }
         .loader span:nth-child(2) { animation-delay: 0.2s; }
         .loader span:nth-child(3) { animation-delay: 0.4s; }
+        .loader span:nth-child(4) { animation-delay: 0.6s; }
+        .loader span:nth-child(5) { animation-delay: 0.8s; }
         
         @keyframes bounce {
             0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
-            40% { transform: scale(1); opacity: 1; }
+            40% { transform: scale(1.2); opacity: 1; }
         }
+        
+        /* Loading bar */
+        .loading-bar-container {
+            width: 200px;
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            margin: 2rem auto 0;
+            overflow: hidden;
+        }
+        .loading-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #f97316, #ea580c);
+            border-radius: 4px;
+            animation: loadingProgress 5s linear forwards;
+        }
+        
+        @keyframes loadingProgress {
+            0% { width: 0%; }
+            20% { width: 15%; }
+            40% { width: 35%; }
+            60% { width: 55%; }
+            80% { width: 80%; }
+            100% { width: 100%; }
+        }
+        
         @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
+            from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+        
+        /* Version text */
+        .version {
+            position: absolute;
+            bottom: 30px;
+            color: #64748b;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            z-index: 1;
         }
     </style>
 </head>
 <body>
+    <!-- Floating Particles -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
     <div class="splash-container">
         <div class="logo">REAGAN'S <span>IT</span></div>
         <div class="subtitle">Your Digital Assistant</div>
+        
+        <!-- Animated Loader -->
         <div class="loader">
             <span></span>
             <span></span>
             <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        
+        <!-- Loading Bar (5 seconds) -->
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
         </div>
     </div>
 
+    <div class="version">v2.0</div>
+
     <script>
-        // Redirect to main page after 2.5 seconds
+        // Redirect to main page after 5 seconds
         setTimeout(() => {
             window.location.href = '/index.html';
-        }, 2500);
+        }, 5000);
     </script>
 </body>
 </html>
