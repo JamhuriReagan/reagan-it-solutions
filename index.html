@@ -314,8 +314,10 @@
         }
         
         .whatsapp-btn:hover { transform: scale(1.1); }
-        
-        /* Modal */
+
+        /* ═══════════════════════════════════════════ */
+        /* ─── MODAL BASE (with ANIMATION) ─── */
+        /* ═══════════════════════════════════════════ */
         .modal {
             display: none;
             position: fixed;
@@ -323,32 +325,155 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.6);
+            background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(8px);
             justify-content: center;
             align-items: center;
             z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
-        
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
         .modal-content {
             background: white;
             padding: 2rem;
             border-radius: 28px;
             width: 90%;
             max-width: 400px;
-            animation: slideUp 0.3s ease;
+            transform: translateY(30px) scale(0.95);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            animation: none;
         }
-        
-        body.dark-mode .modal-content { background: #1e293b; }
-        
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
+
+        .modal.active .modal-content {
+            transform: translateY(0) scale(1);
+            opacity: 1;
         }
-        
-        .modal-content h2 { margin-bottom: 1.5rem; text-align: center; color: #f97316; }
-        .modal-content input { width: 100%; padding: 0.8rem; margin: 0.5rem 0; border: 1px solid #ddd; border-radius: 10px; }
-        body.dark-mode .modal-content input { background: #0f172a; border-color: #334155; color: white; }
+
+        body.dark-mode .modal-content {
+            background: #1e293b;
+            color: white;
+        }
+
+        /* Slide up animation */
+        @keyframes modalSlideUp {
+            from {
+                transform: translateY(40px) scale(0.95);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0) scale(1);
+                opacity: 1;
+            }
+        }
+
+        /* Shake animation for errors */
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-8px); }
+            20%, 40%, 60%, 80% { transform: translateX(8px); }
+        }
+
+        .modal-content.shake {
+            animation: shake 0.5s ease;
+        }
+
+        /* ─── INPUT FIELD ANIMATIONS ─── */
+        .modal-content input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .modal-content input:focus {
+            outline: none;
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+            transform: translateY(-2px);
+        }
+
+        body.dark-mode .modal-content input {
+            background: #0f172a;
+            border-color: #334155;
+            color: white;
+        }
+
+        /* ─── LOGIN BUTTON ANIMATIONS ─── */
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        /* Loading spinner */
+        .btn-primary.loading {
+            color: transparent;
+            pointer-events: none;
+        }
+
+        .btn-primary.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ─── PULSE ANIMATION FOR MODAL TITLE ─── */
+        .modal-content h2 {
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% { text-shadow: 0 0 10px rgba(249, 115, 22, 0.2); }
+            50% { text-shadow: 0 0 25px rgba(249, 115, 22, 0.5); }
+        }
+
+        /* ─── INPUT GROUP ─── */
+        .input-group {
+            position: relative;
+            margin-bottom: 1rem;
+        }
+
+        /* ─── SUCCESS CHECKMARK ANIMATION ─── */
+        @keyframes checkmark {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+
+        .success-check {
+            animation: checkmark 0.4s ease;
+        }
         
         @media (max-width: 768px) {
             .hero h1 { font-size: 2rem; }
@@ -540,14 +665,16 @@
         <i class="fab fa-whatsapp"></i>
     </a>
 
-    <!-- Login Modal -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- LOGIN MODAL WITH ANIMATION -->
+    <!-- ═══════════════════════════════════════════ -->
     <div id="loginModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" id="loginModalContent">
             <span class="close" onclick="closeLoginModal()" style="float:right; font-size:1.5rem; cursor:pointer;">&times;</span>
             <h2>Welcome Back! 👋</h2>
             <input type="email" id="loginEmail" placeholder="📧 Email Address">
             <input type="password" id="loginPassword" placeholder="🔒 Password">
-            <button class="btn btn-primary" onclick="userLogin()" style="width:100%; margin-top:1rem;">Login →</button>
+            <button class="btn btn-primary" id="loginBtn" onclick="userLogin()" style="width:100%; margin-top:1rem;">Login →</button>
             <div style="text-align:center; margin-top:1rem;">
                 <a onclick="showForgotPasswordModal()" style="color:#f97316; cursor:pointer;">Forgot Password?</a>
             </div>
@@ -555,9 +682,11 @@
         </div>
     </div>
 
-    <!-- Register Modal -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- REGISTER MODAL WITH ANIMATION -->
+    <!-- ═══════════════════════════════════════════ -->
     <div id="registerModal" class="modal">
-        <div class="modal-content">
+        <div class="modal-content" id="registerModalContent">
             <span class="close" onclick="closeRegisterModal()" style="float:right; font-size:1.5rem; cursor:pointer;">&times;</span>
             <h2>Create Account 🚀</h2>
             <input type="text" id="regName" placeholder="👤 Full Name">
@@ -571,7 +700,9 @@
         </div>
     </div>
 
-    <!-- Forgot Password Modal -->
+    <!-- ═══════════════════════════════════════════ -->
+    <!-- FORGOT PASSWORD MODAL -->
+    <!-- ═══════════════════════════════════════════ -->
     <div id="forgotModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeForgotModal()" style="float:right; font-size:1.5rem; cursor:pointer;">&times;</span>
@@ -628,15 +759,40 @@
             answer.classList.toggle('active');
         }
 
-        // Modal Functions
-        function showLoginModal() { document.getElementById('loginModal').style.display = 'flex'; }
-        function closeLoginModal() { document.getElementById('loginModal').style.display = 'none'; }
-        function showRegisterModal() { document.getElementById('registerModal').style.display = 'flex'; }
-        function closeRegisterModal() { document.getElementById('registerModal').style.display = 'none'; }
-        function showForgotPasswordModal() { closeLoginModal(); document.getElementById('forgotModal').style.display = 'flex'; }
-        function closeForgotModal() { document.getElementById('forgotModal').style.display = 'none'; }
-        function switchToRegister() { closeLoginModal(); showRegisterModal(); }
-        function switchToLogin() { closeRegisterModal(); showLoginModal(); }
+        // ═══ MODAL FUNCTIONS WITH ANIMATION ═══
+        function showLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.classList.add('active'));
+        }
+        function closeLoginModal() {
+            const modal = document.getElementById('loginModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        function showRegisterModal() {
+            const modal = document.getElementById('registerModal');
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.classList.add('active'));
+        }
+        function closeRegisterModal() {
+            const modal = document.getElementById('registerModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        function showForgotPasswordModal() {
+            closeLoginModal();
+            const modal = document.getElementById('forgotModal');
+            modal.style.display = 'flex';
+            requestAnimationFrame(() => modal.classList.add('active'));
+        }
+        function closeForgotModal() {
+            const modal = document.getElementById('forgotModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 300);
+        }
+        function switchToRegister() { closeLoginModal(); setTimeout(showRegisterModal, 300); }
+        function switchToLogin() { closeRegisterModal(); setTimeout(showLoginModal, 300); }
 
         // Password Reset
         async function sendPasswordReset() {
@@ -654,18 +810,34 @@
             } catch(e) { errorDiv.textContent = 'Error sending reset link'; errorDiv.style.display = 'block'; }
         }
 
-        // Login
+        // ═══ LOGIN WITH ANIMATIONS ═══
         async function userLogin() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const modalContent = document.getElementById('loginModalContent');
+
+            if (!email || !password) {
+                modalContent.classList.add('shake');
+                setTimeout(() => modalContent.classList.remove('shake'), 500);
+                return;
+            }
+
+            btn.classList.add('loading');
+
             try {
                 const userCred = await auth.signInWithEmailAndPassword(email, password);
                 sessionStorage.setItem('userId', userCred.user.uid);
                 window.location.href = 'dashboard.html';
-            } catch(e) { alert('Invalid email or password'); }
+            } catch(e) {
+                modalContent.classList.add('shake');
+                setTimeout(() => modalContent.classList.remove('shake'), 500);
+                btn.classList.remove('loading');
+                alert('Invalid email or password');
+            }
         }
 
-        // Register
+        // ═══ REGISTER WITH ANIMATIONS ═══
         async function register() {
             const name = document.getElementById('regName').value;
             const email = document.getElementById('regEmail').value;
@@ -673,16 +845,25 @@
             const password = document.getElementById('regPassword').value;
             const confirm = document.getElementById('regConfirm').value;
             const errorDiv = document.getElementById('regError');
+            const modalContent = document.getElementById('registerModalContent');
             errorDiv.style.display = 'none';
-            if (!name || !email || !phone || !password) { errorDiv.textContent = 'Fill all fields'; errorDiv.style.display = 'block'; return; }
-            if (password !== confirm) { errorDiv.textContent = 'Passwords do not match'; errorDiv.style.display = 'block'; return; }
+            if (!name || !email || !phone || !password) {
+                modalContent.classList.add('shake');
+                setTimeout(() => modalContent.classList.remove('shake'), 500);
+                errorDiv.textContent = 'Fill all fields'; errorDiv.style.display = 'block'; return;
+            }
+            if (password !== confirm) {
+                modalContent.classList.add('shake');
+                setTimeout(() => modalContent.classList.remove('shake'), 500);
+                errorDiv.textContent = 'Passwords do not match'; errorDiv.style.display = 'block'; return;
+            }
             if (password.length < 6) { errorDiv.textContent = 'Password must be 6+ characters'; errorDiv.style.display = 'block'; return; }
             try {
                 const userCred = await auth.createUserWithEmailAndPassword(email, password);
                 await db.collection('users').doc(userCred.user.uid).set({ name, email, phone, role: 'user', createdAt: new Date().toISOString() });
                 alert('Registration successful! Please login.');
                 closeRegisterModal();
-                showLoginModal();
+                setTimeout(showLoginModal, 300);
             } catch(e) { errorDiv.textContent = e.code === 'auth/email-already-in-use' ? 'Email already registered' : e.message; errorDiv.style.display = 'block'; }
         }
 
@@ -722,7 +903,10 @@
         }
 
         window.onclick = function(event) {
-            if (event.target.classList.contains('modal')) event.target.style.display = 'none';
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
+                setTimeout(() => event.target.style.display = 'none', 300);
+            }
         }
 
         loadTheme();
